@@ -1,0 +1,22 @@
+BLAS_1		= dcopy
+BLAS		= ${BLAS_1}
+TESTS 		= ${BLAS}
+CCC		= g++
+CCFLAGS		= -g -O2 -I../Include
+BLAS_DEPS 	= ../Src/blas
+SRC_DEPS	= ../Src/CDC8600.cc
+INC_DEPS	= ../Include/CDC8600.hh 
+DEPS		= ${INC_DEPS} ${SRC_DEPS} 
+BLAS_REF	= ../Blas
+
+all:	${TESTS}
+
+blasref:
+	bash -c "pushd ${BLAS_REF} && make && popd > /dev/null"
+
+# Rule for building BLAS test cases
+%::	%.cc ../Src/blas/%.cc ../Include/blas/%.hh blasref
+	${CCC} ${CCFLAGS} ${SRC_DEPS} $< ../Src/blas/$< ../Blas/*.o ${FLIBS} -lgfortran -o $@
+
+clean:
+	/bin/rm -rf ${TESTS}
