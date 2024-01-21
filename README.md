@@ -11,4 +11,4 @@ You will still need to checkout the repo into a working clone in your machine(s)
 
 Before starting any work of your own, **Sync fork** from the main repository to your private repo.
 And **Sync fork** again before asking for a *pull request*, to make sure there are no conflicts.
-When you are ready to move your contribution ot the main repository, click the **Contribute** button and ask for a *pull request*.
+When you are ready to move your contribution to the main repository, click the **Contribute** button and ask for a *pull request*.
