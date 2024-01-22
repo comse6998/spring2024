@@ -44,8 +44,6 @@ void test_dcopy(int count)
 
 int main()
 {
-    cout << "sizeof(word) = " << sizeof(word) << " bytes" << endl;
-
     for (int i = 0; i < N; i++)
     {
         test_dcopy(i);

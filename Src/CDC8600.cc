@@ -13,7 +13,6 @@ namespace CDC8600
         uint8_t	i
     )
     {
-	cout << "MEM[" << XA*32 + i << "] = " << MEM[XA*32+i].u() << endl;
 	return MEM[XA*32 + i];
     }
 
@@ -31,9 +30,7 @@ namespace CDC8600
         u64	N
     )
     {
-	cout << "FreeMEM = " << FreeMEM << endl;
 	void *addr = &(MEM[FreeMEM]);
-	cout << "addr = " << addr << endl;
 	FreeMEM += N;
 	return addr;
     }
