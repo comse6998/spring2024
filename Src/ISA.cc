@@ -10,7 +10,8 @@ namespace CDC8600
 	    uint8_t Xj
 	)
 	{
-	    assert(false);
+	    if (0 == PROC.X(Xj).u()) return true;
+	    else return false;
 	}
 	
         void xkj
@@ -19,7 +20,9 @@ namespace CDC8600
 	    uint8_t k
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    assert(k < 16);
+	    PROC.X(Xj).u() = k;
 	}
 
         void rdjki
