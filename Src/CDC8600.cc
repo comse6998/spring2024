@@ -24,4 +24,9 @@ namespace CDC8600
 	void *addr = &(MEM[FreeMEM]);
 	FreeMEM += N;
     }
+
+    call0 Call(void (*f)())
+    {
+	return call0(f);
+    }
 } // namespace 8600
