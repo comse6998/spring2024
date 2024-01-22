@@ -10,8 +10,7 @@ namespace CDC8600
 	    uint8_t Xj
 	)
 	{
-	    if (PROC.X(Xj).u() == 0) return true;
-	    else return false;
+	    assert(false);
 	}
 	
         void xkj
@@ -20,7 +19,7 @@ namespace CDC8600
 	    uint8_t k
 	)
 	{
-	    PROC.X(Xj).u() = k;
+	    assert(false);
 	}
 
         void rdjki
@@ -30,7 +29,7 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    PROC.X(Xi) = MEM[PROC.X(Xj).i() + PROC.X(Xk).i()];
+	    assert(false);
 	}
 
         void sdjki
@@ -40,7 +39,7 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    MEM[PROC.X(Xj).i() + PROC.X(Xk).i()] = PROC.X(Xi);
+	    assert(false);
 	}
 
         void isjki
@@ -50,7 +49,7 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    PROC.X(Xi).i() = PROC.X(Xj).i() + PROC.X(Xk).i();
+	    assert(false);
 	}
 	
         void idjkj
@@ -59,7 +58,7 @@ namespace CDC8600
 	    uint8_t k
 	)
 	{
-	    PROC.X(Xj).i() = PROC.X(Xj).i() - k;
+	    assert(false);
 	}
    } // namespace instructions
 } // namespace CDC8600
