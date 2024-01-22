@@ -7,6 +7,14 @@ namespace CDC8600
     uint32_t		FreeMEM;
     Processor		PROC;
 
+    word& Processor::X
+    (
+        uint8_t	i
+    )
+    {
+	assert(false);
+    }
+
     void reset
     (
     )
