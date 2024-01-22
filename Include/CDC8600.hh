@@ -5,6 +5,7 @@
 #include<stdint.h>
 #include<assert.h>
 #include<vector>
+#include<iostream>
 
 using namespace std;
 
@@ -43,7 +44,8 @@ namespace CDC8600
 		return *this;
 	    }
 
-	    u64& u() { return _data.u; }
+	    u64& u() { return _data.u; } 
+	    u64  u() const { return _data.u; }
 	    i64& i() { return _data.i; }
     };
 
@@ -78,11 +80,13 @@ namespace CDC8600
 
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
-	    PROC.X(0).u() = arg1;
+	    PROC.X(0).u() = arg1;			// cout << "X(0) = " << PROC.X(0).u() << endl;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[0]);
 	    PROC.X(2).i() = arg3;
-	    PROC.X(4).u() = (word*)arg4 - &(MEM[0]);
-	    PROC.X(5).i() = arg5;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[0]);
+	    PROC.X(4).i() = arg5;
+
+	    _f();
 	}
     };
 
