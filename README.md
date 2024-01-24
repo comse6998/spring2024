@@ -17,6 +17,7 @@ You can create the working clone with:
 You also need to set the original repository as the *upstream* repo:
 
 >    cd `<project>`
+> 
 >    git remote add upstream https://github.com/comse6998/spring2024.git
 
 Once you have done this, the class repo is the *upstream* repo for your working clone, and your own fork is the *origin* repo.
