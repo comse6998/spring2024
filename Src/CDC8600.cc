@@ -13,7 +13,7 @@ namespace CDC8600
         uint8_t	i
     )
     {
-	return MEM[XA*32 + i];
+	return MEM[_XA*32 + i];
     }
 
     void reset
@@ -22,7 +22,7 @@ namespace CDC8600
     {
 	for (uint32_t i = 0; i < params::MEM::N; i++) MEM[i].u() = 0;
 	FreeMEM = 256*32;
-	PROC.XA = 0;
+	PROC._XA = 0;
     }
 
     void *memalloc

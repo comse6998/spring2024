@@ -51,6 +51,10 @@ namespace CDC8600
 
     template<int n> class reg
     {
+	public:
+
+	    u64 u();
+	    i64 i();
     };
 
     class Processor
@@ -59,13 +63,14 @@ namespace CDC8600
 
 	public:
 
-	    uint8_t	XA;
-	    word&	X(uint8_t);
-	    reg<4>	mode();
-	    reg<8>	cond();
-	    reg<12>	RA();
-	    reg<12>	FL();
-	    reg<20>	P();
+	    uint8_t	_XA;		// The address of the current exchange packet	
+	    word&	X(uint8_t i);	// Xi register in current exchange packet
+	    reg<4>	mode();		// mode field of current XPW
+	    reg<8>	cond();		// cond field of current XPW
+	    reg<12>	RA();		// RA field of current XPW
+	    reg<8>	XA();		// XA field of current XPW
+	    reg<12>	FL();		// FL field of current XPW
+	    reg<20>	P();		// P field of current XPW
     };
 
     extern vector<word>	MEM;
