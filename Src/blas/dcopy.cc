@@ -8,21 +8,21 @@ namespace CDC8600
     {
         void dcopy(u64 n, f64 *x, i64 incx, f64 *y, i64 incy)
         {
-            Call(dcopy_asm)(n, x, incx, y, incy);
+            Call(dcopy_cpp)(n, x, incx, y, incy);
         }
 
         void dcopy_cpp(u64 n, f64 *x, i64 incx, f64 *y, i64 incy)
         {
-	    i64 ix = 0;
-	    i64 iy = 0;
-	    if (incx < 0) ix = (-n+1)*incx;
-	    if (incy < 0) iy = (-n+1)*incy;
-	    while (n != 0)
+	    i64 ix = 0;				// First element of x
+	    i64 iy = 0;				// First element of y
+	    if (incx <= 0) ix = (-n+1)*incx;	// If incx <= 0, start with last element of x
+	    if (incy <= 0) iy = (-n+1)*incy;	// If incy <= 0, start with last element of y
+	    while (n != 0)			// Any elements left?
 	    {
-		y[iy] = x[ix];
-		ix += incx;
-		iy += incy;
-		n--;
+		y[iy] = x[ix];			// Copy element
+		ix += incx;			// Next element of x
+		iy += incy;			// Next element of y
+		n--;				// Decrement element count
 	    }
         }
 

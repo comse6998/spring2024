@@ -8,7 +8,11 @@ SRC_DEPS	= ../Src/CDC8600.cc ../Src/ISA.cc
 INC_DEPS	= ../Include/CDC8600.hh 
 DEPS		= ${INC_DEPS} ${SRC_DEPS} 
 BLAS_REF	= ../Blas
-FLIBS		= -L/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/
+ifneq ($(wildcard /opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/.),)
+FLIBS = -L/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/
+else
+FLIBS =
+endif
 
 all:	${TESTS}
 
