@@ -20,16 +20,19 @@ You also need to set the original repository as the *upstream* repo:
 > 
 >    git remote add upstream https://github.com/comse6998/spring2024.git
 
-Once you have done this, the class repo is the *upstream* repo for your working clone, and your own fork is the *origin* repo.
+Once you have done this, the class repo is the *upstream* repo for your working clone, and your own fork is the *origin* repo, as illustrated in this figure:
+
+![Repos](repos.png)
 
 Before starting any work of your own, you need to update your working clone with the changes that may have happened in the upstream repo.
 You can do that with:
 
 >  git fetch upstream
+> 
 >  git merge upstream/main main
 
-After you've resolved all merge conflicts, you should commit and then push to your forked repo.
-Now both your working clone and your forked repo are update from the upstream repo.
+After you have resolved all merge conflicts, you should commit and then push to your forked repo.
+Now both your working clone and your forked repo are updated from the upstream repo.
 When you are ready to move your contribution to the main repository, click the **Contribute** button on your forked repo and ask for a *pull request*.
 
 Keep situational awareness! 
