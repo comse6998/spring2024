@@ -21,7 +21,7 @@ You also need to set the original repository as the *upstream* repo:
 >    git remote add upstream https://github.com/comse6998/spring2024.git
 
 Once you have done this, the class repo is the *upstream* repo for your working clone, and your own fork is the *origin* repo, as illustrated in this figure
-(See more details [here](https://stackoverflow.com/questions/3903817/pull-new-updates-from-original-github-repository-into-forked-github-repository)):
+(see more details [here](https://stackoverflow.com/questions/3903817/pull-new-updates-from-original-github-repository-into-forked-github-repository)):
 
 ![Repos](repos.png)
 
