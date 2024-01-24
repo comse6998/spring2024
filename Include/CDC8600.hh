@@ -49,6 +49,10 @@ namespace CDC8600
 	    i64& i() { return _data.i; }
     };
 
+    template<int n> class reg
+    {
+    };
+
     class Processor
     {
 	private:
@@ -57,6 +61,11 @@ namespace CDC8600
 
 	    uint8_t	XA;
 	    word&	X(uint8_t);
+	    reg<4>	mode();
+	    reg<8>	cond();
+	    reg<12>	RA();
+	    reg<12>	FL();
+	    reg<20>	P();
     };
 
     extern vector<word>	MEM;
