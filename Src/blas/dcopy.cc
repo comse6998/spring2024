@@ -20,8 +20,8 @@ namespace CDC8600
 	    while (n != 0)			// Any elements left?
 	    {
 		y[iy] = x[ix];			// Copy element
-		ix += incx;			// Next element of x
 		iy += incy;			// Next element of y
+		ix += incx;			// Next element of x
 		n--;				// Decrement element count
 	    }
         }
