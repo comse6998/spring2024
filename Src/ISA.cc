@@ -5,7 +5,7 @@ namespace CDC8600
 {
    namespace instructions
    {   
-        bool jmpz
+        bool jmpz // Jump to P + K if (Xj) equal to 0 				(p94)
 	(
 	    uint8_t Xj
 	)
@@ -15,12 +15,14 @@ namespace CDC8600
 	    else return false;
 	}
 
-	bool jmpp
+	bool jmpp  // Jump to P + K if (Xj) positive 				(p98)
 	(
 	    uint8_t Xj
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    if (0 < PROC.X(Xj).i()) return true;
+	    else return false;
 	}
 	
         void xkj
@@ -34,14 +36,17 @@ namespace CDC8600
 	    PROC.X(Xj).u() = k;
 	}
 
-        void rdjki
+        void rdjki // Xi = MEM[Xj + Xk]
 	(
 	    uint8_t Xi, 
 	    uint8_t Xj, 
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xi < 16);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+		PROC.X(Xi).i() = MEM[PROC.X(Xj).u() + PROC.X(Xk).i()].i();
 	}
 
         void sdjki
@@ -51,53 +56,68 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xi < 16);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+		MEM[PROC.X(Xj).u() + PROC.X(Xk).i()].i() = PROC.X(Xi).i();
+	
 	}
 
-        void isjki
+        void isjki  
 	(
 	    uint8_t Xi, 
 	    uint8_t Xj, 
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xi < 16);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+		PROC.X(Xi).i() = PROC.X(Xj).i() + PROC.X(Xk).i();
 	}
 	
-        void idjkj
+        void idjkj //Xj = Xj - k
 	(
 	    uint8_t Xj, 
 	    uint8_t k
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    assert(k < 16);
+		PROC.X(Xj).i() = PROC.X(Xj).i() - k;
 	}
 
-	void idzkj
+	void idzkj // Xj = -Xk
 	(
 	   uint8_t Xj,
 	   uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    assert(Xk < 16);
+	    PROC.X(Xj).i() = (-1) * PROC.X(Xk).i();
 	}
 
-	void isjkj
+	void isjkj  //Xj = Xj + k
 	(
 	    uint8_t Xj,
 	    uint8_t k
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    assert(k < 16);
+		PROC.X(Xj).i() = PROC.X(Xj).i() + k;
 	}
 
-	void ipjkj
+	void ipjkj // Xj = Xj * Xk
 	(
 	    uint8_t Xj,
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    assert(Xk < 16);
+	    PROC.X(Xj).i() = PROC.X(Xj).i() * PROC.X(Xk).i();
 	}
    } // namespace instructions
 } // namespace CDC8600
