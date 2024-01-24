@@ -116,12 +116,17 @@ namespace CDC8600
 
     namespace instructions
     {
-	bool jmpz(uint8_t);			// Jump to P + K if (Xj) equal to 0 (p94)
-	void xkj(uint8_t, uint8_t);		// Transmit k to Xj (p55)
-	void rdjki(uint8_t, uint8_t, uint8_t);	// Read data at address (Xj) + (Xk) to (Xi)
-	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj) + (Xk) from Xi
-	void isjki(uint8_t, uint8_t, uint8_t);	// Integer sum of (Xj) plus (Xk) to Xi
-	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj (p58)
+	bool jmpz(uint8_t);			// Jump to P + K if (Xj) equal to 0 				(p94)
+	bool jmpp(uint8_t);			// Jump to P + K if (Xj) positive 				(p98)
+	void compkj(uint8_t, uint8_t);		// Copy complement of (Xk) to Xj 				(p41)
+	void xkj(uint8_t, uint8_t);		// Transmit k to Xj 						(p55)
+	void rdjki(uint8_t, uint8_t, uint8_t);	// Read data at address (Xj) + (Xk) to (Xi)			(p133)
+	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj) + (Xk) from Xi			(p135)
+	void isjki(uint8_t, uint8_t, uint8_t);	// Integer sum of (Xj) plus (Xk) to Xi				(p122)
+	void ipjkj(uint8_t, uint8_t);		// Integer product of (Xj) times (Xk) to Xj 			(p52)
+	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj 			(p58)
+	void isjkj(uint8_t, uint8_t);		// Integer sum of (Xj) plus k to Xj 				(p57)
+	void idzkj(uint8_t, uint8_t);		// Integer difference of zero minus (Xk) to Xj 			(p62)
     } // namespace instructions
 } // namespace CDC8600
 
