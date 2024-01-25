@@ -12,6 +12,8 @@ using namespace std;
 namespace CDC8600
 {
     typedef uint64_t	u64;
+    typedef uint32_t	u32;
+    typedef uint8_t	u08;
     typedef int64_t	i64;
     typedef double	f64;
 
@@ -51,10 +53,16 @@ namespace CDC8600
 
     template<int n> class reg
     {
+	private:
+	    u32	_loc;	// location of memory word containing this register
+	    u08 _first;	// first bit in word for this register
+	    u08 _len;	// length of register in bits
 	public:
 
 	    u64 u();
 	    i64 i();
+	    reg<1> operator()(uint8_t);
+	    reg<n>& operator=(bool);
     };
 
     class Processor
@@ -141,6 +149,7 @@ namespace CDC8600
 	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj 			(p58)
 	void isjkj(uint8_t, uint8_t);		// Integer sum of (Xj) plus k to Xj 				(p57)
 	void idzkj(uint8_t, uint8_t);		// Integer difference of zero minus (Xk) to Xj 			(p62)
+	void rdKj(uint8_t, uint32_t);		// Read data at address K to Xj					(p74)
     } // namespace instructions
 } // namespace CDC8600
 

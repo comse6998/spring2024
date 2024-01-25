@@ -8,7 +8,7 @@ namespace CDC8600
     {
         void dcopy(u64 n, f64 *x, i64 incx, f64 *y, i64 incy)
         {
-            Call(dcopy_cpp)(n, x, incx, y, incy);
+            Call(dcopy_asm)(n, x, incx, y, incy);
         }
 
         void dcopy_cpp(u64 n, f64 *x, i64 incx, f64 *y, i64 incy)
