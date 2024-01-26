@@ -4,6 +4,8 @@
 #include <CDC8600.hh>
 
 // 1. Branch Facility
+
+// {} is to make sure we don't have weird things happening
 #define LABEL(L)                                                                                                       \
     L : {                                                                                                              \
     }
