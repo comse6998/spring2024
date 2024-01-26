@@ -32,7 +32,14 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+		cout << "X(Xj)" << PROC.X(Xj).u() << endl;
+		cout << "X(Xk)" << PROC.X(Xk).u() << endl;
+	    assert(Xi < 16);
+		assert(Xj < 16);
+		assert(Xk < 16);
+		assert(PROC.X(Xj).u()+PROC.X(Xk).u() >= 256 * 32); // In legal memory region
+		assert(PROC.X(Xj).u()+PROC.X(Xk).u() < FreeMEM);   // In legal memory region
+		PROC.X(Xi).u() = MEM[PROC.X(Xj).u()+PROC.X(Xk).u()].u();
 	}
 
         void sdjki
