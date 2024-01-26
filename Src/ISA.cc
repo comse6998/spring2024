@@ -20,7 +20,9 @@ namespace CDC8600
 	    uint8_t Xj
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    if (PROC.X(Xj).i() > 0) return true;
+	    else return false;
 	}
 	
         void xkj
@@ -41,7 +43,14 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xi < 16);
+	    assert(Xj < 16);
+	    assert(Xk < 16);
+
+		// Good
+		uint32_t addr = PROC.RA().u()*256 + PROC.X(Xj).u() + PROC.X(Xk).u();	// Architected address
+		assert(addr < params::MEM::N);		// Check against hardware limit
+		PROC.X(Xi) = MEM[addr];
 	}
 
         void sdjki
@@ -51,7 +60,12 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xi < 16);
+	    assert(Xj < 16);
+	    assert(Xk < 16);
+		uint32_t addr = PROC.RA().u()*256 + PROC.X(Xj).u() + PROC.X(Xk).u();	// Architected address
+		// assert(addr < params::MEM::N);		// Check against hardware limit
+		MEM[addr] = PROC.X(Xi);
 	}
 
         void isjki
@@ -61,7 +75,10 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+		assert(Xi < 16);
+		assert(Xj < 16);
+		assert(Xk < 16);
+	    PROC.X(Xi).u() = PROC.X(Xj).u() + PROC.X(Xk).u();
 	}
 	
         void idjkj
@@ -70,7 +87,9 @@ namespace CDC8600
 	    uint8_t k
 	)
 	{
-	    assert(false);
+		assert(Xj < 16);
+		assert(k < 16);
+	    PROC.X(Xj).u() = PROC.X(Xj).u() - k;
 	}
 
 	void idzkj
@@ -79,7 +98,9 @@ namespace CDC8600
 	   uint8_t Xk
 	)
 	{
-	    assert(false);
+		assert(Xj < 16);
+	    assert(Xk < 16);
+	    PROC.X(Xj).i() = 0 - PROC.X(Xk).i();
 	}
 
 	void isjkj
@@ -88,7 +109,9 @@ namespace CDC8600
 	    uint8_t k
 	)
 	{
-	    assert(false);
+		assert(Xj < 16);
+		assert(k < 16);
+	    PROC.X(Xj).u() = PROC.X(Xj).u() + k;
 	}
 
 	void ipjkj
@@ -97,7 +120,9 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+		assert(Xj < 16);
+	    assert(Xk < 16);
+	    PROC.X(Xj).i() = PROC.X(Xj).i() * PROC.X(Xk).i();
 	}
 
 	void rdKj
