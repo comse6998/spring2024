@@ -12,6 +12,8 @@ using namespace std;
 namespace CDC8600
 {
     typedef uint64_t	u64;
+    typedef uint32_t	u32;
+    typedef uint8_t	u08;
     typedef int64_t	i64;
     typedef double	f64;
 
@@ -49,14 +51,35 @@ namespace CDC8600
 	    i64& i() { return _data.i; }
     };
 
+    template<int n> class reg
+    {
+	private:
+	    u32	_loc;	// location of memory word containing this register
+	    u08 _first;	// first bit in word for this register
+	public:
+
+	    reg(u32 loc, u08 first) : _loc(loc), _first(first) { assert(n <= 20); assert(_first + n <= 64); }
+	    u64 u();
+	    i64 i();
+	    reg<1> operator()(uint8_t);
+	    reg<n>& operator=(bool);
+	    reg<n>& operator=(u64);
+    };
+
     class Processor
     {
 	private:
 
 	public:
 
-	    uint8_t	XA;
-	    word&	X(uint8_t);
+	    uint8_t	_XA;		// The address of the current exchange packet	
+	    word&	X(uint8_t i);	// Xi register in current exchange packet
+	    reg<4>	mode();		// mode field of current XPW
+	    reg<8>	cond();		// cond field of current XPW
+	    reg<12>	RA();		// RA field of current XPW
+	    reg<8>	XA();		// XA field of current XPW
+	    reg<12>	FL();		// FL field of current XPW
+	    reg<20>	P();		// P field of current XPW
     };
 
     extern vector<word>	MEM;
@@ -116,12 +139,18 @@ namespace CDC8600
 
     namespace instructions
     {
-	bool jmpz(uint8_t);			// Jump to P + K if (Xj) equal to 0 (p94)
-	void xkj(uint8_t, uint8_t);		// Transmit k to Xj (p55)
-	void rdjki(uint8_t, uint8_t, uint8_t);	// Read data at address (Xj) + (Xk) to (Xi)
-	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj) + (Xk) from Xi
-	void isjki(uint8_t, uint8_t, uint8_t);	// Integer sum of (Xj) plus (Xk) to Xi
-	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj (p58)
+	bool jmpz(uint8_t);			// Jump to P + K if (Xj) equal to 0 				(p94)
+	bool jmpp(uint8_t);			// Jump to P + K if (Xj) positive 				(p98)
+	void compkj(uint8_t, uint8_t);		// Copy complement of (Xk) to Xj 				(p41)
+	void xkj(uint8_t, uint8_t);		// Transmit k to Xj 						(p55)
+	void rdjki(uint8_t, uint8_t, uint8_t);	// Read data at address (Xj) + (Xk) to (Xi)			(p133)
+	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj) + (Xk) from Xi			(p135)
+	void isjki(uint8_t, uint8_t, uint8_t);	// Integer sum of (Xj) plus (Xk) to Xi				(p122)
+	void ipjkj(uint8_t, uint8_t);		// Integer product of (Xj) times (Xk) to Xj 			(p52)
+	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj 			(p58)
+	void isjkj(uint8_t, uint8_t);		// Integer sum of (Xj) plus k to Xj 				(p57)
+	void idzkj(uint8_t, uint8_t);		// Integer difference of zero minus (Xk) to Xj 			(p62)
+	void rdKj(uint8_t, uint32_t);		// Read data at address K to Xj					(p74)
     } // namespace instructions
 } // namespace CDC8600
 
