@@ -20,14 +20,19 @@ namespace CDC8600
     (
     )
     {
-	assert(false);
+        reg<12> ret;
+        return ret;
+        //ret.u() = MEM[_XA*32].u();
+        //ret.u() = (ret.u() & 0x00000000fff00000) >> 20;
+	    //return ret; //Return bits 20-31 of current exchange parcel
     }
 
     reg<12> Processor::RA
     (
     )
     {
-	assert(false);
+	    reg<12> ret;
+        return ret;
     }
 
     reg<8> Processor::XA
@@ -47,7 +52,8 @@ namespace CDC8600
     template<int n> 
     u64	reg<n>::u()
     {
-	assert(false);
+    //assert(false);
+    return this->u();
     }
 
     template<int n>
