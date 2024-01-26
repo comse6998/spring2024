@@ -56,13 +56,14 @@ namespace CDC8600
 	private:
 	    u32	_loc;	// location of memory word containing this register
 	    u08 _first;	// first bit in word for this register
-	    u08 _len;	// length of register in bits
 	public:
 
+	    reg(u32 loc, u08 first) : _loc(loc), _first(first) { assert(n <= 20); assert(_first + n <= 64); }
 	    u64 u();
 	    i64 i();
 	    reg<1> operator()(uint8_t);
 	    reg<n>& operator=(bool);
+	    reg<n>& operator=(u64);
     };
 
     class Processor
