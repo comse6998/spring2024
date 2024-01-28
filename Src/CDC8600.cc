@@ -16,38 +16,55 @@ namespace CDC8600
 	return MEM[_XA*32 + i];
     }
 
+    reg<20> Processor::P
+    (
+    )
+    {
+	return reg<20>(_XA*32+16, 0);
+    }
+
     reg<12> Processor::FL
     (
     )
     {
-	assert(false);
-    }
-
-    reg<12> Processor::RA
-    (
-    )
-    {
-	assert(false);
+	return reg<12>(_XA*32+16, 20);
     }
 
     reg<8> Processor::XA
     (
     )
     {
-	assert(false);
+	return reg<8>(_XA*32+16, 32);
+    }
+
+    reg<12> Processor::RA
+    (
+    )
+    {
+	return reg<12>(_XA*32+16, 40);
     }
 
     reg<8> Processor::cond
     (
     )
     {
-	assert(false);
+	return reg<8>(_XA*32+16, 52);
+    }
+
+    reg<4> Processor::mode
+    (
+    )
+    {
+	return reg<4>(_XA*32+16, 60);
     }
 
     template<int n> 
     u64	reg<n>::u()
     {
-	assert(false);
+	u64 v = MEM[_loc].u();
+	v = v >> _first;
+	v = v & ((1UL << n) - 1);
+	return v;
     }
 
     template<int n>
@@ -68,6 +85,19 @@ namespace CDC8600
 	assert(false);
     }
 
+    template<int n>
+    reg<n>& reg<n>::operator=
+    (
+        u64 u
+    )
+    {
+	assert (u < (1UL << n));
+	u64 v = MEM[_loc].u();
+	u64 left = v >> (_first + n);
+	u64 right = v & ((1UL << _first) - 1);
+	MEM[_loc].u() = (left << (_first + n)) + (u << _first) + right;
+    }
+
     void reset
     (
     )
@@ -75,6 +105,7 @@ namespace CDC8600
 	for (uint32_t i = 0; i < params::MEM::N; i++) MEM[i].u() = 0;
 	FreeMEM = 256*32;
 	PROC._XA = 0;
+	PROC.FL() = (u64)(params::MEM::N / 256);
     }
 
     void *memalloc
