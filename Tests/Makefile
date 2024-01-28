@@ -1,4 +1,4 @@
-BLAS_1		= dcopy
+BLAS_1		= dcopy zcopy
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC		= g++
@@ -26,3 +26,4 @@ blasref:
 
 clean:
 	/bin/rm -rf ${TESTS}
+	bash -c "pushd ${BLAS_REF} && make clean && popd > /dev/null"
