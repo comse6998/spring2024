@@ -1,6 +1,6 @@
 # BLAS (Basic Linear Algebra Subprograms) [https://www.netlib.org/blas/](https://www.netlib.org/blas/)
 
-You can find the source code [here](https://netlib.org/lapack/explore-html/dir_fa94b7b114d387a7a8beb2e3e22bf78d.html)
+You can find the documentation [here](https://netlib.org/lapack/explore-html/dir_fa94b7b114d387a7a8beb2e3e22bf78d.html) and the source files in [github](https://github.com/xianyi/netlib_blas).
 
 # Introduction
 
@@ -21,7 +21,7 @@ We will start by focusing on LEVEL 1 BLAS routines in double and double complex 
 | DSWAP       | ZSWAP          |
 | DSCAL       | ZSCAL          |
 |             | ZSCAL          |
-| DCOPY       | ZCOPY          |
+| [DCOPY](https://github.com/comse6998/spring2024/blob/main/Blas/dcopy.f)       | [ZCOPY](https://github.com/comse6998/spring2024/blob/main/Blas/zcopy.f)          |
 | DAXPY       | ZAXPY          |
 | DDOT        | ZDOTU          |
 |             | ZDOTC          |
