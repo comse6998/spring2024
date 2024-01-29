@@ -105,7 +105,7 @@ namespace CDC8600
 	for (uint32_t i = 0; i < params::MEM::N; i++) MEM[i].u() = 0;
 	FreeMEM = 256*32;
 	PROC._XA = 0;
-	PROC.FL() = (u64)(params::MEM::N / 256);
+    MEM[PROC._XA*32+16].u() = (u64)((params::MEM::N / 256) << 20);    
     }
 
     void *memalloc
