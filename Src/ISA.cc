@@ -46,20 +46,20 @@ namespace CDC8600
 	    assert(Xi < 16);
 	    assert(Xj < 16);
 		assert(Xk < 16);
-		PROC.X(Xi).i() = MEM[PROC.X(Xj).u() + PROC.X(Xk).i()].i();
-
-		if (PROC.X(Xj).u() + PROC.X(Xk).i() < PROC.FL().u()*256 + PROC.RA().u() && PROC.X(Xj).u() + PROC.X(Xk).i() > PROC.RA().u() )
+		uint64_t addr_offset = PROC.X(Xj).i() + PROC.X(Xk).i();
+		//PROC.X(Xi).i() = MEM[addr_offset + PROC.RA().u()*256].i();	
+		if (addr_offset < PROC.FL().u()*256 )
 	    {
 		// Good
-		uint32_t addr = PROC.X(Xi).i() = MEM[PROC.X(Xj).u() + PROC.X(Xk).i()].i();;	// Architected address
-		assert(addr < params::MEM::N);		// Check against hardware limit
-		PROC.X(Xj) = MEM[addr];
+		uint64_t addr = PROC.RA().u()*256 + addr_offset;  	// Architected address
+		assert(addr < params::MEM::N);						// Check against hardware limit
+		PROC.X(Xi).i() = MEM[addr].i();						// Read data
 	    }
 	    else
 	    {
-		// Bad
-		PROC.cond()(2) = true;
+		//Bad
 		PROC._XA = PROC.XA().u();
+        PROC.cond()(2) = true;
 	    }
 	}
 
@@ -73,7 +73,22 @@ namespace CDC8600
 	    assert(Xi < 16);
 	    assert(Xj < 16);
 		assert(Xk < 16);
-		MEM[PROC.X(Xj).u() + PROC.X(Xk).i()].i() = PROC.X(Xi).i();
+		uint64_t addr_offset = PROC.X(Xj).i() + PROC.X(Xk).i();
+
+		//MEM[addr_offset + PROC.RA().u()*256].i() = PROC.X(Xi).i();
+		if (addr_offset < PROC.FL().u()*256 )
+	    {
+		// Good
+		uint64_t addr = PROC.RA().u()*256 + addr_offset;  	// Architected address
+		assert(addr < params::MEM::N);						// Check against hardware limit
+		MEM[addr].i() = PROC.X(Xi).i();						// Read data
+	    }
+	    else
+	    {
+		//Bad
+		PROC._XA = PROC.XA().u();
+        PROC.cond()(2) = true;
+	    }
 	
 	}
 
