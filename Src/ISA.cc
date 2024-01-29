@@ -46,10 +46,11 @@ namespace CDC8600
 		assert(Xi < 16);
 		assert(Xj < 16);
 		assert(Xk < 16);
+		uint64_t addr = (PROC.X(Xj).i()+PROC.X(Xk).i()) & 0xfffff;	// Architected address
 
-		if (PROC.X(Xj).i()+PROC.X(Xk).i() < PROC.FL().u()*256) {
+		if (addr < PROC.FL().u()*256) {
 			// good
-			uint32_t addr = PROC.RA().u()*256 + PROC.X(Xj).i()+PROC.X(Xk).i();	// Architected address
+			addr += PROC.RA().u()*256;	// Architected address
 			assert(addr < params::MEM::N);		// Check against hardware limit
 			PROC.X(Xi) = MEM[addr];
 		} else {
@@ -69,10 +70,11 @@ namespace CDC8600
 		assert(Xi < 16);
 		assert(Xj < 16);
 		assert(Xk < 16);
+		uint64_t addr = (PROC.X(Xj).i()+PROC.X(Xk).i()) & 0xfffff;	// Architected address
 
-		if (PROC.X(Xj).i()+PROC.X(Xk).i() < PROC.FL().u()*256) {
+		if (addr < PROC.FL().u()*256) {
 			// good
-			uint32_t addr = PROC.RA().u()*256 + PROC.X(Xj).i()+PROC.X(Xk).i();	// Architected address
+			addr += PROC.RA().u()*256;	// Architected address
 			assert(addr < params::MEM::N);		// Check against hardware limit
 			MEM[addr] = PROC.X(Xi);
 		} else {
@@ -89,17 +91,11 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-		// cout << "isjki, Xi: " << unsigned(Xi) << "Xj: " << unsigned(Xj) << "Xk: " << unsigned(Xk) << endl;
 	    assert(Xi < 16);
 		assert(Xj < 16);
 		assert(Xk < 16);
-		// cout << "X(Xi)" << PROC.X(Xi).u() << endl;
-		// cout << "X(Xj)" << PROC.X(Xj).u() << endl;
-		// cout << "X(Xk)" << PROC.X(Xk).i() << endl;
+
 		PROC.X(Xi).i() = PROC.X(Xj).i() + PROC.X(Xk).i();
-		// cout << "X(Xi)" << PROC.X(Xi).u() << endl;
-		// cout << "X(Xj)" << PROC.X(Xj).u() << endl;
-		// cout << "X(Xk)" << PROC.X(Xk).i() << endl;
 		
 	}
 	
@@ -111,7 +107,7 @@ namespace CDC8600
 	{
 		assert(Xj < 16);
 		assert(k < 16);
-	    PROC.X(Xj).u() = PROC.X(Xj).u() - k;
+	    PROC.X(Xj).i() = PROC.X(Xj).i() - k;
 	}
 
 	void idzkj
@@ -122,7 +118,7 @@ namespace CDC8600
 	{
 		assert(Xj < 16);
 		assert(Xk < 16);
-		PROC.X(Xj).i() = 0-PROC.X(Xk).u();
+		PROC.X(Xj).i() = 0-PROC.X(Xk).i();
 	}
 
 	void isjkj

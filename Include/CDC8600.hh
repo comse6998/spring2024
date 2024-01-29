@@ -104,9 +104,9 @@ namespace CDC8600
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
 	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[0]); // in # of words, the _th word in memory.
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]); // in # of words, the _th word in memory.
 	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[0]); // in # of words, the _th word in memory.
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]); // in # of words, the _th word in memory.
 	    PROC.X(4).i() = arg5;
 
 	    _f();
@@ -143,8 +143,8 @@ namespace CDC8600
 	bool jmpp(uint8_t);			// Jump to P + K if (Xj) positive 				(p98)
 	void compkj(uint8_t, uint8_t);		// Copy complement of (Xk) to Xj 				(p41)
 	void xkj(uint8_t, uint8_t);		// Transmit k to Xj 						(p55)
-	void rdjki(uint8_t, uint8_t, uint8_t);	// Read data at address (Xj + Xk) to Xi		(p133)
-	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj + Xk) from Xi			(p135)
+	void rdjki(uint8_t, uint8_t, uint8_t);	// Read data at address (Xj) + (Xk) to (Xi)			(p133)
+	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj) + (Xk) from Xi			(p135)
 	void isjki(uint8_t, uint8_t, uint8_t);	// Integer sum of (Xj) plus (Xk) to Xi				(p122)
 	void ipjkj(uint8_t, uint8_t);		// Integer product of (Xj) times (Xk) to Xj 			(p52)
 	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj 			(p58)
