@@ -42,30 +42,21 @@ namespace CDC8600
 	    uint8_t Xj, 
 	    uint8_t Xk
 	)
-	{
-		// cout << "rdjki, Xi: " << unsigned(Xi) << "Xj: " << unsigned(Xj) << "Xk: " << unsigned(Xk) << endl;
-		// cout << "Xi: " << unsigned(Xi) << endl;
-		// cout << "Xj: " << unsigned(Xj) << endl;
-		// cout << "Xk: " << unsigned(Xk) << endl;
-		// cout << "X(Xi)" << PROC.X(Xi).i() << endl;
-		// cout << "X(Xj)" << PROC.X(Xj).i() << endl;
-		// cout << "X(Xk)" << PROC.X(Xk).i() << endl;
-		// cout << "PROC.RA().u()" << PROC.RA().u() << endl;
-		// cout << "PROC.FL().u()" << PROC.FL().u() << endl;
-	    
+	{   
 		assert(Xi < 16);
 		assert(Xj < 16);
 		assert(Xk < 16);
 
-		// Check upper bound and lower memory bound
-		// assert(PROC.X(Xj).u()+PROC.X(Xk).u() >=  PROC.RA().u()*256); // In legal memory region
-		// assert(PROC.X(Xj).u()+PROC.X(Xk).u() < PROC.FL().u()*256);   // In legal memory region
-		
-		PROC.X(Xi).u() = MEM[PROC.X(Xj).i()+PROC.X(Xk).i()].u();
-		
-		// cout << "X(Xi)" << PROC.X(Xi).i() << endl;
-		// cout << "X(Xj)" << PROC.X(Xj).i() << endl;
-		// cout << "X(Xk)" << PROC.X(Xk).i() << endl;
+		if (PROC.X(Xj).i()+PROC.X(Xk).i() < PROC.FL().u()*256) {
+			// good
+			uint32_t addr = PROC.RA().u()*256 + PROC.X(Xj).i()+PROC.X(Xk).i();	// Architected address
+			assert(addr < params::MEM::N);		// Check against hardware limit
+			PROC.X(Xi) = MEM[addr];
+		} else {
+			// bad	
+			PROC.cond()(2) = true;
+			PROC._XA = PROC.XA().u();
+	    }
 	}
 
         void sdjki
@@ -75,20 +66,20 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-		// cout << "sdjki, Xi: " << unsigned(Xi) << "Xj: " << unsigned(Xj) << "Xk: " << unsigned(Xk) << endl;
-		// cout << "X(Xi)" << PROC.X(Xi).i() << endl;
-		// cout << "X(Xj)" << PROC.X(Xj).i() << endl;
-		// cout << "X(Xk)" << PROC.X(Xk).i() << endl;
 		assert(Xi < 16);
 		assert(Xj < 16);
 		assert(Xk < 16);
 
-		// Check for upper and lower memory bound: TODO
-
-	    MEM[PROC.X(Xj).i()+PROC.X(Xk).i()].u() = PROC.X(Xi).u();
-		// cout << "X(Xi)" << PROC.X(Xi).i() << endl;
-		// cout << "X(Xj)" << PROC.X(Xj).i() << endl;
-		// cout << "X(Xk)" << PROC.X(Xk).i() << endl;
+		if (PROC.X(Xj).i()+PROC.X(Xk).i() < PROC.FL().u()*256) {
+			// good
+			uint32_t addr = PROC.RA().u()*256 + PROC.X(Xj).i()+PROC.X(Xk).i();	// Architected address
+			assert(addr < params::MEM::N);		// Check against hardware limit
+			MEM[addr] = PROC.X(Xi);
+		} else {
+			// bad	
+			PROC.cond()(2) = true;
+			PROC._XA = PROC.XA().u();
+	    }
 	}
 
         void isjki
