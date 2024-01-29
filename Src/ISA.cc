@@ -12,7 +12,13 @@ namespace CDC8600
 	{
 	    assert(Xj < 16);
 	    if (0 == PROC.X(Xj).u()) return true;
-	    else return false;
+		u64 val = 1;
+		for(int i = 0;i<64;i++)
+		{
+			if((val & PROC.X(Xj).u()) != 1) return false;
+			val = val << 1;
+		}
+	    return true;
 	}
 
 	bool jmpp
@@ -20,7 +26,9 @@ namespace CDC8600
 	    uint8_t Xj
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    if (PROC.X(Xj).i() > 0) return true;
+	    else return false;
 	}
 	
         void xkj
@@ -41,7 +49,27 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+		assert(Xi < 16);
+		assert(Xk < 16);
+
+		uint64_t offset = PROC.X(Xj).u() + PROC.X(Xk).u();
+
+		assert(offset < 1024 * 1024);
+		
+		if (offset < PROC.FL().u()*256)
+		{
+			// Good
+			uint32_t addr = PROC.RA().u()*256 + offset;	
+			assert(addr < params::MEM::N);
+			PROC.X(Xi) = MEM[addr];
+		}
+		else
+	    {
+			// Bad
+			PROC.cond()(2) = true;
+			PROC._XA = PROC.XA().u();
+	    }
 	}
 
         void sdjki
@@ -51,7 +79,25 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+		assert(Xi < 16);
+		assert(Xk < 16);
+
+		uint64_t offset = PROC.X(Xj).u() + PROC.X(Xk).u();
+		
+		if (offset < PROC.FL().u()*256)
+		{
+			// Good
+			uint32_t addr = PROC.RA().u()*256 + offset;
+			assert(addr < params::MEM::N);
+			MEM[addr] = PROC.X(Xi);
+		}
+		else
+	    {
+			// Bad
+			PROC.cond()(2) = true;
+			PROC._XA = PROC.XA().u();
+	    }
 	}
 
         void isjki
@@ -61,7 +107,12 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+		assert(Xi < 16);
+		assert(Xk < 16);
+
+		PROC.X(Xi).i() = PROC.X(Xj).i() + PROC.X(Xk).i();
+
 	}
 	
         void idjkj
@@ -70,7 +121,10 @@ namespace CDC8600
 	    uint8_t k
 	)
 	{
-	    assert(false);
+		assert(Xj < 16);
+		assert(k < 16);
+
+		PROC.X(Xj).i() = PROC.X(Xj).i() - k;
 	}
 
 	void idzkj
@@ -79,7 +133,10 @@ namespace CDC8600
 	   uint8_t Xk
 	)
 	{
-	    assert(false);
+		assert(Xj < 16);
+		assert(Xk < 16);
+
+		PROC.X(Xj).i() = 0 - PROC.X(Xk).i();
 	}
 
 	void isjkj
@@ -88,7 +145,10 @@ namespace CDC8600
 	    uint8_t k
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+		assert(k < 16);
+
+		PROC.X(Xj).i() = PROC.X(Xj).i() + k;
 	}
 
 	void ipjkj
@@ -97,7 +157,10 @@ namespace CDC8600
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+
+		PROC.X(Xj).i() = PROC.X(Xj).i() * PROC.X(Xk).i();
 	}
 
 	void rdKj
