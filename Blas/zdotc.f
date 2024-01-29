@@ -1,57 +1,42 @@
-      SUBROUTINE DCOPY(N,DX,INCX,DY,INCY)
+      DOUBLE COMPLEX FUNCTION ZDOTC(N,ZX,INCX,ZY,INCY)
 *     .. Scalar Arguments ..
       INTEGER INCX,INCY,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION DX(*),DY(*)
+      DOUBLE COMPLEX ZX(*),ZY(*)
 *     ..
 *
 *  Purpose
 *  =======
 *
-*     DCOPY copies a vector, x, to a vector, y.
-*     uses unrolled loops for increments equal to one.
+*  ZDOTC forms the dot product of a vector.
 *
 *  Further Details
 *  ===============
 *
-*     jack dongarra, linpack, 3/11/78.
+*     jack dongarra, 3/11/78.
 *     modified 12/3/93, array(1) declarations changed to array(*)
 *
 *  =====================================================================
 *
 *     .. Local Scalars ..
-      INTEGER I,IX,IY,M,MP1
+      DOUBLE COMPLEX ZTEMP
+      INTEGER I,IX,IY
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC MOD
+      INTRINSIC DCONJG
 *     ..
+      ZTEMP = (0.0d0,0.0d0)
+      ZDOTC = (0.0d0,0.0d0)
       IF (N.LE.0) RETURN
       IF (INCX.EQ.1 .AND. INCY.EQ.1) THEN
 *
 *        code for both increments equal to 1
 *
-*
-*        clean-up loop
-*
-         M = MOD(N,7)
-         IF (M.NE.0) THEN
-            DO I = 1,M
-               DY(I) = DX(I)
-            END DO
-            IF (N.LT.7) RETURN
-         END IF   
-         MP1 = M + 1
-         DO I = MP1,N,7
-            DY(I) = DX(I)
-            DY(I+1) = DX(I+1)
-            DY(I+2) = DX(I+2)
-            DY(I+3) = DX(I+3)
-            DY(I+4) = DX(I+4)
-            DY(I+5) = DX(I+5)
-            DY(I+6) = DX(I+6)
+         DO I = 1,N
+            ZTEMP = ZTEMP + DCONJG(ZX(I))*ZY(I)
          END DO
-      ELSE      
+      ELSE
 *
 *        code for unequal increments or equal increments
 *          not equal to 1
@@ -61,10 +46,11 @@
          IF (INCX.LT.0) IX = (-N+1)*INCX + 1
          IF (INCY.LT.0) IY = (-N+1)*INCY + 1
          DO I = 1,N
-            DY(IY) = DX(IX)
+            ZTEMP = ZTEMP + DCONJG(ZX(IX))*ZY(IY)
             IX = IX + INCX
             IY = IY + INCY
          END DO
       END IF
+      ZDOTC = ZTEMP
       RETURN
       END
