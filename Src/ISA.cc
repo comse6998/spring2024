@@ -46,7 +46,7 @@ namespace CDC8600
 	    assert(Xi < 16);
 	    assert(Xj < 16);
 		assert(Xk < 16);
-		uint64_t addr_offset = PROC.X(Xj).i() + PROC.X(Xk).i();
+		int64_t addr_offset = (PROC.X(Xj).i() + PROC.X(Xk).i()) & 0xfffff;
 		//PROC.X(Xi).i() = MEM[addr_offset + PROC.RA().u()*256].i();	
 		if (addr_offset < PROC.FL().u()*256 )
 	    {
@@ -73,7 +73,7 @@ namespace CDC8600
 	    assert(Xi < 16);
 	    assert(Xj < 16);
 		assert(Xk < 16);
-		uint64_t addr_offset = PROC.X(Xj).i() + PROC.X(Xk).i();
+		int64_t addr_offset = (PROC.X(Xj).i() + PROC.X(Xk).i()) & 0xfffff;
 
 		//MEM[addr_offset + PROC.RA().u()*256].i() = PROC.X(Xi).i();
 		if (addr_offset < PROC.FL().u()*256 )
