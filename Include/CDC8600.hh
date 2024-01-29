@@ -104,9 +104,9 @@ namespace CDC8600
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
 	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[0]);
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]); // in # of words, the _th word in memory.
 	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[0]);
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]); // in # of words, the _th word in memory.
 	    PROC.X(4).i() = arg5;
 
 	    _f();
