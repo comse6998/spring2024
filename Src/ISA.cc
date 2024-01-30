@@ -5,7 +5,7 @@ namespace CDC8600
 {
    namespace instructions
    {
-        bool jmpz // Jump to P + K if (Xj) equal to 0 				(p94)
+        bool jmpz // Jump to P + K if (Xj) equal to 0.
 	(
 	    uint8_t Xj
 	)
@@ -15,7 +15,7 @@ namespace CDC8600
 	    else return false;
 	}
 
-	bool jmpp // Jump to P+K if (Xj) is positive
+	bool jmpp // Jump to P + K if (Xj) is Positive
 	(
 	    uint8_t Xj
 	)
@@ -49,7 +49,7 @@ namespace CDC8600
 		assert(Xk < 16);
 
 		int64_t offset = PROC.X(Xj).u() + PROC.X(Xk).u();
-		if (offset < PROC.FL().u()*256 )
+		if (offset < PROC.FL().u()*256)
 	    {
 		// Good
 		uint64_t addr = PROC.RA().u()*256 + offset;
@@ -78,7 +78,7 @@ namespace CDC8600
 		int64_t offset = PROC.X(Xj).u() + PROC.X(Xk).u();
 		assert(PROC.X(Xj).i() + PROC.X(Xk).i() == offset);
 
-		if (offset < PROC.FL().u()*256 )
+		if (offset < PROC.FL().u()*256)
 	    {
 		uint64_t addr = PROC.RA().u()*256 + offset;
 		assert(addr < params::MEM::N);
