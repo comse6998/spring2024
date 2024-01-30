@@ -4,8 +4,8 @@
 namespace CDC8600
 {
    namespace instructions
-   {   
-        bool jmpz
+   {
+        bool jmpz // Jump to P + K if (Xj) equal to 0 				(p94)
 	(
 	    uint8_t Xj
 	)
@@ -15,17 +15,20 @@ namespace CDC8600
 	    else return false;
 	}
 
-	bool jmpp
+	bool jmpp // Jump to P+K if (Xj) is positive
 	(
 	    uint8_t Xj
 	)
 	{
-	    assert(false);
+		// note P is the current program address and K is a sign extended increment
+	    assert(Xj < 16);
+	    if (0 < PROC.X(Xj).i()) return true;
+	    else return false;
 	}
-	
-        void xkj
+
+        void xkj // Transmit k to Xj
 	(
-	    uint8_t Xj, 
+	    uint8_t Xj,
 	    uint8_t k
 	)
 	{
@@ -34,70 +37,117 @@ namespace CDC8600
 	    PROC.X(Xj).u() = k;
 	}
 
-        void rdjki
+        void rdjki // Read data at address (Xj)+(Xk) from MEM to Xi
 	(
-	    uint8_t Xi, 
-	    uint8_t Xj, 
+	    uint8_t Xi,
+	    uint8_t Xj,
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xi < 16);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+
+		int64_t offset = PROC.X(Xj).u() + PROC.X(Xk).u();
+		if (offset < PROC.FL().u()*256 )
+	    {
+		// Good
+		uint64_t addr = PROC.RA().u()*256 + offset;
+		assert(addr < params::MEM::N);
+		PROC.X(Xi) = MEM[addr];
+	    }
+	    else
+	    {
+		// Bad
+		PROC.cond()(2) = true;
+		PROC._XA = PROC.XA().u();
+	    }
 	}
 
-        void sdjki
+        void sdjki // Store the data in (Xi) to MEM[Xk+Xj]
 	(
-	    uint8_t Xi, 
-	    uint8_t Xj, 
+	    uint8_t Xi,
+	    uint8_t Xj,
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xi < 16);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+
+		int64_t offset = PROC.X(Xj).u() + PROC.X(Xk).u();
+		assert(PROC.X(Xj).i() + PROC.X(Xk).i() == offset);
+
+		if (offset < PROC.FL().u()*256 )
+	    {
+		uint64_t addr = PROC.RA().u()*256 + offset;
+		assert(addr < params::MEM::N);
+		MEM[addr] = PROC.X(Xi);
+	    }
+	    else
+	    {
+		// Bad
+		PROC.cond()(2) = true;
+		PROC._XA = PROC.XA().u();
+	    }
+
 	}
 
-        void isjki
+        void isjki // Integer sum of (Xj) plus (Xk) to Xi
 	(
-	    uint8_t Xi, 
-	    uint8_t Xj, 
+	    uint8_t Xi,
+	    uint8_t Xj,
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xi < 16);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+		PROC.X(Xi).i() = PROC.X(Xj).i() + PROC.X(Xk).i();
 	}
-	
-        void idjkj
+
+        void idjkj // Integer difference of (Xj) minus k to Xj
 	(
-	    uint8_t Xj, 
+	    uint8_t Xj,
 	    uint8_t k
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    assert(k < 16);
+		PROC.X(Xj).i() = PROC.X(Xj).i() - k;
 	}
 
-	void idzkj
+	void idzkj // Integer difference of zero minus (Xk) to Xj
 	(
 	   uint8_t Xj,
 	   uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+		PROC.X(Xj).i() = -PROC.X(Xk).i();
 	}
 
-	void isjkj
+	void isjkj // Integer sum of (Xj) plus k to Xj
 	(
 	    uint8_t Xj,
 	    uint8_t k
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+	    assert(k < 16);
+		PROC.X(Xj).i() = PROC.X(Xj).i() + k;
 	}
 
-	void ipjkj
+	void ipjkj // Integer product of (Xj) times (Xk) to Xj
 	(
 	    uint8_t Xj,
 	    uint8_t Xk
 	)
 	{
-	    assert(false);
+	    assert(Xj < 16);
+		assert(Xk < 16);
+		PROC.X(Xj).i() = PROC.X(Xj).i() * PROC.X(Xk).i();
 	}
 
 	void rdKj
@@ -112,8 +162,8 @@ namespace CDC8600
 	    if (K < PROC.FL().u()*256)
 	    {
 		// Good
-		uint32_t addr = PROC.RA().u()*256 + K;	// Architected address
-		assert(addr < params::MEM::N);		// Check against hardware limit
+		uint32_t addr = PROC.RA().u()*256 + K;
+		assert(addr < params::MEM::N);
 		PROC.X(Xj) = MEM[addr];
 	    }
 	    else
@@ -124,5 +174,5 @@ namespace CDC8600
 	    }
 	}
 
-   } // namespace instructions
-} // namespace CDC8600
+   }
+}
