@@ -58,7 +58,7 @@ namespace CDC8600
 	return reg<4>(_XA*32+16, 60);
     }
 
-    template<int n> 
+    template<int n>
     u64	reg<n>::u()
     {
 	u64 v = MEM[_loc].u();
@@ -96,6 +96,8 @@ namespace CDC8600
 	u64 left = v >> (_first + n);
 	u64 right = v & ((1UL << _first) - 1);
 	MEM[_loc].u() = (left << (_first + n)) + (u << _first) + right;
+
+    return *this; // should have this line.
     }
 
     void reset
