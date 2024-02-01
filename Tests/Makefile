@@ -1,4 +1,5 @@
-BLAS_1		= dcopy
+# BLAS_1		= dcopy
+BLAS_1		= dscal
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC		= g++
