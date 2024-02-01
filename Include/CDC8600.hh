@@ -6,16 +6,19 @@
 #include<assert.h>
 #include<vector>
 #include<iostream>
+#include<complex>
 
 using namespace std;
 
 namespace CDC8600
 {
-    typedef uint64_t	u64;
-    typedef uint32_t	u32;
-    typedef uint8_t	u08;
-    typedef int64_t	i64;
-    typedef double	f64;
+    typedef uint64_t		u64;
+    typedef uint32_t		u32;
+    typedef uint8_t		u08;
+    typedef int64_t		i64;
+    typedef int32_t		i32;
+    typedef double		f64;
+    typedef complex<double>	c128;
 
     namespace params
     {
@@ -60,7 +63,6 @@ namespace CDC8600
 
 	    reg(u32 loc, u08 first) : _loc(loc), _first(first) { assert(n <= 20); assert(_first + n <= 64); }
 	    u64 u();
-	    i64 i();
 	    reg<1> operator()(uint8_t);
 	    reg<n>& operator=(bool);
 	    reg<n>& operator=(u64);
@@ -107,6 +109,17 @@ namespace CDC8600
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]); // in # of words, the _th word in memory.
 	    PROC.X(2).i() = arg3;
 	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]); // in # of words, the _th word in memory.
+	    PROC.X(4).i() = arg5;
+
+	    _f();
+	}
+
+        void operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[0]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[0]);
 	    PROC.X(4).i() = arg5;
 
 	    _f();
