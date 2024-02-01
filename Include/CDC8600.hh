@@ -1,6 +1,7 @@
 #ifndef _CDC8600_HH_
 #define _CDC8600_HH_
 
+
 #include<stdlib.h>
 #include<stdint.h>
 #include<assert.h>
@@ -9,6 +10,7 @@
 #include<complex>
 
 using namespace std;
+
 
 namespace CDC8600
 {
@@ -51,7 +53,7 @@ namespace CDC8600
 
 	    u64& u() { return _data.u; } 
 	    u64  u() const { return _data.u; }
-	    i64& i() { return _data.i; }
+	    i64& i( ){ return _data.i; }
     };
 
     template<int n> class reg

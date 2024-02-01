@@ -23,3 +23,6 @@ We will start by focusing on LEVEL 1 BLAS routines in double and double complex 
 |                                                                             | [ZDOTC](https://github.com/comse6998/spring2024/blob/main/Blas/zdotc.f)        |
 | [DASUM](https://github.com/comse6998/spring2024/blob/main/Blas/dasum.f)     |                                                                                |
 | [IDAMAX](https://github.com/comse6998/spring2024/blob/main/Blas/idamax.f)   |                                                                                |
+
+
+// write the testcase and implementation of the function

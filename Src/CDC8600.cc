@@ -104,7 +104,7 @@ namespace CDC8600
     {
 	for (uint32_t i = 0; i < params::MEM::N; i++) MEM[i].u() = 0;
 	FreeMEM = 256*32;
-	PROC._XA = 0;
+	PROC._XA = 0; // there is something wrong here
 	PROC.FL() = (u64)(params::MEM::N / 256);
     }
 

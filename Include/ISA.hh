@@ -10,11 +10,11 @@
 
 #define jmp(L)			goto L;
 
-#define jmpz(Xj,L)		if (instructions::jmpz(Xj)) goto L;
+#define jmpz(Xj,L)		if (instructions::jmpz(Xj)) goto L; //this is how we execute the program
 
 #define jmpp(Xj,L)		if (instructions::jmpp(Xj)) goto L;
 
-#define jmpk(Xj,k)		return;
+#define jmpk(Xj,k)		return; // just return whatever call it
 
 #define xkj(Xj, k)		instructions::xkj(Xj, k);
 

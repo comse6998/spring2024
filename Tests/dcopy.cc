@@ -5,6 +5,9 @@
 #include <iostream>
 #include <iomanip>
 
+// decopy is two presicion real number
+//zcopy is complex number
+
 using namespace CDC8600;
 
 extern "C" int32_t dcopy_(int32_t *, double *, int32_t *, double *, int32_t *);
