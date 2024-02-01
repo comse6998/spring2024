@@ -29,7 +29,7 @@ namespace CDC8600
 	void dcopy_asm
 	(
 	    // u64 n,		[ X0 ]
-	    // f64 *x,		[ X1 ]
+	    // f64 *x,		[ X1 
 	    // i64 incx,	[ X2 ]
 	    // f64 *y,		[ X3 ]
 	    // i64 incy		[ X4 ]
@@ -37,7 +37,7 @@ namespace CDC8600
 	{
 	    xkj(5, 0)		// X5 (ix) = 0
 	    xkj(6, 0)		// X6 (iy) = 0
-	    jmpp(2, L1)		// if X2 (incx) > 0 goto L1
+	    jmpp(2, L1)		// if X2 (incx) > 0 goto L
 	    idzkj(5, 0)		// X5 (ix) = -X0 (n)
 	    isjkj(5, 1)		// X5 (ix) = X5(-n) + 1
             ipjkj(5, 2)		// X5 (ix) = X5 (-n+1) * X2 (incx)
