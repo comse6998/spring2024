@@ -112,7 +112,7 @@ namespace CDC8600
 	    PROC.X(4).i() = arg5;
 
 	    _f();
-	}
+        }
 
         void operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
@@ -123,7 +123,19 @@ namespace CDC8600
 	    PROC.X(4).i() = arg5;
 
 	    _f();
-	}
+        }
+
+        void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = arg2;
+	    PROC.X(2).u() = (word*)arg3 - &(MEM[0]);
+	    PROC.X(3).i() = arg4;
+
+	    _f();
+        }
+        // void dscal(u64 n, f64 a, f64 *x, i64 incx)
+
     };
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5> class call5
@@ -139,7 +151,23 @@ namespace CDC8600
         void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
 	    _f(arg1, arg2, arg3, arg4, arg5);
-	}
+        }
+    };
+
+    template <typename T1, typename T2, typename T3, typename T4> class call4
+    {
+      private:
+        void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+
+      public:
+        call4(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
+        {
+            _f = f;
+        }
+        void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+	    _f(arg1, arg2, arg3, arg4);
+        }
     };
 
     call0 Call(void (*f)());
@@ -148,6 +176,12 @@ namespace CDC8600
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
     {
         return call5<T1, T2, T3, T4, T5>(f);
+    }
+
+    template <typename T1, typename T2, typename T3, typename T4>
+    call4<T1, T2, T3, T4> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
+    {
+        return call4<T1, T2, T3, T4>(f);
     }
 
     namespace instructions

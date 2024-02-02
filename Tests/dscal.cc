@@ -7,44 +7,48 @@
 
 using namespace CDC8600;
 
-extern "C" int32_t dscal_(int32_t *, double *, int32_t *, double *, int32_t *);
-const int N = 20;
+// void dscal(u64 n, f64 a, f64 *x, i64 incx);
+extern "C" int32_t dscal_(u64 *, f64 *, f64 *, i64 *);
+const int N = 10;
 
 void test_dscal(int count)
 {
     reset();
 
-    int32_t n = rand() % 256;
-    int32_t incx = (rand() % 16) - 8;
-    int32_t incy = (rand() % 16) - 8;
+    u64 n = rand() % 8;
+    f64 a = drand48();
+    i64 incx = (rand() % 16);
 
     f64 *x = (f64*)CDC8600::memalloc(n*abs(incx));
-    f64 *y = (f64*)CDC8600::memalloc(n*abs(incy));
-    f64 *Y = new f64[n*abs(incy)];
+    f64 *xX = (f64*)CDC8600::memalloc(n*abs(incx));
 
-    for (int i = 0; i < n*abs(incx); i++) { x[i] = drand48(); }
-    for (int i = 0; i < n*abs(incy); i++) { y[i] = 0.0;	 }
-    for (int i = 0; i < n*abs(incy); i++) { Y[i] = 0.0;	 }
-
-    dscal_(&n, x, &incx, Y, &incy);		// Reference implementation of DCOPY
-    CDC8600::BLAS::dscal(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600
+    for (i64 i = 0; i < n*abs(incx); i+=incx) 
+    { 
+        x[i] = drand48(); 
+        xX[i] = x[i]; 
+    }
+    
+    // void dscal(u64 n, f64 a, f64 *x, i64 incx);
+    dscal_(&n, &a, xX, &incx);		// Reference implementation of DCOPY
+    // dscal_(&n, x, &incx, Y, &incy);		// Reference implementation of DCOPY
+    CDC8600::BLAS::dscal(n, a, x, incx);	// Implementation of DCOPY for the CDC8600
 
     bool pass = true;
-    for (int i = 0; i < n*abs(incy); i++)
+    for (i64 i = 0; i < n*abs(incx); i+=abs(incx))
     {
-        if (Y[i] != y[i])
+        if (xX[i] != x[i])
         {
             pass = false;
         }
+
     }
 
-    delete [] Y;
-
-    cout << "dscal [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ") : ";
+        cout << "n[ "<< n << "]=  " << " incx =" << incx << " : " ;
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
+
 }
 
 int main()

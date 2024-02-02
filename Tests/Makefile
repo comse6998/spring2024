@@ -1,4 +1,4 @@
-BLAS_1		= dcopy zcopy
+BLAS_1		= dcopy zcopy dscal
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC		= g++

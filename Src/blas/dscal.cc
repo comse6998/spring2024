@@ -6,24 +6,23 @@ namespace CDC8600
 {
     namespace BLAS
     {
-        void dscal(u64 n, f64 *x, i64 incx, f64 *y, i64 incy)
+        void dscal(u64 n, f64 a, f64 *x, i64 incx)
+        // void dscal(u64 n, f64 *x, i64 incx, f64 *y, i64 incy)
         {
-            Call(dscal_asm)(n, x, incx, y, incy);
+            Call(dscal_cpp)(n, a, x, incx);
         }
 
-        void dscal_cpp(u64 n, f64 *x, i64 incx, f64 *y, i64 incy)
+        void dscal_cpp(u64 n, f64 a, f64 *x, i64 incx)
+        // void dscal_cpp(u64 n, f64 *x, i64 incx, f64 *y, i64 incy)
         {
-	    i64 ix = 0;				// First element of x
-	    i64 iy = 0;				// First element of y
-	    if (incx <= 0) ix = (-n+1)*incx;	// If incx <= 0, start with last element of x
-	    if (incy <= 0) iy = (-n+1)*incy;	// If incy <= 0, start with last element of y
-	    while (n != 0)			// Any elements left?
-	    {
-		y[iy] = x[ix];			// Copy element
-		iy += incy;			// Next element of y
-		ix += incx;			// Next element of x
-		n--;				// Decrement element count
-	    }
+	    i64 nincx = n*abs(incx);				// First element of x
+		i64 ix = 0;				// First element of x
+		
+		
+		for(i64 i = 0; i<n*abs(incx); i+=abs(incx))
+		{
+			x[i] = a * x[i];
+		}
         }
 
 	void dscal_asm
