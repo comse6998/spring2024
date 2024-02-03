@@ -22,33 +22,33 @@ void test_drot(int count)
     f64 angle = drand48() * (2 * M_PI);
     f64 c = cos(angle); // cos
     f64 s = sin(angle); // sin
+    int32_t nx = 1 + (n-1) * abs(incx); // not n * abs(incx)
+    int32_t ny = 1 + (n-1) * abs(incy); // not n * abs(incy)
 
-    f64 *x = (f64*)CDC8600::memalloc(n*abs(incx));
-    f64 *y = (f64*)CDC8600::memalloc(n*abs(incy));
-    f64 *X = new f64[n*abs(incx)];
-    f64 *Y = new f64[n*abs(incy)];
+    f64 *x = (f64*)CDC8600::memalloc(nx);
+    f64 *y = (f64*)CDC8600::memalloc(ny);
+    f64 *X = new f64[nx];
+    f64 *Y = new f64[ny];
 
-    for (int i = 0; i < n*abs(incx); i++) { X[i] = x[i] = drand48(); }
-    for (int i = 0; i < n*abs(incy); i++) { Y[i] = y[i] = drand48(); }
+    for (int i = 0; i < nx; i++) { X[i] = x[i] = drand48(); }
+    for (int i = 0; i < ny; i++) { Y[i] = y[i] = drand48(); }
 
 
     drot_(&n, X, &incx, Y, &incy, &c, &s);		// Reference implementation of DROT
     CDC8600::BLAS::drot(n, x, incx, y, incy, c, s);	// Implementation of DROT for the CDC8600
 
     bool pass = true;
-    for (int i = 0; i < n*abs(incy); i++)
+    for (int i = 0; i < ny; i++)
     {
         if (Y[i] != y[i])
         {
-            cout << "Y[i]: " << Y[i] << "y[i]" << y[i] << endl;
             pass = false;
         }
     }
-    for (int i = 0; i < n*abs(incx); i++)
+    for (int i = 0; i < nx; i++)
     { 
         if (X[i] != x[i])
         {
-            cout << "x: " << X[i] << ' ' << x[i] << endl;
             pass = false;
         }
     }
