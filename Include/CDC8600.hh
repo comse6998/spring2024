@@ -52,6 +52,8 @@ namespace CDC8600
 	    u64& u() { return _data.u; } 
 	    u64  u() const { return _data.u; }
 	    i64& i() { return _data.i; }
+	    f64& f() { return _data.f; } 
+	    f64  f() const { return _data.f; }
     };
 
     template<int n> class reg
@@ -128,7 +130,7 @@ namespace CDC8600
         void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4)
         {
 	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = arg2;
+	    PROC.X(1).f() = arg2;
 	    PROC.X(2).u() = (word*)arg3 - &(MEM[0]);
 	    PROC.X(3).i() = arg4;
 
@@ -194,6 +196,7 @@ namespace CDC8600
 	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj) + (Xk) from Xi			(p135)
 	void isjki(uint8_t, uint8_t, uint8_t);	// Integer sum of (Xj) plus (Xk) to Xi				(p122)
 	void ipjkj(uint8_t, uint8_t);		// Integer product of (Xj) times (Xk) to Xj 			(p52)
+	void dmul(uint8_t, uint8_t);		// Double precision product of (Xj) times (Xk) to Xj 			(p50)
 	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj 			(p58)
 	void isjkj(uint8_t, uint8_t);		// Integer sum of (Xj) plus k to Xj 				(p57)
 	void idzkj(uint8_t, uint8_t);		// Integer difference of zero minus (Xk) to Xj 			(p62)

@@ -66,6 +66,7 @@ namespace CDC8600
 		uint32_t addr = PROC.RA().u()*256 + PROC.X(Xj).u() + PROC.X(Xk).u();	// Architected address
 		// assert(addr < params::MEM::N);		// Check against hardware limit
 		MEM[addr] = PROC.X(Xi);
+
 	}
 
         void isjki
@@ -122,7 +123,18 @@ namespace CDC8600
 	{
 		assert(Xj < 16);
 	    assert(Xk < 16);
-	    PROC.X(Xj).i() = PROC.X(Xj).i() * PROC.X(Xk).i();
+	    PROC.X(Xj).u() = PROC.X(Xj).u() * PROC.X(Xk).u();
+	}
+
+	void dmul
+	(
+	    uint8_t Xj, 
+	    uint8_t Xk
+	)
+	{
+		assert(Xj < 16);
+		assert(Xk < 16);
+	    PROC.X(Xj).f() = PROC.X(Xj).f() * PROC.X(Xk).f();
 	}
 
 	void rdKj

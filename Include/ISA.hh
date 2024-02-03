@@ -32,6 +32,8 @@
 
 #define ipjkj(Xj, Xk)		instructions::ipjkj(Xj, Xk);
 
+#define dmul(Xj, Xk)		instructions::dmul(Xj, Xk);
+
 #define rdKj(Xj, K)		instructions::rdKj(Xj, K);
 
 #endif // _ISA_HH_
