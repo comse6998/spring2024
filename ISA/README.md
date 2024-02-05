@@ -12,6 +12,8 @@ In each context frame, the first 16 words store the contents of registers X0 thr
 The 17th word stores the contents of the *Exchange Package Word* (XPW), itself consisting of various status and mode registers.
 (See page 29 of the reference manual.)
 
+## Load/Store Instructions
+
 ## Arithmetic and Logic Instructions
 
 ### Logic Instructions
@@ -35,7 +37,6 @@ CDC 8600 logic instructions have the following possible forms:
 | blkjn(Xj, n)   | Blank lower (Xj) for n bits                         | 118                      |
 | rol((Xj, n)    | Left rotate (Xj) by n bits                          | 119                      |
 | shr(Xj, n)     | Right shift (Xj) by n bits                          | 120                      |
-
 
 ### Integer Arithmetic Instructions
 
@@ -71,3 +72,36 @@ CDC 8600 floating-point arithmetic instructions have the following possible form
 | fsub(Xi, Xj, Xk)     | Floating difference of (Xj) minus (Xk) to Xi | 126                      |
 | fmul(Xi, Xj, Xk)     | Floating product of (Xj) times (Xk) to Xi    | 128                      |
  
+## Control-flow Instructions
+
+We are considering only a subset of the control-flow instructions in the CDC 8600 ISA.
+Among those, we identify three types of branch instructions:
+1. Jump to a target program address unconditionally.
+2. Jump to a target program address if some condition on one or more registers holds.
+3. Save the current program address to a register and jump (unconditionally) to a target program address (subroutine call).
+
+Orthogonal to the types above, there are three ways to specify the target address:
+1. Absolute (K): The target address is identified by a 20-bit immediate field (K).
+2. PC-relative (P+K): The target address is computed by adding an 20-bit immediate field (K) to the current program address (P).
+3. Indirect (Xj): The target address is the content of a register Xj. This is used in all subroutine returns and to call a function pointer.
+
+In assembly language programming, a known target is typically specified by a label.
+It is the job of the assembler to compute either the absolute address (K) or the displacement (P+K) for the corresponing branch instruction.
+
+| Instruction                                      | Description                                         | Page in reference manual |
+|--------------------------------------------------|-----------------------------------------------------|--------------------------|
+| jmp(label)                                       | Jump to P+K                                         | 86                       |
+| jmpa(label)                                      | Jump to K                                           | 114                      |
+| [jmprng](controlflow/jmprng.md)(Xj, label)       | Jump to P+K if (Xj) in range                        | 90                       |
+| [jmpnrng](controlflow/jmpnrng.md)(Xj, label)     | Jump to P+K if (Xj) not in range                    | 92                       |
+| jmpz(Xj, label)                                  | Jump to P+K if (Xj) equal to 0                      | 94                       |
+| jmpnz(Xj, label)                                 | Jump to P+K if (Xj) not equal to 0                  | 96                       |
+| jmpp(Xj, label)                                  | Jump to P+K if (Xj) is positive                     | 98                       |
+| jmpn(Xj, label)                                  | Jump to P+K if (Xj) is negative                     | 100                      |
+| bb(Xj, Xk, label)                                | Branch backward i words if (Xj) < (Xk)              | 130                      |
+| call(Xj, func)                                   | Call subroutine at P+K, save address to Xj          | 88                       |
+| calla(Xj, func)                                  | Call subroutine at adress K, save address to Xj     | 102                      |
+| callp(Xj, Xk)                                    | Call subroutine at address (Xk), save address to Xj | 103                      |
+| jmpk(Xj, k)                                      | Subroutine exit, computed jump to (Xj) + k          | 110                      |
+
+## I/O Instructions
