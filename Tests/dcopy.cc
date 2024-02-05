@@ -41,11 +41,13 @@ void test_dcopy(int count)
 
     delete [] Y;
 
-    cout << "dcopy [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ") : ";
+    cout << "dcopy [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
+
+    if (n < 10) dump(trace);
 }
 
 int main()

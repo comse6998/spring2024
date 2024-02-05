@@ -1,4 +1,5 @@
 #include<iostream>
+#include<iomanip>
 #include<CDC8600.hh>
 #include<ISA.hh>
 
@@ -96,6 +97,7 @@ namespace CDC8600
 	u64 left = v >> (_first + n);
 	u64 right = v & ((1UL << _first) - 1);
 	MEM[_loc].u() = (left << (_first + n)) + (u << _first) + right;
+	return *this;
     }
 
     void reset
@@ -106,6 +108,10 @@ namespace CDC8600
 	FreeMEM = 256*32;
 	PROC._XA = 0;
 	PROC.FL() = (u64)(params::MEM::N / 256);
+	instructions::count = 0;
+	instructions::target = true;
+	for (u32 i=0; i<trace.size(); i++) delete trace[i];
+	trace.clear();
     }
 
     void *memalloc
@@ -128,4 +134,53 @@ namespace CDC8600
     template class reg<4>;
     template class reg<1>;
     template class reg<20>;
+
+    vector<instruction*> trace;				// instruction trace
+
+    namespace instructions
+    {
+	u32	count;
+	bool 	target;
+    } // namespace instructions
+
+    bool process
+    (
+        instruction* 	instr,
+	u32 		line
+    )
+    {
+	instr->line() = line;				// save instruction line number in source file
+	instructions::target = instr->execute();	// execute the instructions, remember if a branch is being taken
+	trace.push_back(instr);				// save instruction to trace	
+	instructions::count++;				// increment instruction counter
+	return instructions::target;			// return true if a branch is taken
+    }
+
+    void dump
+    (
+        vector<instruction*>& T
+    )
+    {
+	cout << "  instr #";
+	cout << " |    line #";
+	cout << " |                   instruction ";
+	cout << " | encoding ";
+	cout << endl;
+
+	cout << "----------";
+	cout << "+-----------";
+	cout << "+--------------------------------";
+	cout << "+---------";
+	cout << endl;
+
+	for (u32 i=0; i<T.size(); i++)
+	{
+	    cout << setw( 9) << i;
+	    cout << " | " << setw( 9) << T[i]->line();
+	    cout << " | " << setw(30) << T[i]->dasm();
+	    if (T[i]->len() == 4) cout << " | "     << setfill('0') << setw(8) << hex << T[i]->encoding() << dec << setfill(' ');
+	    if (T[i]->len() == 2) cout << " |     " << setfill('0') << setw(4) << hex << T[i]->encoding() << dec << setfill(' '); 
+	    cout << endl;
+	}
+    }
 } // namespace 8600
