@@ -6,11 +6,9 @@ class sdjki : public Fijk
 	bool execute()
 	{
 	    int64_t addr = (PROC.X(_j).i() + PROC.X(_k).i()) & 0xfffff;	// Compute displacement
-	    assert(PROC.FL().u() == 1024);
 	    if (addr < PROC.FL().u()*256 )		    // Is displacement within bounds of field length
 	    {
 		// Good
-		assert(PROC.RA().u() == 0);
 		addr += PROC.RA().u()*256;		    // Add reference address
 		assert(addr >= 0);			    // Address should be nonnegative
 		assert(addr < params::MEM::N);              // Check against hardware limit

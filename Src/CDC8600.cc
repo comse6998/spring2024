@@ -104,14 +104,15 @@ namespace CDC8600
     (
     )
     {
-	for (uint32_t i = 0; i < params::MEM::N; i++) MEM[i].u() = 0;
-	FreeMEM = 256*32;
-	PROC._XA = 0;
-	PROC.FL() = (u64)(params::MEM::N / 256);
-	instructions::count = 0;
-	instructions::target = true;
-	for (u32 i=0; i<trace.size(); i++) delete trace[i];
-	trace.clear();
+	for (uint32_t i = 0; i < params::MEM::N; i++) MEM[i].u() = 0;	// Zero the memory
+	FreeMEM = 4*8192;						// Heap starts in page 4
+	PROC._XA = 4;							// User context for PROC[0] is in frame 4
+	PROC.FL() = (u64)(29 * 8192 / 256);				// User data memory is 29 pages
+	PROC.RA() = (u64)( 3 * 8192 / 256);				// User data memory begins in page 3
+	instructions::count = 0;					// Instruction count starts at 0
+	instructions::target = true;					// First instruction is target of a branch
+	for (u32 i=0; i<trace.size(); i++) delete trace[i];		// Delete all previous instructions
+	trace.clear();							// Clear the trace
     }
 
     void *memalloc
