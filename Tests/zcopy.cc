@@ -19,20 +19,22 @@ void test_zcopy(int count)
     i32 n = rand() % 256;
     i32 incx = (rand() % 16) - 8;
     i32 incy = (rand() % 16) - 8;
+    u32 nx = n*abs(incx); if (0 == nx) nx = 1;
+    u32 ny = n*abs(incy); if (0 == ny) ny = 1;
 
-    c128 *x = (c128*)CDC8600::memalloc(n*abs(incx)*2);
-    c128 *y = (c128*)CDC8600::memalloc(n*abs(incy)*2);
-    c128 *Y = new c128[n*abs(incy)];
+    c128 *x = (c128*)CDC8600::memalloc(nx*2);
+    c128 *y = (c128*)CDC8600::memalloc(ny*2);
+    c128 *Y = new c128[ny];
 
-    for (int i = 0; i < n*abs(incx); i++) { x[i] = c128(drand48(), drand48()); }
-    for (int i = 0; i < n*abs(incy); i++) { y[i] = 0.0;	 }
-    for (int i = 0; i < n*abs(incy); i++) { Y[i] = 0.0;	 }
+    for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
+    for (int i = 0; i < ny; i++) { y[i] = 0.0;	 }
+    for (int i = 0; i < ny; i++) { Y[i] = 0.0;	 }
 
     zcopy_(&n, x, &incx, Y, &incy);		// Reference implementation of DCOPY
     CDC8600::BLAS::zcopy(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600
 
     bool pass = true;
-    for (int i = 0; i < n*abs(incy); i++)
+    for (int i = 0; i < ny; i++)
     {
         if (Y[i] != y[i])
         {

@@ -49,9 +49,12 @@ namespace CDC8600
 		return *this;
 	    }
 
-	    u64& u() { return _data.u; } 
+	    u64& u()       { return _data.u; } 
 	    u64  u() const { return _data.u; }
-	    i64& i() { return _data.i; }
+	    i64& i()       { return _data.i; }
+	    i64  i() const { return _data.i; }
+	    f64& f() 	   { return _data.f; }
+	    f64  f() const { return _data.f; }
     };
 
     template<int n> class reg
@@ -124,6 +127,17 @@ namespace CDC8600
 
 	    _f();
 	}
+
+	void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
+	{
+	    PROC.X(0).i() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+	    PROC.X(5).f() = arg6;
+	    PROC.X(6).f() = arg7;
+	}
     };
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5> class call5
@@ -142,12 +156,34 @@ namespace CDC8600
 	}
     };
 
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> class call7
+    {
+      private:
+        void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
+
+      public:
+        call7(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7))
+        {
+            _f = f;
+        }
+        void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
+        {
+	    _f(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	}
+    };
+
     call0 Call(void (*f)());
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
     {
         return call5<T1, T2, T3, T4, T5>(f);
+    }
+
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+    call7<T1, T2, T3, T4, T5, T6, T7> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7))
+    {
+        return call7<T1, T2, T3, T4, T5, T6, T7>(f);
     }
 
     class instruction					// Generic instruction class
