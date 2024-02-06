@@ -25,8 +25,8 @@ void test_zdrot(int count)
     c128 *y = (c128*)CDC8600::memalloc(n*abs(incy)*2);
     c128 *X = new c128[n*abs(incx)];
     c128 *Y = new c128[n*abs(incy)];
-    f64 c = 0.0;
-    f64 s = 0.0;
+    f64 c = 0.32;
+    f64 s = 0.67;
 
     for (int i = 0; i < n*abs(incx); i++) { x[i] = c128(drand48(), drand48()); }
     for (int i = 0; i < n*abs(incy); i++) { y[i] = c128(drand48(), drand48()); }

@@ -8,8 +8,8 @@ namespace CDC8600
     {
         void zdrot(u64 n, c128 *x, i64 incx, c128 *y, i64 incy, f64 c, f64 s)
         {
-			//zdrot_cpp(n, x, incx, y, incy, c, s);
-            Call(zdrot_asm)(n, x, incx, y, incy);//, c, s);
+			
+            Call(zdrot_asm)(n, x, incx, y, incy, c, s);
         }
 
         void zdrot_cpp(u64 n, c128 *x, i64 incx, c128 *y, i64 incy, f64 c, f64 s)
@@ -62,66 +62,72 @@ namespace CDC8600
         // i / ix       [ X7 ]
         // iy           [ X8 ]
         // ctemp        [ X9 ]
+        // ctemp        [ X10]
         // temp1        [ X11]
         // temp2        [ X12]
         // temp3        [ X13] 
 	)
 	{
 
-        //jmpn(0, end)            // !!! jump if n<0
+        //jmpn(0, end)          // !!! jump if n<0
         jmpz(0, end)
         
+        xkj(7, 0)               // X7 (ix) == 0
         xkj(8, 0)               // X8 (iy) == 0
 
-        xkj(5, 0) 
-        xkj(6, 0)   
+        xkj(13, 2)
+        ipjkj(2, 13)		// X2 (incx) = X2 (incx) * 2
+        ipjkj(4, 13)		// X4 (incx) = X4 (incx) * 2
+
+
+        //xkj(5, 0) 
+        //xkj(6, 0)   
 
         //test for increments < 0
         jmpp(2, check)          //skip this section if incx > 0
-
-LABEL(check)jmpp(4, loop1)      //skip this section if incy > 0
         idzkj(7, 0)		        // X7 (ix) = -X0 (n)
 	    isjkj(7, 1)		        // X7 (ix) = X7(-n) + 1
         ipjkj(7, 2)		        // X7 (ix) = X7 (-n+1) * X2 (incx)
 
-LABEL(loop1) jmpz(0, end)       // jump to end if X0 (n) == 0   
+LABEL(check)jmpp(4, loop1)      //skip this section if incy > 0
         idzkj(8, 0)		        // X8 (iy) = -X0 (n)
 	    isjkj(8, 1)		        // X8 (iy) = X8(-n) + 1
-        ipjkj(8, 2)		        // X8 (iy) = X8 (-n+1) * X4 (incx)
-
+        ipjkj(8, 4)		        // X8 (iy) = X8 (-n+1) * X4 (incy)
+    
+LABEL(loop1) jmpz(0, end)       // jump to end if X0 (n) == 0   
 //REAL PART
         rdjki(11, 1, 7)	        // X11 (x.real, temp1) = MEM[X1 (x) + X7 (ix)] (real)
-        rdjki(12, 1, 5)	        // X12 (y.real, temp2) = MEM[X3 (y) + X8 (iy)] (real)
+        rdjki(12, 3, 8)	        // X12 (y.real, temp2) = MEM[X3 (y) + X8 (iy)] (real)
         
         fmul(9, 11, 5)          // X9 (ctemp.real) =  X11 (x.real, temp1) * X5 (c) 
         fmul(13, 12, 6)         // X13 (temp3) =  X12 (y.real, temp2) * X6 (s) 
-        fadd(9, 9, 11)          // X9 (ctemp.real) = X9 (ctemp.real) + X13 (temp3)
+        fadd(9, 9, 13)          // X9 (ctemp.real) = X9 (ctemp.real) + X13 (temp3)
         
         fmul(12, 12, 5)         // X12 (y.real) =  X12 (y.real, temp1) * X5 (c) 
-        fmul(13, 12, 6)         // X13 (temp3) =  X11 (x.real, temp2) * X6 (s) 
+        fmul(13, 11, 6)         // X13 (temp3) =  X11 (x.real, temp2) * X6 (s) 
         fsub(12, 12, 13)        // X12 (ctemp.real) = X12 (y.real) - X13 (temp3)
 
-        //cpjk(11, 9)           // X11 (x.imag) = X9 (ctemp.imag)
+        //cpjk(11, 9)           // X11 (x.real) = X9 (ctemp.real)
         xkj(13, 0)              
         fadd(11, 9, 13)  
 
-        sdjki(7, 1, 7)	        // MEM[X1 (x) + X7 (ix)] = X11 (tmp) (real)
-        sdjki(7, 3, 8)	        // MEM[X3 (y) + X8 (iy)] = X12 (tmp) (real)
+        sdjki(11, 1, 7)	        // MEM[X1 (x) + X7 (ix)] = X11 (tmp) (real)
+        sdjki(12, 3, 8)	        // MEM[X3 (y) + X8 (iy)] = X12 (tmp) (real)
 //END REAL PART
 
 //IMAGINARY PART
-        isjkj(7, 1)		        // X3 (y) = X3 (y) + 1, increment ix to get imaginary part of number
-        isjkj(8, 1)		        // X3 (y) = X3 (y) + 1, increment iy to get imaginary part of number
+        isjkj(7, 1)		        // X7 (ix) = X7 (ix) + 1, increment ix to get imaginary part of number
+        isjkj(8, 1)		        // X8 (iy) = X8 (iy) + 1, increment iy to get imaginary part of number
 
         rdjki(11, 1, 7)	        // X11 (x.imag, temp1) = MEM[X1 (x) + X7 (ix)] (imag)
-        rdjki(12, 1, 5)	        // X12 (y.imag, temp2) = MEM[X3 (y) + X8 (iy)] (imag)
+        rdjki(12, 3, 8)	        // X12 (y.imag, temp2) = MEM[X3 (y) + X8 (iy)] (imag)
         
         fmul(9, 11, 5)          // X9 (ctemp.imag) =  X11 (x.imag, temp1) * X5 (c) 
         fmul(13, 12, 6)         // X13 (temp3) =  X12 (y.imag, temp2) * X6 (s) 
-        fadd(9, 9, 11)          // X9 (ctemp.imag) = X9 (ctemp.imag) + X13 (temp3)
+        fadd(9, 9, 13)          // X9 (ctemp.imag) = X9 (ctemp.imag) + X13 (temp3)
         
         fmul(12, 12, 5)         // X12 (y.imag) =  X12 (y.imag, temp1) * X5 (c) 
-        fmul(13, 12, 6)         // X13 (temp3) =  X11 (x.imag, temp2) * X6 (s) 
+        fmul(13, 11, 6)         // X13 (temp3) =  X11 (x.imag, temp2) * X6 (s) 
         fsub(12, 12, 13)        // X12 (ctemp.imag) = X12 (y.imag) - X13 (temp3)
 
         //cpjk(11, 9)           // X11 (x.imag) = X9 (ctemp.imag)
@@ -129,8 +135,8 @@ LABEL(loop1) jmpz(0, end)       // jump to end if X0 (n) == 0
         fadd(11, 9, 13)           
 
 
-        sdjki(7, 1, 7)	        // MEM[X1 (x) + X7 (ix)] = X11 (tmp) (imag)
-        sdjki(7, 3, 8)	        // MEM[X3 (y) + X8 (iy)] = X12 (tmp) (imag)
+        sdjki(11, 1, 7)	        // MEM[X1 (x) + X7 (ix)] = X11 (tmp) (imag)
+        sdjki(12, 3, 8)	        // MEM[X3 (y) + X8 (iy)] = X12 (tmp) (imag)
 
         idjkj(7, 1)		        // X7 (ix) = X7 (ix) - 1, decrement ix for real part
         idjkj(8, 1)		        // X8 (iy) = X8 (iy) - 1, decrement iy for real part
