@@ -47,7 +47,10 @@ void test_zcopy(int count)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
+
+    if (n < 10) dump(trace);
 }
+    
 
 int main()
 {
