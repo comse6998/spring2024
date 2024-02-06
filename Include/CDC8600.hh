@@ -137,6 +137,8 @@ namespace CDC8600
 	    PROC.X(4).i() = arg5;
 	    PROC.X(5).f() = arg6;
 	    PROC.X(6).f() = arg7;
+
+	    _f();
 	}
     };
 
