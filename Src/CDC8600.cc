@@ -130,6 +130,11 @@ namespace CDC8600
 	return call0(f);
     }
 
+    // call5 Call5(void(*f)())
+    // {
+    // return call5(f);
+    // }
+
     template class reg<12>;
     template class reg<8>;
     template class reg<4>;

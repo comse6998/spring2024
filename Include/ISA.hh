@@ -52,4 +52,10 @@
 
 #define ipjkj(Xj, Xk)		process(new instructions::ipjkj(Xj, Xk), __LINE__);
 
+#define faddjki(Xi, Xj, Xk)     process(new instructions::faddjki(Xi, Xj, Xk), __LINE__);
+
+#define fsubjki(Xi, Xj, Xk)     process(new instructions::fsubjki(Xi, Xj, Xk), __LINE__);
+
+#define fmuljki(Xi, Xj, Xk)     process(new instructions::fmuljki(Xi, Xj, Xk), __LINE__);
+
 #endif // _ISA_HH_

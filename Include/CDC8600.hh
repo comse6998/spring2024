@@ -329,6 +329,10 @@ namespace CDC8600
 #include<rdKj.hh>				// Read data at address K to Xj					(p74)
 #include<rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
 #include<sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
+#include<faddjki.hh>			// Float sum of (Xj) plus (Xk) to X(i)			p(124)
+#include<fsubjki.hh> 			// Float difference of (Xj) minus (Xk) to (Xi)			p(126)
+#include<fmuljki.hh>			// Float product of (Xj) times (Xk) to Xi			P(128)
+
     } // namespace instructions
 
     namespace instructions
