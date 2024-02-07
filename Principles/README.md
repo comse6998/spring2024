@@ -63,3 +63,8 @@ Three important features of IEEE 754 floating-point:
 1. Only a vanishingly small subset of real numbers can be represented as floating-point (even double precision).
 2. IEEE 754 can also represent things that are not real numbers: $`+\infty`$, $`-\infty`$, **NaN**s.
 3. The bit pattern for represented values is non-obvious.
+
+A more general property of floating-point numbers is that floating-point arithmetic does not follow the same rules as real number arithmetic.
+In particular, floating-point addition and multiplication are not associative.
+That is, the order of computation may change the final result.
+As a consequence, when comparing floating-point numbers for equality, it is common to compare within a limit $`\epsilon`$.
