@@ -67,4 +67,7 @@ Three important features of IEEE 754 floating-point:
 A more general property of floating-point numbers is that floating-point arithmetic does not follow the same rules as real number arithmetic.
 In particular, floating-point addition and multiplication are not associative.
 That is, the order of computation may change the final result.
-As a consequence, when comparing floating-point numbers for equality, it is common to compare within a limit $`\epsilon`$.
+As a consequence, when comparing floating-point numbers for equality, it is common to compare within a small limit $`\epsilon`$, like $`10^{-9}`$ or $`10^{-12}`$.
+Let $`x`$ and $`y`$ be two floating-point numbers.
+If $`\mid x - y \mid \lt \mid y \times \epsilon + \epsilon`$ then we can treat $`x`$ and $`y`$
+as being *close enough*.
