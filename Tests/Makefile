@@ -1,4 +1,4 @@
-BLAS_1		= dcopy zcopy
+BLAS_1		= zdrot #zcopy dcopy
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC		= g++
@@ -13,7 +13,6 @@ FLIBS = -L/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/
 else
 FLIBS =
 endif
-
 
 all:	${TESTS}
 
