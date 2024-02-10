@@ -141,11 +141,11 @@ namespace CDC8600
 	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(4).i() = arg5;
 
-		PROC.X(5).f() = arg6;
-		PROC.X(6).f() = arg7;
-		
+	    PROC.X(5).f() = arg6;
+	    PROC.X(6).f() = arg7;
+
 	    _f();
-		}
+	    }
 
 	void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
 	{
