@@ -5,6 +5,7 @@
 #include<stdint.h>
 #include<assert.h>
 #include<vector>
+#include<map>
 #include<iostream>
 #include<complex>
 
@@ -460,7 +461,6 @@ namespace CDC8600
 #include<fmul.hh>				// floating point multiplication Xi = Xj * Xk
 #include<fadd.hh>				// floating point addition Xi = Xj + Xk
 #include<fsub.hh>				// floating point subtraction Xi = Xj - Xk
-
     } // namespace instructions
 
     namespace instructions
@@ -469,7 +469,12 @@ namespace CDC8600
 	extern bool target;	// Is the current instruction the target of a branch?
     };
 
+    extern bool 		tracing;
     extern vector<instruction*>	trace;
+
+    extern map<u32, u32> line2addr;
+    extern map<u32, u32> line2encoding;
+    extern map<u32, u32> line2len;
 
     extern bool process(instruction*, u32);
 
