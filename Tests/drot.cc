@@ -56,11 +56,13 @@ void test_drot(int count)
     delete [] X;
     delete [] Y;
 
-    cout << "drot [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", c = " << setw(2) << c  << ", s = " << setw(2) << s << ") : ";
+    cout << "drot [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", c = " << setw(2) << c << ", s = " << setw(2) << s << ", # of instr = " << setw(9) << instructions::count <<  ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
+    
+    if (n < 10) dump(trace);
 }
 
 int main()
