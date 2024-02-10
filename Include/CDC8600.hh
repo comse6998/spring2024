@@ -49,12 +49,16 @@ namespace CDC8600
 		return *this;
 	    }
 
-	    u64& u() { return _data.u; } 
+	    u64& u()       { return _data.u; } 
 	    u64  u() const { return _data.u; }
-	    i64& i() { return _data.i; }
-		i64  i() const { return _data.i; }
-		f64& f() { return _data.f; }
-		f64  f() const { return _data.f; }
+	    i64& i()       { return _data.i; }
+	    i64  i() const { return _data.i; }
+	    f64& f() 	   { return _data.f; }
+	    f64  f() const { return _data.f; }
+
+	    operator u64() { return _data.u; }
+	    operator i64() { return _data.i; }
+	    operator f64() { return _data.f; }
     };
 
     template<int n> class reg
@@ -136,12 +140,75 @@ namespace CDC8600
 	    PROC.X(2).i() = arg3;
 	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(4).i() = arg5;
+
 		PROC.X(5).f() = arg6;
 		PROC.X(6).f() = arg7;
 		
 	    _f();
 		}
 
+	void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
+	{
+	    PROC.X(0).i() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+	    PROC.X(5).f() = arg6;
+	    PROC.X(6).f() = arg7;
+
+	    _f();
+	}
+    };
+
+    template<typename T0>
+    class func0
+    {
+      private:
+        T0 (*_f)();
+
+      public:
+        func0(T0 (*f)())
+        {
+            _f = f;
+        }
+
+        T0 operator()(u64 arg1, f64 *arg2, i64 arg3)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+
+	    _f();
+
+	    return (T0)PROC.X(0);
+	}
+
+        f64 operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+
+	    _f();
+
+	    return PROC.X(0).f();
+	}
+
+        c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+
+	    _f();
+
+	    return c128(PROC.X(0).f(), PROC.X(1).f());
+	}
     };
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5> class call5
@@ -159,8 +226,24 @@ namespace CDC8600
 	    _f(arg1, arg2, arg3, arg4, arg5);
 	}
     };
-	
-	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> class call7
+
+    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5> class func5
+    {
+      private:
+        T0 (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5);
+
+      public:
+        func5(T0 (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
+        {
+            _f = f;
+        }
+        T0 operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        {
+	    return _f(arg1, arg2, arg3, arg4, arg5);
+	}
+    };
+
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> class call7
     {
       private:
         void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
@@ -173,10 +256,13 @@ namespace CDC8600
         void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
 	    _f(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		}
+	}
     };
 
     call0 Call(void (*f)());
+
+    template<typename T0>
+    func0<T0> Func(T0 (*f)());
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
@@ -184,7 +270,13 @@ namespace CDC8600
         return call5<T1, T2, T3, T4, T5>(f);
     }
 
-	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+    func5<T0, T1, T2, T3, T4, T5> Func(T0 (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
+    {
+        return func5<T0, T1, T2, T3, T4, T5>(f);
+    }
+
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
     call7<T1, T2, T3, T4, T5, T6, T7> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7))
     {
         return call7<T1, T2, T3, T4, T5, T6, T7>(f);
@@ -331,6 +423,10 @@ namespace CDC8600
 #include<rdKj.hh>				// Read data at address K to Xj					(p74)
 #include<rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
 #include<sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
+#include<fmul.hh>				// floating point multiplication Xi = Xj * Xk
+#include<fadd.hh>				// floating point addition Xi = Xj + Xk
+#include<fsub.hh>				// floating point subtraction Xi = Xj - Xk
+
     } // namespace instructions
 
     namespace instructions
