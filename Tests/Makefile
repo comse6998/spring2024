@@ -1,4 +1,4 @@
-BLAS_1		= zdrot zcopy dcopy
+BLAS_1		= dcopy zcopy drot zdrot
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC		= g++
