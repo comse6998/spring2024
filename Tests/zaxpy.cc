@@ -28,7 +28,7 @@ void test_zaxpy(int count)
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
     c128 *Y = new c128[ny];
 
-    for (int i = 0; i < n*nx; i++) { x[i] = c128(drand48(), drand48()); }
+    for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
     for (int i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
     for (int i = 0; i < ny; i++) { Y[i] = y[i]; }
 
