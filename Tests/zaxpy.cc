@@ -38,7 +38,7 @@ void test_zaxpy(int count)
     bool pass = true;
     for (int i = 0; i < ny; i++)
     {
-        if (abs(Y[i] - y[i]) > min(abs(Y[i]), abs(y[i]) + EPSILON) * EPSILON)
+        if (abs(Y[i] - y[i]) > (min(abs(Y[i]), abs(y[i])) + EPSILON) * EPSILON)
         {
             pass = false;
         }
