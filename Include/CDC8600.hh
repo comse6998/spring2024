@@ -172,6 +172,17 @@ namespace CDC8600
 
 	    _f();
 	}
+
+        void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).f() = arg2;
+	    PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(3).i() = arg4;
+
+	    _f();
+        }	
+
     };
 
     template<typename T0>
@@ -224,6 +235,22 @@ namespace CDC8600
 	}
     };
 
+	template <typename T1, typename T2, typename T3, typename T4> class call4
+    {
+      private:
+        void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+
+      public:
+        call4(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
+        {
+            _f = f;
+        }
+        void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+	    _f(arg1, arg2, arg3, arg4);
+        }
+    };
+	
     template <typename T1, typename T2, typename T3, typename T4, typename T5> class call5
     {
       private:
@@ -292,6 +319,12 @@ namespace CDC8600
 
     template<typename T0>
     func0<T0> Func(T0 (*f)());
+
+    template <typename T1, typename T2, typename T3, typename T4>
+    call4<T1, T2, T3, T4> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
+    {
+        return call4<T1, T2, T3, T4>(f);
+    }	
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
@@ -447,6 +480,7 @@ namespace CDC8600
 #include<jmp.hh>				// Jump to P+K                                                  (p86)
 #include<jmpz.hh>				// Jump to P + K if (Xj) equal to 0                             (p94)
 #include<jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
+#include<jmpn.hh>				// Jump to P + K if (Xj) negative                               (p100)
 #include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
 #include<xkj.hh>				// Transmit k to Xj                                             (p55)
 #include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
@@ -459,6 +493,7 @@ namespace CDC8600
 #include<rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
 #include<sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
 #include<fmul.hh>				// floating point multiplication Xi = Xj * Xk
+#include<fmuljk.hh>				// floating point multiplication Xj = Xj * Xk
 #include<fadd.hh>				// floating point addition Xi = Xj + Xk
 #include<fsub.hh>				// floating point subtraction Xi = Xj - Xk
     } // namespace instructions
