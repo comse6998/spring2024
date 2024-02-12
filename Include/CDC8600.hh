@@ -291,7 +291,10 @@ namespace CDC8600
     call0 Call(void (*f)());
 
     template<typename T0>
-    func0<T0> Func(T0 (*f)());
+    func0<T0> Func(T0 (*f)())
+    {
+        return func0<T0>(f);
+    }
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
