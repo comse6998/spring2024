@@ -13,7 +13,7 @@ extern "C" c128 zdotu_(i32*, c128*, i32*, c128*, i32*);
 const int N = 20;
 const double epsilon = pow(1, -9);
 
-void test_zcopy(int count)
+void test_zdotu(int count)
 {
     reset();
 
@@ -65,7 +65,7 @@ int main()
 {
     for (int i = 0; i < N; i++)
     {
-        test_zcopy(i);
+        test_zdotu(i);
     }
     return 0;
 }
