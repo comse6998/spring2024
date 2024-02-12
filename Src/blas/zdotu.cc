@@ -8,9 +8,7 @@ namespace CDC8600
     {
         c128 zdotu(u64 n, c128 *zx, i64 incx, c128 *zy, i64 incy)
         {
-            Func(zdotu_asm)(n, zx, incx, zy, incy);
-            // Current convention - returning result in X11 and X12 (bad)
-            return c128(PROC.X(11).f(), PROC.X(12).f());
+            return Func(zdotu_asm)(n, zx, incx, zy, incy);
         }
 
         c128 zdotu_cpp(u64 n, c128 *zx, i64 incx, c128 *zy, i64 incy)
@@ -77,7 +75,9 @@ LABEL(loop) jmpz(0, end)	// if X0 (n) = 0 goto end
 	    isjki(6, 6, 4)	// X6 (iy) = X6 (iy) + X4 (incy)
 	    idjkj(0, 1)		// X0 (n) = X0 (n) - 1
             jmp(loop)
-LABEL(end)  jmpk(15, 1)		// return to X15 (calling address) + 1
+LABEL(end)  isjki(1, 12, 0)     // Optimization, know X0=0, so X1 = X12
+            isjki(0, 11, 0)     // X0 = X11 + 0
+            jmpk(15,1)
             // clang-format on
         }
     } // namespace BLAS
