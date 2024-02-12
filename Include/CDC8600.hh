@@ -461,6 +461,9 @@ namespace CDC8600
 #include<fmul.hh>				// floating point multiplication Xi = Xj * Xk
 #include<fadd.hh>				// floating point addition Xi = Xj + Xk
 #include<fsub.hh>				// floating point subtraction Xi = Xj - Xk
+#include<bb.hh>				    // Branch backward i words if (Xj) < (Xk)
+#include<jmpnz.hh>				// // Jump to P + K if (Xj) unequal to 0 
+
     } // namespace instructions
 
     namespace instructions
