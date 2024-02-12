@@ -51,7 +51,7 @@ void test_zcopy(int count)
       pass = false;
     }
 
-    /* cout << "zcopy [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : "; */
+    cout << "zdotu [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
