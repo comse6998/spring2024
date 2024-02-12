@@ -493,7 +493,6 @@ namespace CDC8600
 #include<rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
 #include<sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
 #include<fmul.hh>				// floating point multiplication Xi = Xj * Xk
-#include<fmuljk.hh>				// floating point multiplication Xj = Xj * Xk
 #include<fadd.hh>				// floating point addition Xi = Xj + Xk
 #include<fsub.hh>				// floating point subtraction Xi = Xj - Xk
     } // namespace instructions

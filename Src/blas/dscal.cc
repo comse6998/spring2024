@@ -62,8 +62,7 @@ namespace CDC8600
 	    	jmpn(3, end)	// if X3 (incx) < 0 goto end
 LABEL(loop) jmpz(0, end)	// if X0 (n) =  0 	goto end
             rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-			// fmul(5,5,1)  // Can either use fmul or fmuljk (fmuljk will require less operands)
-		    fmuljk(5, 1)		// x[i] = a * X1 (x[i])
+			fmul(5,5,1)  // x[i] = a * X1 (x[i])
 			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			idjkj(0, 1)		// X0 (n) = X0 (n) - 1
 			isjki(4, 4, 3)		// X4 (ix) = X4(ix) + incx
