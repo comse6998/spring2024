@@ -8,7 +8,7 @@ namespace CDC8600
     {
         void zcopy(u64 n, c128 *x, i64 incx, c128 *y, i64 incy)
         {
-            Call(zcopy_cpp)(n, x, incx, y, incy);
+            Call(zcopy_asm)(n, x, incx, y, incy);
         }
 
         void zcopy_cpp(u64 n, c128 *x, i64 incx, c128 *y, i64 incy)
