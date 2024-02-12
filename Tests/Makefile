@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 BLAS_1		= dcopy zcopy zswap
-=======
-BLAS_1		= dcopy zcopy drot zdrot zaxpy
->>>>>>> upstream/main
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC		= g++
