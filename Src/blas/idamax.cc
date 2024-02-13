@@ -6,12 +6,12 @@ namespace CDC8600
 {
     namespace BLAS
     {
-        i32 idamax(u64 n, f64 *x, i64 incx)
+        i64 idamax(u64 n, f64 *x, i64 incx)
         {
-            return Call(idamax_cpp)(n, x, incx);
+            return Func(idamax_asm)(n, x, incx);
         }
 
-        i32 idamax_cpp(u64 n, f64 *x, i64 incx)
+        i64 idamax_cpp(u64 n, f64 *x, i64 incx)
         {
             if (incx <=0 || n < 1){
                 return 0;
@@ -32,36 +32,43 @@ namespace CDC8600
         return r;
         }
 
-	void dcopy_asm
+	i64 idamax_asm
 	(
 	    // u64 n,		[ X0 ]
 	    // f64 *x,		[ X1 ]
 	    // i64 incx,	[ X2 ]
 	)
 	{
-	    xkj(5, 0)		// X5 (ix) = 0
-        isjki(5, 5, 2)  // X5 (ix) = X5 (ix) + X2 (incx)
-        xkj(6, 2)		// X6 (i) = 2
-        idjki(6,6,0)
-        idjkj(6, 1)
-        xkj(8, 2)		// X7 (r) = 1
-        rdjki(7, 1, 5) //X7 (dmax) = MEM[X1 (x) + X5 (ix)]
-	    jmpp(2, L1)		// if X2 (incx) > 0 goto L1
-        jmp(end)     // if X0 (n) >0 goto end
+            xkj(3, 0)       // X3: zero
+            xkj(5, 0)		// X5 (ix) = 0
+            rdjki(7, 1, 5) //X7 (dmax) = MEM[X1 (x) + X5 (ix)]
+            isjki(5, 5, 2)  // X5 (ix) = X5 (ix) + X2 (incx)
+            xkj(6, 2)		// X6 (i) = 2
+            xkj(8, 1)		// X8 (r) = 1
+            jmpp(7, L0)
+            fsub(7, 3, 7)
+LABEL(L0)	jmpp(2, L1)		// if X2 (incx) > 0 goto L1
+            xkj(8, 0)
+            jmp(end)     // if X0 (n) >0 goto end
 LABEL(L1)   jmpp(0, loop)     // if X0 (n) >0 goto loop
-            jmp(end)  
-LABEL(loop) jmpp(6, end)	// if X0 (n) = 0 goto end
-            rdjki(8, 1, 5)	// X7 (tmp) = MEM[X1 (x) + X5 (ix)]
-            idjki(8,7,8)  // x8 = x7(dmax) - x8 (x[xi])
-            jmpp(8, L2)
-	        sdjki(7, 3, 6)	// MEM[X3 (y) + X6 (iy)] = X7 (tmp)
-            isjki(5, 5, 2)	// X5 (ix) = X5 (ix) + X2 (incx)
+            xkj(8, 0)
+            jmp(end) 
+LABEL(loop) idjki(9,6,0)    //x9 =  i -n 
+            idjkj(9, 1)     // x9 = i - n - 1
+            jmpp(9, end)	// if X9 (i-n-1) > 0 goto end
+            rdjki(9, 1, 5)	// X9 (tmp) = MEM[X1 (x) + X5 (ix)]
+            jmpp(9,L2)
+            fsub(9, 3, 9)
+LABEL(L2)   idjki(9,7,9)  // x9 = x7(dmax) - x9 (x[xi])
+            jmpp(9, L3)
+            isjki(8, 6, 3) // 
+            rdjki(7, 1, 5)
 
-LABEL(L2)
-	    isjki(6, 6, 4)	// X6 (iy) = X6 (iy) + X4 (incy)
-	    idjkj(0, 1)		// X0 (n) = X0 (n) - 1
+LABEL(L3)   isjki(5, 5, 2) // X5 (ix) = X5 (ix) + X2 (incx)
+            isjkj(6,1)
             jmp(loop)
-LABEL(end)  jmpk(15, 1)		// return to X15 (calling address) + 1
+LABEL(end)  isjki(0, 8, 3) 
+            jmpk(15, 1)		// return to X15 (calling address) + 1
 	}
     } // namespace BLAS
 } // namespace CDC8600

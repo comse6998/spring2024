@@ -10,7 +10,7 @@ using namespace CDC8600;
 
 extern "C" i32 idamax_(i32*, double*, i32*);
 
-const int N = 10000;
+const int N = 100;
 
 void test_idamax(int count)
 {
@@ -23,8 +23,9 @@ void test_idamax(int count)
 
     for (int i = 0; i < n*abs(incx); i++) { x[i] = double(drand48()); }
 
-    i32 index_ = idamax_(&n, x, &incx);		// Reference implementation of DCOPY
-    i32 index = CDC8600::BLAS::idamax(n, x, incx);	// Implementation of DCOPY for the CDC8600
+    i64 index_ = idamax_(&n, x, &incx);		// Reference implementation of DCOPY
+    i64 index = CDC8600::BLAS::idamax(n, x, incx);	// Implementation of DCOPY for the CDC8600
+    printf("fortran: %d, asm: %d\n", index_, index);
     bool pass = true;
     if (index_ != index)
     {

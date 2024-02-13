@@ -8,9 +8,9 @@ namespace CDC8600
     namespace BLAS
     {
         // y = x
-        i32 idamax    (u64 n, f64 *x, i64 incx);
-        i32 idamax_cpp(u64 n, f64 *x, i64 incx);
-	void idamax_asm();
+        i64 idamax    (u64 n, f64 *x, i64 incx);
+        i64 idamax_cpp(u64 n, f64 *x, i64 incx);
+	i64 idamax_asm();
     } // namespace BLAS
 }; // namespace CDC8600
 

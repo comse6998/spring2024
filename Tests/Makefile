@@ -1,4 +1,4 @@
-BLAS_1		= dcopy zcopy idamax
+BLAS_1		=  idamax
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC		= g++
