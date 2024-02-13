@@ -5,6 +5,7 @@
 #include<stdint.h>
 #include<assert.h>
 #include<vector>
+#include<map>
 #include<iostream>
 #include<complex>
 
@@ -49,9 +50,16 @@ namespace CDC8600
 		return *this;
 	    }
 
-	    u64& u() { return _data.u; } 
+	    u64& u()       { return _data.u; } 
 	    u64  u() const { return _data.u; }
-	    i64& i() { return _data.i; }
+	    i64& i()       { return _data.i; }
+	    i64  i() const { return _data.i; }
+	    f64& f() 	   { return _data.f; }
+	    f64  f() const { return _data.f; }
+
+	    operator u64() { return _data.u; }
+	    operator i64() { return _data.i; }
+	    operator f64() { return _data.f; }
     };
 
     template<int n> class reg
@@ -106,9 +114,9 @@ namespace CDC8600
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
 	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[0]);
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[0]);
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(4).i() = arg5;
 
 	    _f();
@@ -117,15 +125,132 @@ namespace CDC8600
         void operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
 	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[0]);
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[0]);
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(4).i() = arg5;
 
 	    _f();
 	}
+
+		void operator()(u64 arg1, c128 arg2, c128 *arg3, i64 arg4, c128 *arg5, i64 arg6)
+		{
+			PROC.X(0).u() = arg1;
+			PROC.X(1).f() = arg2.real();
+			PROC.X(2).f() = arg2.imag();
+			PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+			PROC.X(4).i() = arg4;
+			PROC.X(5).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
+			PROC.X(6).i() = arg6;
+
+			_f();
+		}
+
+        void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5, f64 arg6, f64 arg7)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+
+	    PROC.X(5).f() = arg6;
+	    PROC.X(6).f() = arg7;
+
+	    _f();
+	    }
+
+	void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
+	{
+	    PROC.X(0).i() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+	    PROC.X(5).f() = arg6;
+	    PROC.X(6).f() = arg7;
+
+	    _f();
+	}
+
+        void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).f() = arg2;
+	    PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(3).i() = arg4;
+
+	    _f();
+        }	
+
     };
 
+    template<typename T0>
+    class func0
+    {
+      private:
+        T0 (*_f)();
+
+      public:
+        func0(T0 (*f)())
+        {
+            _f = f;
+        }
+
+        T0 operator()(u64 arg1, f64 *arg2, i64 arg3)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+
+	    _f();
+
+	    return (T0)PROC.X(0);
+	}
+
+        f64 operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+
+	    _f();
+
+	    return PROC.X(0).f();
+	}
+
+        c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+
+	    _f();
+
+	    return c128(PROC.X(0).f(), PROC.X(1).f());
+	}
+    };
+
+	template <typename T1, typename T2, typename T3, typename T4> class call4
+    {
+      private:
+        void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+
+      public:
+        call4(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
+        {
+            _f = f;
+        }
+        void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+	    _f(arg1, arg2, arg3, arg4);
+        }
+    };
+	
     template <typename T1, typename T2, typename T3, typename T4, typename T5> class call5
     {
       private:
@@ -141,21 +266,20 @@ namespace CDC8600
 	    _f(arg1, arg2, arg3, arg4, arg5);
 	}
     };
-	template <typename T1, typename T2, typename T3, typename R> 
-	class call3 {
-		private:
-		R (*_f)(T1 arg1, T2 arg2, T3 arg3);
 
-		public:
-		call3(R (*f)(T1 arg1, T2 arg2, T3 arg3)) {
-			_f = f;
-		}
-
-		R operator()(T1 arg1, T2 arg2, T3 arg3) {
-			return _f(arg1, arg2, arg3);
-		}
-	};
     call0 Call(void (*f)());
+
+    template<typename T0>
+    func0<T0> Func(T0 (*f)())
+    {
+        return func0<T0>(f);
+    }
+
+    template <typename T1, typename T2, typename T3, typename T4>
+    call4<T1, T2, T3, T4> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
+    {
+        return call4<T1, T2, T3, T4>(f);
+    }	
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
@@ -163,30 +287,39 @@ namespace CDC8600
         return call5<T1, T2, T3, T4, T5>(f);
     }
 
-	template <typename T1, typename T2, typename T3, typename R>
-	call3<T1, T2, T3, R> Call(R (*f)(T1 arg1, T2 arg2, T3 arg3)) {
-		return call3<T1, T2, T3, R>(f);
-	}
-
-
     namespace instructions
     {
 	bool jmpz(uint8_t);			// Jump to P + K if (Xj) equal to 0 				(p94)
 	bool jmpp(uint8_t);			// Jump to P + K if (Xj) positive 				(p98)
-	bool jmpn(uint8_t);			// Jump to P + K if (Xj) negative 				(p100)
 	void compkj(uint8_t, uint8_t);		// Copy complement of (Xk) to Xj 				(p41)
-	void copykj(uint8_t, uint8_t);      // Copy (Xk) to Xj                      (p40)
 	void xkj(uint8_t, uint8_t);		// Transmit k to Xj 						(p55)
 	void rdjki(uint8_t, uint8_t, uint8_t);	// Read data at address (Xj) + (Xk) to (Xi)			(p133)
 	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj) + (Xk) from Xi			(p135)
 	void isjki(uint8_t, uint8_t, uint8_t);	// Integer sum of (Xj) plus (Xk) to Xi				(p122)
-	void idjki(uint8_t, uint8_t, uint8_t);	// Integer difference of (Xj) plus (Xk) to Xi				(p123)
 	void ipjkj(uint8_t, uint8_t);		// Integer product of (Xj) times (Xk) to Xj 			(p52)
 	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj 			(p58)
 	void isjkj(uint8_t, uint8_t);		// Integer sum of (Xj) plus k to Xj 				(p57)
 	void idzkj(uint8_t, uint8_t);		// Integer difference of zero minus (Xk) to Xj 			(p62)
 	void rdKj(uint8_t, uint32_t);		// Read data at address K to Xj					(p74)
     } // namespace instructions
+
+    namespace instructions
+    {
+	extern u32  count;	// Current instruction count
+	extern bool target;	// Is the current instruction the target of a branch?
+    };
+
+    extern bool 		tracing;
+    extern vector<instruction*>	trace;
+
+    extern map<u32, u32> line2addr;
+    extern map<u32, u32> line2encoding;
+    extern map<u32, u32> line2len;
+
+    extern bool process(instruction*, u32);
+
+    extern void dump(vector<instruction*>&);
+
 } // namespace CDC8600
 
 #endif // _CDC8600_HH_
