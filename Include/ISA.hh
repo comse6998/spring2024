@@ -14,6 +14,7 @@
 
 #define jmpp(Xj,L)		if (instructions::jmpp(Xj)) goto L;
 
+#define jmpn(Xj,L)      if (instructions::jmpn(Xj)) goto L;
 #define jmpk(Xj,k)		return;
 
 #define xkj(Xj, k)		instructions::xkj(Xj, k);
@@ -23,7 +24,7 @@
 #define sdjki(Xi, Xj, Xk)	instructions::sdjki(Xi, Xj, Xk);
 
 #define isjki(Xi, Xj, Xk)	instructions::isjki(Xi, Xj, Xk);
-
+#define idjki(Xi, Xj, Xk)   instructions::idjki(Xi, Xj, Xk);
 #define idjkj(Xj, k)		instructions::idjkj(Xj, k);
 
 #define idzkj(Xj, Xk)		instructions::idzkj(Xj, Xk);

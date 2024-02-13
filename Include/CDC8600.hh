@@ -141,7 +141,20 @@ namespace CDC8600
 	    _f(arg1, arg2, arg3, arg4, arg5);
 	}
     };
+	template <typename T1, typename T2, typename T3, typename R> 
+	class call3 {
+		private:
+		R (*_f)(T1 arg1, T2 arg2, T3 arg3);
 
+		public:
+		call3(R (*f)(T1 arg1, T2 arg2, T3 arg3)) {
+			_f = f;
+		}
+
+		R operator()(T1 arg1, T2 arg2, T3 arg3) {
+			return _f(arg1, arg2, arg3);
+		}
+	};
     call0 Call(void (*f)());
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
@@ -150,15 +163,24 @@ namespace CDC8600
         return call5<T1, T2, T3, T4, T5>(f);
     }
 
+	template <typename T1, typename T2, typename T3, typename R>
+	call3<T1, T2, T3, R> Call(R (*f)(T1 arg1, T2 arg2, T3 arg3)) {
+		return call3<T1, T2, T3, R>(f);
+	}
+
+
     namespace instructions
     {
 	bool jmpz(uint8_t);			// Jump to P + K if (Xj) equal to 0 				(p94)
 	bool jmpp(uint8_t);			// Jump to P + K if (Xj) positive 				(p98)
+	bool jmpn(uint8_t);			// Jump to P + K if (Xj) negative 				(p100)
 	void compkj(uint8_t, uint8_t);		// Copy complement of (Xk) to Xj 				(p41)
+	void copykj(uint8_t, uint8_t);      // Copy (Xk) to Xj                      (p40)
 	void xkj(uint8_t, uint8_t);		// Transmit k to Xj 						(p55)
 	void rdjki(uint8_t, uint8_t, uint8_t);	// Read data at address (Xj) + (Xk) to (Xi)			(p133)
 	void sdjki(uint8_t, uint8_t, uint8_t);	// Store data at address (Xj) + (Xk) from Xi			(p135)
 	void isjki(uint8_t, uint8_t, uint8_t);	// Integer sum of (Xj) plus (Xk) to Xi				(p122)
+	void idjki(uint8_t, uint8_t, uint8_t);	// Integer difference of (Xj) plus (Xk) to Xi				(p123)
 	void ipjkj(uint8_t, uint8_t);		// Integer product of (Xj) times (Xk) to Xj 			(p52)
 	void idjkj(uint8_t, uint8_t);		// Integer difference of (Xj) minus k to Xj 			(p58)
 	void isjkj(uint8_t, uint8_t);		// Integer sum of (Xj) plus k to Xj 				(p57)

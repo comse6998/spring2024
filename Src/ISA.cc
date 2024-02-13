@@ -24,6 +24,15 @@ namespace CDC8600
 	    if (0 < PROC.X(Xj).i()) return true;
 	    else return false;
 	}
+	bool jmpn
+	(
+	    uint8_t Xj
+	)
+	{
+	    assert(Xj < 16);
+	    if (0 > PROC.X(Xj).i()) return true;
+	    else return false;
+	}
 	
         void xkj
 	(
@@ -92,6 +101,19 @@ namespace CDC8600
 		assert(Xi < 16);
 		assert(Xk < 16);
 		PROC.X(Xi).i() = PROC.X(Xj).i() + PROC.X(Xk).i();
+	}
+
+	void idjki
+	(
+	    uint8_t Xi, 
+	    uint8_t Xj, 
+	    uint8_t Xk
+	)
+	{
+		assert(Xj < 16);
+		assert(Xi < 16);
+		assert(Xk < 16);
+		PROC.X(Xi).i() = PROC.X(Xj).i() - PROC.X(Xk).i();
 	}
 	
         void idjkj
