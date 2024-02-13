@@ -5,6 +5,7 @@
 #include<stdint.h>
 #include<assert.h>
 #include<vector>
+#include<map>
 #include<iostream>
 #include<complex>
 
@@ -132,6 +133,33 @@ namespace CDC8600
 	    _f();
 	}
 
+		void operator()(u64 arg1, c128 arg2, c128 *arg3, i64 arg4, c128 *arg5, i64 arg6)
+		{
+			PROC.X(0).u() = arg1;
+			PROC.X(1).f() = arg2.real();
+			PROC.X(2).f() = arg2.imag();
+			PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+			PROC.X(4).i() = arg4;
+			PROC.X(5).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
+			PROC.X(6).i() = arg6;
+
+			_f();
+		}
+
+        void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5, f64 arg6, f64 arg7)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+
+	    PROC.X(5).f() = arg6;
+	    PROC.X(6).f() = arg7;
+
+	    _f();
+	    }
+
 	void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
 	{
 	    PROC.X(0).i() = arg1;
@@ -144,6 +172,17 @@ namespace CDC8600
 
 	    _f();
 	}
+
+        void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).f() = arg2;
+	    PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(3).i() = arg4;
+
+	    _f();
+        }	
+
     };
 
     template<typename T0>
@@ -196,6 +235,22 @@ namespace CDC8600
 	}
     };
 
+	template <typename T1, typename T2, typename T3, typename T4> class call4
+    {
+      private:
+        void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+
+      public:
+        call4(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
+        {
+            _f = f;
+        }
+        void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+	    _f(arg1, arg2, arg3, arg4);
+        }
+    };
+	
     template <typename T1, typename T2, typename T3, typename T4, typename T5> class call5
     {
       private:
@@ -228,6 +283,22 @@ namespace CDC8600
 	}
     };
 
+	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> class call6
+	{
+	private:
+		void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
+
+	public:
+		call6(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
+		{
+			_f = f;
+		}
+		void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+		{
+			_f(arg1, arg2, arg3, arg4, arg5, arg6);
+		}
+	};
+
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> class call7
     {
       private:
@@ -247,7 +318,16 @@ namespace CDC8600
     call0 Call(void (*f)());
 
     template<typename T0>
-    func0<T0> Func(T0 (*f)());
+    func0<T0> Func(T0 (*f)())
+    {
+        return func0<T0>(f);
+    }
+
+    template <typename T1, typename T2, typename T3, typename T4>
+    call4<T1, T2, T3, T4> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
+    {
+        return call4<T1, T2, T3, T4>(f);
+    }	
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
@@ -260,6 +340,12 @@ namespace CDC8600
     {
         return func5<T0, T1, T2, T3, T4, T5>(f);
     }
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+	call6<T1, T2, T3, T4, T5, T6> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
+	{
+		return call6<T1, T2, T3, T4, T5, T6>(f);
+	}
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
     call7<T1, T2, T3, T4, T5, T6, T7> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7))
@@ -397,6 +483,7 @@ namespace CDC8600
 #include<jmp.hh>				// Jump to P+K                                                  (p86)
 #include<jmpz.hh>				// Jump to P + K if (Xj) equal to 0                             (p94)
 #include<jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
+#include<jmpn.hh>				// Jump to P + K if (Xj) negative                               (p100)
 #include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
 #include<xkj.hh>				// Transmit k to Xj                                             (p55)
 #include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
@@ -408,6 +495,12 @@ namespace CDC8600
 #include<rdKj.hh>				// Read data at address K to Xj					(p74)
 #include<rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
 #include<sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
+#include<fmul.hh>				// floating point multiplication Xi = Xj * Xk
+#include<fadd.hh>				// floating point addition Xi = Xj + Xk
+#include<fsub.hh>				// floating point subtraction Xi = Xj - Xk
+#include<bb.hh>				    // Branch backward i words if (Xj) < (Xk)
+#include<jmpnz.hh>				// // Jump to P + K if (Xj) unequal to 0 
+
     } // namespace instructions
 
     namespace instructions
@@ -416,7 +509,12 @@ namespace CDC8600
 	extern bool target;	// Is the current instruction the target of a branch?
     };
 
+    extern bool 		tracing;
     extern vector<instruction*>	trace;
+
+    extern map<u32, u32> line2addr;
+    extern map<u32, u32> line2encoding;
+    extern map<u32, u32> line2len;
 
     extern bool process(instruction*, u32);
 
