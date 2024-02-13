@@ -6,6 +6,7 @@ class fmul : public Fijk
 	bool execute()
 	{
 	    PROC.X(_i).f() = PROC.X(_j).f() * PROC.X(_k).f();
+	    return false;
 	}
 
 	string mnemonic() const

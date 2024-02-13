@@ -19,6 +19,7 @@ class rdjK : public FjK
 		PROC._XA = PROC.XA().u();
 		assert(false);
 	    }
+	    return false;
 	}
 
 	string mnemonic() const
