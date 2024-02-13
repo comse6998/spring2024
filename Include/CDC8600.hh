@@ -487,6 +487,7 @@ namespace CDC8600
 #include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
 #include<xkj.hh>				// Transmit k to Xj                                             (p55)
 #include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
+#include<lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p52)
 #include<isjki.hh>				// Integer sum of (Xj) plus (Xk) to Xi				(p122)
 #include<ipjkj.hh>				// Integer product of (Xj) times (Xk) to Xj 			(p52)
 #include<idjkj.hh>				// Integer difference of (Xj) minus k to Xj 			(p58)
@@ -494,6 +495,7 @@ namespace CDC8600
 #include<idzkj.hh>				// Integer difference of zero minus (Xk) to Xj 			(p62)
 #include<rdKj.hh>				// Read data at address K to Xj					(p74)
 #include<rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
+#include<rdjk.hh>				// Read data at address (Xk) to (Xj)			(p75)
 #include<sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
 #include<fmul.hh>				// floating point multiplication Xi = Xj * Xk
 #include<fadd.hh>				// floating point addition Xi = Xj + Xk
