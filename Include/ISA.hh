@@ -34,6 +34,9 @@
 
 #define jmpk(Xj,k)		if (process(new instructions::jmpk   (Xj, k), __LINE__))  return;
 
+#define jmpk0(Xj,k)		if (process(new instructions::jmpk0   (Xj, k), __LINE__))  return 0;
+
+
 #define rdjki(Xi, Xj, Xk)	process(new instructions::rdjki(Xi, Xj, Xk), __LINE__);
 
 #define rdjk(Xj, Xk)	process(new instructions::rdjk(Xj, Xk), __LINE__);

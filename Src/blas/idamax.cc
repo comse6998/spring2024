@@ -68,7 +68,7 @@ LABEL(L3)   isjki(5, 5, 2) // X5 (ix) = X5 (ix) + X2 (incx)
             isjkj(6,1)
             jmp(loop)
 LABEL(end)  isjki(0, 8, 3) 
-            jmpk(15, 1)		// return to X15 (calling address) + 1
+            jmpk0(15, 1)		// return to X15 (calling address) + 1
 	}
     } // namespace BLAS
 } // namespace CDC8600

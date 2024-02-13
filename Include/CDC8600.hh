@@ -525,6 +525,7 @@ namespace CDC8600
 #include<jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
 #include<jmpn.hh>				// Jump to P + K if (Xj) negative                               (p100)
 #include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
+#include<jmpk0.hh>				// Subroutine exit, computed jump to (Xj) + k and return 0                 
 #include<xkj.hh>				// Transmit k to Xj                                             (p55)
 #include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
 #include<lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p37)
