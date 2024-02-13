@@ -5,7 +5,7 @@ class lpjkj : public Fjk
 
 	bool execute()
 	{
-	    PROC.X(_j).i() = PROC.X(_j).i() & PROC.X(_k).i();
+	    PROC.X(_j).u() = PROC.X(_j).u() & PROC.X(_k).u();
 	}
 
 	string mnemonic() const

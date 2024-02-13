@@ -59,23 +59,20 @@ namespace CDC8600
 	{
 	    	xkj(4, 0)		// X4 (ix) = 0
 	    	jmpn(0, end)	// if X0 (n) < 0 goto end
+	    	jmpz(0, end)	// if X0 (n) = 0 goto end
 	    	jmpn(3, end)	// if X3 (incx) < 0 goto end
+	    	jmpz(3, end)	// if X3 (incx) = 0 goto end
 			
             rdjk(6, 3)		// X6 (tmp_incx) = X3 (incx)
 			idjkj(6, 1)		// X6 (tmp_incx) = X6 (tmp_incx) - 1
-			// jmp(loop)	// UNCOMMMENTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 			jmpnz(6, loop)	// if X6 (tmp_incx - 1) !=  0 (which means incx != 1)	goto loop
 
 			//INCX = 1 Loop
             rdjk(7, 0)		// X7 (tmp_n) = X0 (n)
 
-	    	xkj(12, 7)		// X4 (ix) = 0
-			lpjkj(7,12)
-			// jmpz(7, DO)	// if X7 (tmp_n) is zero 	goto DO (Five multiplications at a time loop)
-
-			// HAS REMAINDER HERE
-			// rdjk(8, 7)		// X8 (tmp_remain) = X7 (tmp_remain)
-LABEL(lt5) 	jmpz(7, DO)	// if X7 (Remainder)  =  0 	goto DO 	(Five multiplications at a time loop)
+	    	xkj(8, 7)		// X8 (seven) = 7 (111)
+			lpjkj(7,8)      //  X7 (tmp_n) & X8 (7)  gives the remainder of n%8 (n & 0x07)
+LABEL(lt5) 	jmpz(7, DO)	// if X7 (Remainder)  =  0 	goto DO 	(Eight multiplications at a time )
             rdjki(6, 2, 4)	// X6 (tmp) = MEM[X2 (x) + X4 (ix)]
 		    fmul(6, 6, 1)		// x[i] = a * X1 (x[i])
 			sdjki(6, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X6 (tmp)
@@ -87,57 +84,55 @@ LABEL(lt5) 	jmpz(7, DO)	// if X7 (Remainder)  =  0 	goto DO 	(Five multiplicatio
 			//Perform 5 multiplications
 LABEL(DO) 	jmpz(0, end)	// if Remainder  =  0 	goto DO
 
-            rdjki(10, 2, 4)	// X10 (tmp) = MEM[X2 (x) + X4 (ix)]
-		    fmul(10, 10, 1)		// x[i] = a * X1 (x[i])
-			sdjki(10, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X10 (tmp)
+            rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
+		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
+			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			isjkj(4, 1)		// X4(ix) = X4 (ix) + 1
 
-            rdjki(10, 2, 4)	// X11 (tmp) = MEM[X2 (x) + X4 (ix)]
-		    fmul(10, 10, 1)		// x[i] = a * X1 (x[i])
-			sdjki(10, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X11 (tmp)
+            rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
+		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
+			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			isjkj(4, 1)		// X4(ix) = X4 (ix) + 1
 
-            rdjki(10, 2, 4)	// X12 (tmp) = MEM[X2 (x) + X4 (ix)]
-		    fmul(10, 10, 1)		// x[i] = a * X1 (x[i])
-			sdjki(10, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X12 (tmp)
+            rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
+		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
+			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			isjkj(4, 1)		// X4(ix) = X4 (ix) + 1
 
-            rdjki(10, 2, 4)	// X13 (tmp) = MEM[X2 (x) + X4 (ix)]
-		    fmul(10, 10, 1)		// x[i] = a * X1 (x[i])
-			sdjki(10, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X13 (tmp)
+            rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
+		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
+			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			isjkj(4, 1)		// X4(ix) = X4 (ix) + 1
 
-            rdjki(10, 2, 4)	// X14 (tmp) = MEM[X2 (x) + X4 (ix)]
-		    fmul(10, 10, 1)		// x[i] = a * X1 (x[i])
-			sdjki(10, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X14 (tmp)
+            rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
+		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
+			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			isjkj(4, 1)		// X4(ix) = X4 (ix) + 1
 
-            rdjki(10, 2, 4)	// X10 (tmp) = MEM[X2 (x) + X4 (ix)]
-		    fmul(10, 10, 1)		// x[i] = a * X1 (x[i])
-			sdjki(10, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X10 (tmp)
+            rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
+		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
+			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			isjkj(4, 1)		// X4(ix) = X4 (ix) + 1
 
-            rdjki(10, 2, 4)	// X11 (tmp) = MEM[X2 (x) + X4 (ix)]
-		    fmul(10, 10, 1)		// x[i] = a * X1 (x[i])
-			sdjki(10, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X11 (tmp)
+            rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
+		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
+			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			isjkj(4, 1)		// X4(ix) = X4 (ix) + 1
 
-            rdjki(10, 2, 4)	// X10 (tmp) = MEM[X2 (x) + X4 (ix)]
-		    fmul(10, 10, 1)		// x[i] = a * X1 (x[i])
-			sdjki(10, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X10 (tmp)
+            rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
+		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
+			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			isjkj(4, 1)		// X4(ix) = X4 (ix) + 1
 
-			idjkj(0, 8)		// X0 (n) = X0 (n) - 1
+			idjkj(0, 8)		// X0 (n) = X0 (n) - 8
             jmp(DO)
 
 LABEL(loop) jmpz(0, end)	// if X0 (n) =  0 	goto end
             rdjki(5, 2, 4)	// X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-			// fmul(5,5,1)  // Can either use fmul or fmuljk (fmuljk will require less operands)
 		    fmul(5, 5, 1)		// x[i] = a * X1 (x[i])
 			sdjki(5, 2, 4)	// MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
 			idjkj(0, 1)		// X0 (n) = X0 (n) - 1
 			isjki(4, 4, 3)		// X4 (ix) = X4(ix) + incx
-			// isjki(4, 4, 6)		// X4 (ix) = X4(ix) + incx
             jmp(loop)
 LABEL(end)  jmpk(15, 1)		// return to X15 (calling address) + 1
 	}

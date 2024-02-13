@@ -17,9 +17,7 @@ void test_dscal(int count)
     reset();
 
     int32_t n = rand() % 256;
-    // int32_t n = 4;
-    int32_t incx = 1;
-    // int32_t incx = (rand() % 16) - 8;
+    int32_t incx = (rand() % 16) - 8;
     double a = drand48();
     
     tracing = false; if (n < 10) tracing = true;
