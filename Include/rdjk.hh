@@ -6,7 +6,7 @@ class rdjk : public Fjk
 	bool execute()
 	{
 	    PROC.X(_j).u() = PROC.X(_k).u();
-
+            return false;
 	}
 
 	string mnemonic() const

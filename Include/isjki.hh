@@ -6,6 +6,7 @@ class isjki : public Fijk
 	bool execute()
 	{
 	    PROC.X(_i).i() = PROC.X(_j).i() + PROC.X(_k).i();
+	    return false;
 	}
 
 	string mnemonic() const

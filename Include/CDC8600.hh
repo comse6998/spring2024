@@ -487,7 +487,7 @@ namespace CDC8600
 #include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
 #include<xkj.hh>				// Transmit k to Xj                                             (p55)
 #include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
-#include<lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p52)
+#include<lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p37)
 #include<isjki.hh>				// Integer sum of (Xj) plus (Xk) to Xi				(p122)
 #include<ipjkj.hh>				// Integer product of (Xj) times (Xk) to Xj 			(p52)
 #include<idjkj.hh>				// Integer difference of (Xj) minus k to Xj 			(p58)

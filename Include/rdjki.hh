@@ -21,6 +21,7 @@ class rdjki : public Fijk
 		PROC.cond()(2) = true;
 		assert(false);
 	    }
+	    return false;
 	}
 
 	string mnemonic() const
