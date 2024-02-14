@@ -14,7 +14,7 @@ const int N = 20;
 void test_dcopy(int count)
 {
     reset();
-    
+
     int32_t n = rand() % 256;
     int32_t incx = (rand() % 16) - 8;
     int32_t incy = (rand() % 16) - 8;
