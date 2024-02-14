@@ -35,7 +35,7 @@ namespace CDC8600
 	    // i64 incy		[ X4 ]
 	)
 	{
-	// clang-format off
+	    // clang-format off
 	    isjki(2, 2, 2)	// X2 (incx) = 2*X2 (incx)
             isjki(4, 4, 4)	// X4 (incy) = 2*X4 (incy)
 	    xkj(5, 0)		// X5 (ix) = 0
@@ -62,7 +62,7 @@ LABEL(loop) jmpz(0, end)	// if X0 (n) = 0 goto end
 	    idjkj(0, 1)		// X0 (n) = X0 (n) - 1
             jmp(loop)
 LABEL(end)  jmpk(15, 1)		// return to X15 (calling address) + 1
-	// clang-format on
+	    // clang-format on
 	}
     } // namespace BLAS
 } // namespace CDC8600
