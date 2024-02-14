@@ -43,6 +43,12 @@ namespace CDC8600
         // f64 s		[ X6 ]
 	)
 	{
+            // Optimization 1: If n<=0, return right away.
+            // Jmp if zero
+            // Jmp if negative
+
+            // Optimization 2: If incx and incy is both 1, do the bb routine instead of the regular routine.
+
             xkj(7, 0)		// X7 (ix) = 0
             xkj(8, 0)		// X8 (iy) = 0
             jmpp(2, L1)		// if X2 (incx) > 0 goto L1
