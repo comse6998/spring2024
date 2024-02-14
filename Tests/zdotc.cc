@@ -10,8 +10,8 @@ using namespace CDC8600;
 
 extern "C" i32 zdotc_(i32*, c128*, i32*, c128*, i32*);
 
-const int N = 20;
-const float epsilon = 1e-9;
+const int N = 1;
+const double epsilon = 1e-9;
 void test_zdotc(int count)
 {
     reset();
@@ -27,12 +27,13 @@ void test_zdotc(int count)
 
     for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
     for (int i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
-
+    
     c128 Z = zdotc_(&n, x, &incx, y, &incy);		// Reference implementation of ZDOTC
     c128 z = CDC8600::BLAS::zdotc(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600
 
     bool pass = true;
-    
+    cout<<"z : "<<z<<"\n";
+    cout<<"Z : "<<Z<<"\n";
     if(!(abs(z.real() - Z.real()) < (min(abs(z.real()), abs(Z.real())) + epsilon) * epsilon))
     {
         pass = false;
@@ -48,6 +49,8 @@ void test_zdotc(int count)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
+    
+    if (n < 10) dump(trace);
 }
 
 int main()
