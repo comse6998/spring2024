@@ -6,6 +6,7 @@ class idzkj : public Fjk
 	bool execute()
 	{
 	     PROC.X(_j).i() = -PROC.X(_k).i();
+	     return false;
 	}
 
 	string mnemonic() const

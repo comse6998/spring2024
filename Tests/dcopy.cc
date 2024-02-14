@@ -21,6 +21,7 @@ void test_dcopy(int count)
     uint32_t nx = n*abs(incx); if (0 == nx) nx = 1;
     uint32_t ny = n*abs(incy); if (0 == ny) ny = 1;
     
+    tracing = false; if (n < 10) tracing = true;
 
     f64 *x = (f64*)CDC8600::memalloc(nx);
     f64 *y = (f64*)CDC8600::memalloc(ny);
