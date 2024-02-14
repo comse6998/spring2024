@@ -247,7 +247,10 @@ namespace CDC8600
     call0 Call(void (*f)());
 
     template<typename T0>
-    func0<T0> Func(T0 (*f)());
+    func0<T0> Func(T0 (*f)())
+	{
+		return func0<T0>(f);
+	}
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
@@ -398,6 +401,7 @@ namespace CDC8600
 #include<jmpz.hh>				// Jump to P + K if (Xj) equal to 0                             (p94)
 #include<jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
 #include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
+#include<jmpk0.hh>				// Subroutine exit, computed jump to (Xj) + k and return 0 
 #include<xkj.hh>				// Transmit k to Xj                                             (p55)
 #include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
 #include<isjki.hh>				// Integer sum of (Xj) plus (Xk) to Xi				(p122)
