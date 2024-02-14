@@ -8,9 +8,9 @@
 
 using namespace CDC8600;
 
-extern "C" i32 zdotc_(i32*, c128*, i32*, c128*, i32*);
+extern "C" c128 zdotc_(i32*, c128*, i32*, c128*, i32*);
 
-const int N = 1;
+const int N = 20;
 const double epsilon = 1e-9;
 void test_zdotc(int count)
 {
@@ -32,8 +32,6 @@ void test_zdotc(int count)
     c128 z = CDC8600::BLAS::zdotc(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600
 
     bool pass = true;
-    cout<<"z : "<<z<<"\n";
-    cout<<"Z : "<<Z<<"\n";
     if(!(abs(z.real() - Z.real()) < (min(abs(z.real()), abs(Z.real())) + epsilon) * epsilon))
     {
         pass = false;
