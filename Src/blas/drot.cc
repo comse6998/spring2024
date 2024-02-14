@@ -44,13 +44,40 @@ namespace CDC8600
 	)
 	{
             // Optimization 1: If n<=0, return right away.
-            // Jmp if zero
-            // Jmp if negative
-
+            // Jmp if zero or negative
+            jmpn(0, end);
+            jmpz(0, end);
+            
             // Optimization 2: If incx and incy is both 1, do the bb routine instead of the regular routine.
+            xkj(7, 0)		// X7 = 0
+            isjki(8, 7, 2);  // Move X2 to X8
+            idjkj(8, 1);     // X8 = X8 - 1
+            jmpnz(8, reg);
+            isjki(8, 7, 4);    // Move X4 to X8
+            idjkj(8, 1);
+            jmpnz(8, reg);
 
+            // The optimized routine (incx == incy == 1)
+LABEL(opt)  jmpz(0, end)
+            rdjki(9, 1, 7)	// X9 (tmpx) = MEM[X1 (x) + X7 (ix)]
+            rdjki(10, 3, 7)	// X10 (tmpy) = MEM[X3 (y) + X7 (iy)]
+            fmul(11, 5, 9)   	// X11 (tmp1) = X9 (tmpx) * c
+            fmul(12, 6, 10)  	// X12 (tmp2) = X10 (tmpy) * s
+            fadd(11, 11, 12) 	// X11 (tmp1) = X11 (tmp1) + X12 (tmp2)
+            sdjki(11, 1, 7)	// MEM[X1 (x) + X7 (ix)] = X11 (tmp1)
+            fmul(11, 5, 10)  	// X11 (tmp1) = X10 (tmpy) * c
+            fmul(12, 6, 9)   	// X12 (tmp2) = X9 (tmpx) * s
+            fsub(11, 11, 12) 	// X11 (tmp1) = X11 (tmp1) - X12 (tmp2)
+            sdjki(11, 3, 7)	// MEM[X3 (y) + X7 (iy)] = X11 (tmp11)
+            isjkj(7, 1)  // X7 = X7 + 1
+            // isjkj(7, 1)  // X7 = X7 + 1
+            // bb(0, 7, opt)
+            // jmp(end)
+            idjkj(0, 1) // X0 (n) = X0 (n) - 1
+            jmp(opt)
+            
             // clang-format off
-            xkj(7, 0)		// X7 (ix) = 0
+LABEL(reg)  xkj(7, 0)		// X7 (ix) = 0
             xkj(8, 0)		// X8 (iy) = 0
             jmpp(2, L1)		// if X2 (incx) > 0 goto L1
             idzkj(7, 0)		// X7 (ix) = -X0 (n)
