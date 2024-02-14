@@ -62,7 +62,7 @@ LABEL(loop) jmpz(0, end)	// if X0 (n) = 0 goto end
 	    idjkj(0, 1)		// X0 (n) = X0 (n) - 1
             jmp(loop)
 LABEL(end)  jmpk(15, 1)		// return to X15 (calling address) + 1
-	    	// clang-format on
+		// clang-format on
 	}
     } // namespace BLAS
 } // namespace CDC8600
