@@ -38,6 +38,8 @@
 
 #define rdjki(Xi, Xj, Xk)	process(new instructions::rdjki(Xi, Xj, Xk), __LINE__);
 
+#define rdjk(Xj, Xk)	process(new instructions::rdjk(Xj, Xk), __LINE__);
+
 #define sdjki(Xi, Xj, Xk)	process(new instructions::sdjki(Xi, Xj, Xk), __LINE__);
 
 #define rdKj(Xj, K)		process(new instructions::rdKj(Xj, K), __LINE__);
@@ -54,10 +56,12 @@
 
 #define ipjkj(Xj, Xk)		process(new instructions::ipjkj(Xj, Xk), __LINE__);
 
-#define faddjki(Xi, Xj, Xk)     process(new instructions::faddjki(Xi, Xj, Xk), __LINE__);
+#define lpjkj(Xj, Xk)		process(new instructions::lpjkj(Xj, Xk), __LINE__);
 
-#define fsubjki(Xi, Xj, Xk)     process(new instructions::fsubjki(Xi, Xj, Xk), __LINE__);
+#define fmul(Xi, Xj, Xk)	process(new instructions::fmul(Xi, Xj, Xk), __LINE__);
 
-#define fmuljki(Xi, Xj, Xk)     process(new instructions::fmuljki(Xi, Xj, Xk), __LINE__);
+#define fadd(Xi, Xj, Xk)	process(new instructions::fadd(Xi, Xj, Xk), __LINE__);
+
+#define fsub(Xi, Xj, Xk)	process(new instructions::fsub(Xi, Xj, Xk), __LINE__);
 
 #endif // _ISA_HH_

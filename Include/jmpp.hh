@@ -1,7 +1,7 @@
 class jmpp : public FjK
 {
     public:
-	jmpp(u08 j, u32 K) : FjK(0x34, j, K) {}
+	jmpp(u08 j, u32 K) : FjK(0x36, j, K) {}
 
 	bool execute()
 	{
