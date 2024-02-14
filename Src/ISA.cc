@@ -5,6 +5,5 @@ namespace CDC8600
 {
    namespace instructions
    {   
-	
    } // namespace instructions
 } // namespace CDC8600
