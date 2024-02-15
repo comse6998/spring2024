@@ -10,12 +10,10 @@
 
 #define jmp(L)			if (process(new  instructions::jmp   (0), __LINE__))      goto L;
 
-#define jmpz(Xj,L)		if (instructions::jmpz(Xj)) goto L; //this is how we execute the program
 #define jmpa(L)			if (process(new  instructions::jmpa  (0), __LINE__))      goto L;
 
 #define jmprng(Xj,L)		if (process(new instructions::jmprng (Xj,  0), __LINE__)) goto L;
 
-#define jmpk(Xj,k)		return; // just return whatever call it
 #define jmpnrng(Xj,L)		if (process(new instructions::jmpnrng(Xj,  0), __LINE__)) goto L;
 
 #define jmpz(Xj,L)		if (process(new instructions::jmpz   (Xj,  0), __LINE__)) goto L;
@@ -36,6 +34,8 @@
 
 #define jmpk(Xj,k)		if (process(new instructions::jmpk   (Xj, k), __LINE__))  return;
 
+#define jmpk0(Xj,k)		if (process(new instructions::jmpk0   (Xj, k), __LINE__))  return 0;
+
 #define rdjki(Xi, Xj, Xk)	process(new instructions::rdjki(Xi, Xj, Xk), __LINE__);
 
 #define rdjk(Xj, Xk)	process(new instructions::rdjk(Xj, Xk), __LINE__);
@@ -49,6 +49,8 @@
 #define isjki(Xi, Xj, Xk)	process(new instructions::isjki(Xi, Xj, Xk), __LINE__);
 
 #define idjkj(Xj, k)		process(new instructions::idjkj(Xj, k), __LINE__);
+
+#define idjki(Xi, Xj, Xk)		process(new instructions::idjki(Xi, Xj, Xk), __LINE__);
 
 #define idzkj(Xj, Xk)		process(new instructions::idzkj(Xj, Xk), __LINE__);
 

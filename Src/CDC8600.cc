@@ -104,10 +104,6 @@ namespace CDC8600
     (
     )
     {
-	for (uint32_t i = 0; i < params::MEM::N; i++) MEM[i].u() = 0;
-	FreeMEM = 256*32;
-	PROC._XA = 0; // there is something wrong here
-	PROC.FL() = (u64)(params::MEM::N / 256);
 	for (uint32_t i = 0; i < params::MEM::N; i++) MEM[i].u() = 0;	// Zero the memory
 	FreeMEM = 4*8192;						// Heap starts in page 4
 	PROC._XA = 4;							// User context for PROC[0] is in frame 4

@@ -133,6 +133,21 @@ namespace CDC8600
 	    PROC.X(4).i() = arg5;
 
 	    _f();
+
+	    return PROC.X(0).f();
+	}
+
+        c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).i() = arg3;
+	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg5;
+
+	    _f();
+
+	    return c128(PROC.X(0).f(), PROC.X(1).f());
 	}
 
 		void operator()(u64 arg1, c128 arg2, c128 *arg3, i64 arg4, c128 *arg5, i64 arg6)
@@ -184,19 +199,19 @@ namespace CDC8600
 
 	    _f();
         }	
-
-		void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4, f64 *arg5, i64 arg6)
+      
+      void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4, f64 *arg5, i64 arg6)
         {
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).f() = arg2;
-		PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+		  PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(3).i() = arg4;
-		PROC.X(4).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
-		PROC.X(5).i() = arg6;
+		  PROC.X(4).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
+		  PROC.X(5).i() = arg6;
 
 
 	    _f();
-        }	
+        }
 
     };
 
@@ -219,9 +234,9 @@ namespace CDC8600
 	    PROC.X(2).i() = arg3;
 
 	    _f();
-
-	    return (T0)PROC.X(0);
-	}
+		
+	    return (T0) PROC.X(0);
+		}
 
         f64 operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
@@ -234,7 +249,7 @@ namespace CDC8600
 	    _f();
 
 	    return PROC.X(0).f();
-	}
+		}
 
         c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
@@ -247,8 +262,26 @@ namespace CDC8600
 	    _f();
 
 	    return c128(PROC.X(0).f(), PROC.X(1).f());
+		}
+    };
+
+
+    template <typename T0, typename T1, typename T2, typename T3> class func3
+    {
+      private:
+        T0 (*_f)(T1 arg1, T2 arg2, T3 arg3);
+
+      public:
+        func3(T0 (*f)(T1 arg1, T2 arg2, T3 arg3))
+        {
+            _f = f;
+        }
+        T0 operator()(T1 arg1, T2 arg2, T3 arg3)
+        {
+	    return _f(arg1, arg2, arg3);
 	}
     };
+
 
 	template <typename T1, typename T2, typename T3, typename T4> class call4
     {
@@ -336,6 +369,13 @@ namespace CDC8600
     func0<T0> Func(T0 (*f)())
     {
         return func0<T0>(f);
+    }
+
+
+	template <typename T0, typename T1, typename T2, typename T3>
+    func3<T0, T1, T2, T3> Func(T0 (*f)(T1 arg1, T2 arg2, T3 arg3))
+    {
+        return func3<T0, T1, T2, T3>(f);
     }
 
     template <typename T1, typename T2, typename T3, typename T4>
@@ -500,10 +540,12 @@ namespace CDC8600
 #include<jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
 #include<jmpn.hh>				// Jump to P + K if (Xj) negative                               (p100)
 #include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
+#include<jmpk0.hh>				// Subroutine exit, computed jump to (Xj) + k and return 0 
 #include<xkj.hh>				// Transmit k to Xj                                             (p55)
 #include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
 #include<lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p37)
 #include<isjki.hh>				// Integer sum of (Xj) plus (Xk) to Xi				(p122)
+#include<idjki.hh>              // Integer difference of (Xj) plus (Xk) to Xi				(p123)
 #include<ipjkj.hh>				// Integer product of (Xj) times (Xk) to Xj 			(p52)
 #include<idjkj.hh>				// Integer difference of (Xj) minus k to Xj 			(p58)
 #include<isjkj.hh>				// Integer sum of (Xj) plus k to Xj 				(p57)
