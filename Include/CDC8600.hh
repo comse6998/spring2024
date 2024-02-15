@@ -221,17 +221,6 @@ namespace CDC8600
 	    return PROC.X(0).f();
 	}
 
-		f64 operator()(u64 arg1, f64 *arg2, u64 arg3)
-        {
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(2).u() = arg3;
-
-	    _f();
-
-	    return PROC.X(0).f();
-	}
-
         c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
 	    PROC.X(0).u() = arg1;

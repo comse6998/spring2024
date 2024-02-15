@@ -19,9 +19,10 @@ void test_dasum()
     int32_t n = rand() % 256;
     int32_t incx = (rand() % 16);
     uint32_t nx = n*abs(incx);  if(0 == nx) nx = 1;
+
     bool pass = true;
 
-    tracing = false;
+    tracing = false; if (n < 10) tracing = true;
 
     f64 *x = (f64*)CDC8600::memalloc(nx);
 
@@ -30,14 +31,13 @@ void test_dasum()
     f64 ref = dasum_(&n, x, &incx);
     f64 ans = CDC8600::BLAS::dasum(n, x, incx);
 
-    if ((ans-ref) > epsilon*ref) {pass = false; }
-
-    //cout << "dasum [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
-    if (n < 10) dump(trace);
+    if (std::abs(ans-ref) > epsilon*ref) {pass = false; }
     if (pass)
-        cout << "PASS" << endl;
+        std::cout << "PASS" << endl;
     else
-        cout << "FAIL" << endl;
+        std::cout << "FAIL" << endl;
+
+    if (n < 20) dump(trace);
 }
 
 int main()

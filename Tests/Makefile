@@ -1,8 +1,8 @@
-BLAS_1		= dasum
+BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax dasum
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
-CCC		= g++
-CCFLAGS		= -w -g -O0 -I../Include
+CCC			= g++
+CCFLAGS		= -g -O0 -I../Include
 BLAS_DEPS 	= ../Src/blas
 SRC_DEPS	= ../Src/CDC8600.cc ../Src/ISA.cc
 INC_DEPS	= ../Include/CDC8600.hh

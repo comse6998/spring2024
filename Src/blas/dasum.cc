@@ -8,7 +8,7 @@ namespace CDC8600
     {
         f64 dasum(u64 n, f64 *x, u64 incx)
         {
-            return Func(dasum_cpp)(n, x, incx);
+            return Func(dasum_asm)(n, x, incx);
         }
 
         f64 dasum_cpp(u64 n, f64 *x, u64 incx)
@@ -61,8 +61,9 @@ LABEL(loop) jmpz(0, end)    // if X(n) = 0 goto end
             fadd(5, 5, 2)   // X5 (ix) = X5 (ix) + X2 (incx)
             idjkj(0, 1)     // X0 (n) = X0 (n) - 1
             jmp(loop)
-LABEL(end)  xkj(0, 4)       // X0 <= X4
-            jmpk0(15, 1)     // Return to X15 (calling address) + 1
+LABEL(end)  xkj(7, 0)
+            fadd(0, 4, 7)   // X0 <= X4
+            jmpk0(15, 1)    // Return to X15 (calling address) + 1
             // clang-format on
     }
     } // namespace BLAS
