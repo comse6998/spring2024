@@ -53,7 +53,7 @@ LABEL(L1)   jmpp(4, loop)       // if X4 (incy) > 0 goto loop
             ipjkj(6, 4)         // X6 (iy) = X6 (-n+1) * X4 (incy)
 LABEL(loop) jmpz(0, end)        // if X0 (n) = 0 goto end
             rdjki(7, 1, 5)      // X7 (tmp1) = MEM[X1 (x) + X5 (ix)]
-            rdjki(8, 3, 6)      // X8 (tmp2) = MEM[X1 (x) + X5 (ix)]
+            rdjki(8, 3, 6)      // X8 (tmp2) = MEM[X3 (y) + X6 (iy)]
             sdjki(8, 1, 5)      // MEM[X1 (x) + X5 (ix)] = X8 (tmp2)
             sdjki(7, 3, 6)      // MEM[X3 (y) + X6 (iy)] = X7 (tmp1)
             isjki(5, 5, 2)      // X5 (ix) = X5 (ix) + X2 (incx)
