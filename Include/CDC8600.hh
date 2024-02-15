@@ -50,7 +50,7 @@ namespace CDC8600
 		return *this;
 	    }
 
-	    u64& u()       { return _data.u; } 
+	    u64& u()       { return _data.u; }
 	    u64  u() const { return _data.u; }
 	    i64& i()       { return _data.i; }
 	    i64  i() const { return _data.i; }
@@ -82,7 +82,7 @@ namespace CDC8600
 
 	public:
 
-	    uint8_t	_XA;		// The address of the current exchange packet	
+	    uint8_t	_XA;		// The address of the current exchange packet
 	    word&	X(uint8_t i);	// Xi register in current exchange packet
 	    reg<4>	mode();		// mode field of current XPW
 	    reg<8>	cond();		// cond field of current XPW
@@ -181,7 +181,7 @@ namespace CDC8600
 	    PROC.X(3).i() = arg4;
 
 	    _f();
-        }	
+        }
 
     };
 
@@ -221,6 +221,17 @@ namespace CDC8600
 	    return PROC.X(0).f();
 	}
 
+		f64 operator()(u64 arg1, f64 *arg2, u64 arg3)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(2).u() = arg3;
+
+	    _f();
+
+	    return PROC.X(0).f();
+	}
+
         c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
 	    PROC.X(0).u() = arg1;
@@ -250,7 +261,7 @@ namespace CDC8600
 	    _f(arg1, arg2, arg3, arg4);
         }
     };
-	
+
     template <typename T1, typename T2, typename T3, typename T4, typename T5> class call5
     {
       private:
@@ -264,6 +275,22 @@ namespace CDC8600
         void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
 	    _f(arg1, arg2, arg3, arg4, arg5);
+	}
+    };
+
+	template <typename T0, typename T1, typename T2, typename T3> class func3
+    {
+      private:
+        T0 (*_f)(T1 arg1, T2 arg2, T3 arg3);
+
+      public:
+        func3(T0 (*f)(T1 arg1, T2 arg2, T3 arg3))
+        {
+            _f = f;
+        }
+        T0 operator()(T1 arg1, T2 arg2, T3 arg3)
+        {
+	    return _f(arg1, arg2, arg3);
 	}
     };
 
@@ -327,13 +354,20 @@ namespace CDC8600
     call4<T1, T2, T3, T4> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
     {
         return call4<T1, T2, T3, T4>(f);
-    }	
+    }
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
     {
         return call5<T1, T2, T3, T4, T5>(f);
     }
+
+	template <typename T0, typename T1, typename T2, typename T3>
+    func3<T0, T1, T2, T3> Func(T0 (*f)(T1 arg1, T2 arg2, T3 arg3))
+    {
+        return func3<T0, T1, T2, T3>(f);
+    }
+
 
     template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
     func5<T0, T1, T2, T3, T4, T5> Func(T0 (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
@@ -485,6 +519,7 @@ namespace CDC8600
 #include<jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
 #include<jmpn.hh>				// Jump to P + K if (Xj) negative                               (p100)
 #include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
+#include<jmpk0.hh>				// Subroutine exit, computed jump to (Xj) + k, return 0
 #include<xkj.hh>				// Transmit k to Xj                                             (p55)
 #include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
 #include<lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p37)
@@ -501,7 +536,7 @@ namespace CDC8600
 #include<fadd.hh>				// floating point addition Xi = Xj + Xk
 #include<fsub.hh>				// floating point subtraction Xi = Xj - Xk
 #include<bb.hh>				    // Branch backward i words if (Xj) < (Xk)
-#include<jmpnz.hh>				// // Jump to P + K if (Xj) unequal to 0 
+#include<jmpnz.hh>				// // Jump to P + K if (Xj) unequal to 0
 
     } // namespace instructions
 

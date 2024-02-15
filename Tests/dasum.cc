@@ -10,7 +10,7 @@ using namespace CDC8600;
 extern "C" f64 dasum_(i32*, f64*, i32*);
 
 const int N = 20;
-const double epsilon = pow(1, -5);
+const double epsilon = pow(1, -9);
 
 void test_dasum()
 {
@@ -21,14 +21,14 @@ void test_dasum()
     uint32_t nx = n*abs(incx);  if(0 == nx) nx = 1;
     bool pass = true;
 
-    // tracing = false;
+    tracing = false;
 
-    f64 *dx = (f64*)CDC8600::memalloc(nx);
+    f64 *x = (f64*)CDC8600::memalloc(nx);
 
-    for (int i = 0; i < nx; i++) {dx[i] = drand48(); }
+    for (int i = 0; i < nx; i++) {x[i] = drand48(); }
 
-    f64 ref = dasum_(&n, dx, &incx);
-    f64 ans = CDC8600::BLAS::dasum(n, dx, incx);
+    f64 ref = dasum_(&n, x, &incx);
+    f64 ans = CDC8600::BLAS::dasum(n, x, incx);
 
     if ((ans-ref) > epsilon*ref) {pass = false; }
 

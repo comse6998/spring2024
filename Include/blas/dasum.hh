@@ -10,7 +10,7 @@ namespace CDC8600
         // incx must not be zero or negative!
         f64 dasum     (u64 n, f64 *dx, u64 incx);
         f64 dasum_cpp (u64 n, f64 *dx, u64 incx);
-        //void dasum_asm();
+        f64 dasum_asm();
     } // namespace BLAS
 }; // namespace CDC8600
 
