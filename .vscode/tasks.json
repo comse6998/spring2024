@@ -9,7 +9,10 @@
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-I",
+                "/home/muzi/COMS6998/spring2024/Include/"
+
             ],
             "options": {
                 "cwd": "${fileDirname}"

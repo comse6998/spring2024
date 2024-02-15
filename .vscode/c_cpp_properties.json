@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "./"
+                "./Include/",
+                "${default}"
             ],
             "defines": [],
             "cStandard": "c17",
