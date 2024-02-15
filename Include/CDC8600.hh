@@ -205,7 +205,7 @@ namespace CDC8600
 
 	    _f();
 		
-	    return (T0) PROC.X(0).i();
+	    return (T0) PROC.X(0);
 		}
 
         f64 operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
@@ -315,20 +315,7 @@ namespace CDC8600
 			_f(arg1, arg2, arg3, arg4, arg5, arg6);
 		}
 	};
-	template <typename T1, typename T2, typename T3, typename R> 
- 		class call3 {
- 		private:
- 		R (*_f)(T1 arg1, T2 arg2, T3 arg3);
 
- 		public:
- 		call3(R (*f)(T1 arg1, T2 arg2, T3 arg3)) {
- 			_f = f;
- 		}
-
- 		R operator()(T1 arg1, T2 arg2, T3 arg3) {
- 			return _f(arg1, arg2, arg3);
- 		}
- 	};
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> class call7
     {
       private:
@@ -352,10 +339,6 @@ namespace CDC8600
     {
         return func0<T0>(f);
     }
-	template <typename T1, typename T2, typename T3, typename R>
-		call3<T1, T2, T3, R> Call(R (*f)(T1 arg1, T2 arg2, T3 arg3)) {
-			return call3<T1, T2, T3, R>(f);
-	}
 
 	template <typename T0, typename T1, typename T2, typename T3>
     func3<T0, T1, T2, T3> Func(T0 (*f)(T1 arg1, T2 arg2, T3 arg3))
