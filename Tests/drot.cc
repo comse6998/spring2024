@@ -9,21 +9,26 @@ using namespace CDC8600;
 
 extern "C" int32_t drot_(int32_t *, double *, int32_t *, double *, int32_t *, double *, double *);
 
-const int N = 20;
+const int N = 25;
 
 void test_drot(int count)
 {
     reset();
 
-    // int32_t n = rand() % 256;
     int32_t n = rand() % 256;
+    if(count == 0)
+        n = 0; // Test for optimization when n = 0
     int32_t incx = (rand() % 16) - 8;
     int32_t incy = (rand() % 16) - 8;
+    if (count >= 20){ // Test for optimization when incx = 1 and incy = 1
+        incx = 1;
+        incy = 1;
+    }
     f64 angle = drand48() * (2 * M_PI);
     f64 c = cos(angle); // cos
     f64 s = sin(angle); // sin
-    int32_t nx = 1 + (n-1) * abs(incx); // not n * abs(incx)
-    int32_t ny = 1 + (n-1) * abs(incy); // not n * abs(incy)
+    int32_t nx = 1 + n * abs(incx); // not n * abs(incx)
+    int32_t ny = 1 + n * abs(incy); // not n * abs(incy)
 
     f64 *x = (f64*)CDC8600::memalloc(nx);
     f64 *y = (f64*)CDC8600::memalloc(ny);
