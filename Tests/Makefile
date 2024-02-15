@@ -1,7 +1,7 @@
-BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap idamax
+BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
-CCC		= g++
+CCC			= g++
 CCFLAGS		= -g -O0 -I../Include
 BLAS_DEPS 	= ../Src/blas
 SRC_DEPS	= ../Src/CDC8600.cc ../Src/ISA.cc
