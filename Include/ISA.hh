@@ -50,6 +50,8 @@
 
 #define idjkj(Xj, k)		process(new instructions::idjkj(Xj, k), __LINE__);
 
+#define idjki(Xi, Xj, Xk)		process(new instructions::idjki(Xi, Xj, Xk), __LINE__);
+
 #define idzkj(Xj, Xk)		process(new instructions::idzkj(Xj, Xk), __LINE__);
 
 #define isjkj(Xj, Xk)		process(new instructions::isjkj(Xj, Xk), __LINE__);
