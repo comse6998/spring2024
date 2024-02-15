@@ -6,7 +6,6 @@ namespace CDC8600
 {
    namespace instructions
    {   
-<<<<<<< HEAD
         bool jmpz
 	(
 	    uint8_t Xj
@@ -185,7 +184,5 @@ namespace CDC8600
 	    }
 	}
 
-=======
->>>>>>> upstream/main
    } // namespace instructions
 } // namespace CDC8600

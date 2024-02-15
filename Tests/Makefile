@@ -1,4 +1,4 @@
-BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax
+BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax zscal
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC			= g++
