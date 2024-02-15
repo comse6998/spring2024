@@ -31,9 +31,6 @@ void test_ddot(int count)
     double epsilon = 1e-6; // Example epsilon value, adjust as needed
     bool pass = true;
 
-    // Print ref_ and new_ values for debugging
-    std::cout << "ref_: " << ref_ << ", new_: " << new_ << std::endl;
-
     // Compare the absolute difference between ref_ and new_
     if (abs(ref_ - new_) >
         ((abs(ref_) < abs(new_) ? abs(ref_) : abs(new_)) + epsilon) * epsilon)
