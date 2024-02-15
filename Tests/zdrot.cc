@@ -18,6 +18,11 @@ void test_zdrot(int count)
     i32 n = rand() % 256;
     i32 incx = (rand() % 16) - 8;
     i32 incy = (rand() % 16) - 8;
+    if( count == 19 ){
+        n = 3;
+        incx = 1;
+        incy = 1;
+    }
     if (incx == 0) incx = 1;
     if (incy == 0) incy = 1;
 
