@@ -12,6 +12,7 @@ extern "C" i32 zcopy_(i32*, c128*, i32*, c128*, i32*);
 
 const int N = 20;
 
+// c++ support imagine number
 void test_zcopy(int count)
 {
     reset();

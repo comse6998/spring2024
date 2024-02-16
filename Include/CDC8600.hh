@@ -1,6 +1,7 @@
 #ifndef _CDC8600_HH_
 #define _CDC8600_HH_
 
+
 #include<stdlib.h>
 #include<stdint.h>
 #include<assert.h>
@@ -10,6 +11,7 @@
 #include<complex>
 
 using namespace std;
+
 
 namespace CDC8600
 {
@@ -181,6 +183,22 @@ namespace CDC8600
 	    PROC.X(3).i() = arg4;
 
 	    _f();
+
+        }
+        
+        
+	void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4, f64 *arg5, i64 arg6)
+        {
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).f() = arg2;
+		PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(3).i() = arg4;
+		PROC.X(4).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
+		PROC.X(5).i() = arg6;
+
+
+	    _f();
+
         }	
 
     };
@@ -201,6 +219,7 @@ namespace CDC8600
         {
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+
 	    PROC.X(2).i() = arg3;
 
 	    _f();
@@ -213,6 +232,7 @@ namespace CDC8600
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
+
 	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(4).i() = arg5;
 

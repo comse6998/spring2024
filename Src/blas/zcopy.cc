@@ -26,6 +26,7 @@ namespace CDC8600
 	    }
         }
 
+	// zcopy need to copy real part and imagine part
 	void zcopy_asm
 	(
 	    // u64 n,		[ X0 ]
