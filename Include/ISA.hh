@@ -8,30 +8,58 @@
     L : {                                                                                                              \
     }
 
-#define jmp(L)			goto L;
+#define jmp(L)			if (process(new  instructions::jmp   (0), __LINE__))      goto L;
 
-#define jmpz(Xj,L)		if (instructions::jmpz(Xj)) goto L; //this is how we execute the program
+#define jmpa(L)			if (process(new  instructions::jmpa  (0), __LINE__))      goto L;
 
-#define jmpp(Xj,L)		if (instructions::jmpp(Xj)) goto L;
+#define jmprng(Xj,L)		if (process(new instructions::jmprng (Xj,  0), __LINE__)) goto L;
 
-#define jmpk(Xj,k)		return; // just return whatever call it
+#define jmpnrng(Xj,L)		if (process(new instructions::jmpnrng(Xj,  0), __LINE__)) goto L;
 
-#define xkj(Xj, k)		instructions::xkj(Xj, k);
+#define jmpz(Xj,L)		if (process(new instructions::jmpz   (Xj,  0), __LINE__)) goto L;
 
-#define rdjki(Xi, Xj, Xk)	instructions::rdjki(Xi, Xj, Xk);
+#define jmpnz(Xj,L)		if (process(new instructions::jmpnz  (Xj,  0), __LINE__)) goto L;
 
-#define sdjki(Xi, Xj, Xk)	instructions::sdjki(Xi, Xj, Xk);
+#define jmpp(Xj,L)		if (process(new instructions::jmpp   (Xj,  0), __LINE__)) goto L;
 
-#define isjki(Xi, Xj, Xk)	instructions::isjki(Xi, Xj, Xk);
+#define jmpn(Xj,L)		if (process(new instructions::jmpn   (Xj,  0), __LINE__)) goto L;
 
-#define idjkj(Xj, k)		instructions::idjkj(Xj, k);
+#define bb(Xj,Xk,L)		if (process(new instructions::bb     (Xj, Xk), __LINE__)) goto L;
 
-#define idzkj(Xj, Xk)		instructions::idzkj(Xj, Xk);
+#define call(Xj,func)		if (process(new instructions::call   (Xj), __LINE__))     func ();
 
-#define isjkj(Xj, Xk)		instructions::isjkj(Xj, Xk);
+#define calla(Xj,func)		if (process(new instructions::calla  (Xj), __LINE__))     func ();
 
-#define ipjkj(Xj, Xk)		instructions::ipjkj(Xj, Xk);
+#define callp(Xj,Xk)		if (process(new instructions::callpi (Xj, Xk), __LINE__));
 
-#define rdKj(Xj, K)		instructions::rdKj(Xj, K);
+#define jmpk(Xj,k)		if (process(new instructions::jmpk   (Xj, k), __LINE__))  return;
+
+#define rdjki(Xi, Xj, Xk)	process(new instructions::rdjki(Xi, Xj, Xk), __LINE__);
+
+#define rdjk(Xj, Xk)	process(new instructions::rdjk(Xj, Xk), __LINE__);
+
+#define sdjki(Xi, Xj, Xk)	process(new instructions::sdjki(Xi, Xj, Xk), __LINE__);
+
+#define rdKj(Xj, K)		process(new instructions::rdKj(Xj, K), __LINE__);
+
+#define xkj(Xj, k)		process(new instructions::xkj(Xj, k), __LINE__);
+
+#define isjki(Xi, Xj, Xk)	process(new instructions::isjki(Xi, Xj, Xk), __LINE__);
+
+#define idjkj(Xj, k)		process(new instructions::idjkj(Xj, k), __LINE__);
+
+#define idzkj(Xj, Xk)		process(new instructions::idzkj(Xj, Xk), __LINE__);
+
+#define isjkj(Xj, Xk)		process(new instructions::isjkj(Xj, Xk), __LINE__);
+
+#define ipjkj(Xj, Xk)		process(new instructions::ipjkj(Xj, Xk), __LINE__);
+
+#define lpjkj(Xj, Xk)		process(new instructions::lpjkj(Xj, Xk), __LINE__);
+
+#define fmul(Xi, Xj, Xk)	process(new instructions::fmul(Xi, Xj, Xk), __LINE__);
+
+#define fadd(Xi, Xj, Xk)	process(new instructions::fadd(Xi, Xj, Xk), __LINE__);
+
+#define fsub(Xi, Xj, Xk)	process(new instructions::fsub(Xi, Xj, Xk), __LINE__);
 
 #endif // _ISA_HH_

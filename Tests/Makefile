@@ -1,4 +1,4 @@
-BLAS_1		= dcopy zcopy
+BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap daxpy
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC		= g++
@@ -14,7 +14,6 @@ else
 FLIBS =
 endif
 
-
 all:	${TESTS}
 
 blasref:
@@ -22,7 +21,7 @@ blasref:
 
 # Rule for building BLAS test cases
 %::	%.cc ../Src/blas/%.cc ../Include/blas/%.hh blasref
-	${CCC} ${CCFLAGS} ${SRC_DEPS} $< ../Src/blas/$< ../Blas/$@.o ${FLIBS} -lgfortran -o $@
+	${CCC} ${CCFLAGS} ${SRC_DEPS} $< ../Src/blas/$< ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 clean:
 	/bin/rm -rf ${TESTS}
