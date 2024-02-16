@@ -73,7 +73,7 @@ namespace CDC8600
         
         xkj(7, 0)               // X7 (ix) == 0
 
-        //Optimized Version using backward branch
+        
   
         xkj(12, 0)              // X12 = 0
         fadd(9, 2, 12)          // X9 = incx (X2) + 0 (X12) 
@@ -83,7 +83,13 @@ namespace CDC8600
         idjkj(10, 1)		    // X10 (incy) = X10 (incy) - 2
         jmpnz(10, start_r)
 
-LABEL(start_o)jmpz(0, end)      // jump to end if X0 (n) == 0 
+//Optimized Version using backward branch
+        //idjkj(0, 1)	            // X0 (n) = X0 (n) -1
+        xkj(13, 2)
+        ipjkj(0, 13)		    // X0 (n) = X2 (n) * 2
+
+
+LABEL(start_o)//jmpz(0, end)      // jump to end if X0 (n) == 0 
         //REAL PART
         rdjki(11, 1, 7)	        // X11 (x.real, temp1) = MEM[X1 (x) + X7 (i)] (real)
         rdjki(12, 3, 7)	        // X12 (y.real, temp2) = MEM[X3 (y) + X7 (i)] (real)
@@ -105,7 +111,7 @@ LABEL(start_o)jmpz(0, end)      // jump to end if X0 (n) == 0
 //END REAL PART
 
 //IMAGINARY PART
-        isjkj(7, 1)		        // X7 (ix) = X7 (i) + 1, increment ix to get imaginary part of number
+        isjkj(7, 1)		        // X7 (i) = X7 (i) + 1, increment ix to get imaginary part of number
 
         rdjki(11, 1, 7)	        // X11 (x.imag, temp1) = MEM[X1 (x) + X7 (i)] (imag)
         rdjki(12, 3, 7)	        // X12 (y.imag, temp2) = MEM[X3 (y) + X7 (i)] (imag)
@@ -127,9 +133,11 @@ LABEL(start_o)jmpz(0, end)      // jump to end if X0 (n) == 0
         sdjki(12, 3, 7)	        // MEM[X3 (y) + X7 (i)] = X12 (tmp) (imag)
 //END IMAGINARY PART
 
-        isjkj(7, 1)	            // X7 (ix) = X7 (ix) + 1
-        idjkj(0, 1)		        // X0 (n) = X0 (n) - 1
-        jmp(start_o)            // jump to beginning of the loop
+        isjkj(7, 1)	            // X7 (i) = X7 (i) + 1
+        //idjkj(0, 1)		    // X0 (n) = X0 (n) - 1
+        //jmp(start_o)          // jump to beginning of the loop
+        bb(7, 0, start_o)       //jump to start of the loop if X0 (n) - X7 (i) >= 0      
+        jmp(end)
 
 //END OPTIMIZATION
 
