@@ -5,6 +5,7 @@ namespace CDC8600
 {
    namespace instructions
    {   
+
         bool jmpz
 	(
 	    uint8_t Xj
@@ -167,6 +168,7 @@ namespace CDC8600
 		PROC._XA = PROC.XA().u();
 	    }
 	}
+
 
    } // namespace instructions
 } // namespace CDC8600

@@ -183,6 +183,7 @@ namespace CDC8600
 	    PROC.X(3).i() = arg4;
 
 	    _f();
+
         }
         
         
@@ -197,6 +198,7 @@ namespace CDC8600
 
 
 	    _f();
+
         }	
 
     };
@@ -217,6 +219,7 @@ namespace CDC8600
         {
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+
 	    PROC.X(2).i() = arg3;
 
 	    _f();
@@ -229,6 +232,7 @@ namespace CDC8600
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
+
 	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(4).i() = arg5;
 
