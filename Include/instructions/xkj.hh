@@ -9,6 +9,12 @@ class xkj : public Fjk
 	    return false;
 	}
 
+	bool ops()
+	{
+	    process(new operations::xkj(_j, _k));
+	    return false;
+	}
+
 	string mnemonic() const
 	{
 	    return "xkj";

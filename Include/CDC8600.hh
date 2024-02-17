@@ -6,31 +6,18 @@
 #include<assert.h>
 #include<vector>
 #include<map>
+#include<set>
 #include<iostream>
+#include<iomanip>
 #include<complex>
+#include<types.hh>
+#include<parameters.hh>
+#include<operations.hh>
 
 using namespace std;
 
 namespace CDC8600
 {
-    typedef uint64_t		u64;
-    typedef uint32_t		u32;
-    typedef uint8_t		u08;
-    typedef int64_t		i64;
-    typedef int32_t		i32;
-    typedef double		f64;
-    typedef complex<double>	c128;
-
-    namespace params
-    {
-
-	namespace MEM
-	{
-	    const uint32_t	N = 262144;	// Memory size = 256Ki words
-	} // namespace Memory
-
-    } // namespace params
-
     class word		// 64 bits, interpreted as signed, unsigned, or float
     {
 	private:
@@ -100,6 +87,9 @@ namespace CDC8600
 
     void *memalloc(u64);
 
+    void label(void (*f)());
+    void addlabel(string, u32);
+
     class call0
     {
       private:
@@ -113,6 +103,8 @@ namespace CDC8600
 
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
+	    label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
@@ -408,10 +400,12 @@ namespace CDC8600
 	    u32 _addr;					// byte (not word) address of instruction in memory
 	public:
 	    virtual bool execute() = 0;			// every instruction must have a method "execute" that implements its semantics and returns "true" if branch is taken
+	    virtual bool ops() { }                      // the ops method processes the internal ops that implement the instrution
 	    virtual u08 len() const = 0;		// length of instruction in bytes (2 or 4)
 	    virtual string mnemonic() const = 0;	// mnemonic for the instruction
 	    virtual string dasm() const = 0;		// disassembly for the instruction
 	    virtual u32 encoding() const = 0;		// instruction encoding
+	    virtual void fixit() { }                    // used to fix displacements in branches
 	    u32& line() { return _line; }
 	    u32& addr() { return _addr; }
     };
@@ -526,32 +520,38 @@ namespace CDC8600
 	    u32 encoding() const { return (_F << 24) + (_j << 20) + (_K << 0); }
     };
 
+    extern map<u32, u32>      line2addr;
+    extern map<u32, u32>      line2encoding;
+    extern map<u32, u32>      line2len;
+    extern map<string, u32>     label2line;                     // label -> line map
+
     namespace instructions
     {
-#include<jmp.hh>				// Jump to P+K                                                  (p86)
-#include<jmpz.hh>				// Jump to P + K if (Xj) equal to 0                             (p94)
-#include<jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
-#include<jmpn.hh>				// Jump to P + K if (Xj) negative                               (p100)
-#include<jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
-#include<jmpk0.hh>				// Subroutine exit, computed jump to (Xj) + k and return 0 
-#include<xkj.hh>				// Transmit k to Xj                                             (p55)
-#include<compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
-#include<lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p37)
-#include<isjki.hh>				// Integer sum of (Xj) plus (Xk) to Xi				(p122)
-#include<idjki.hh>              // Integer difference of (Xj) plus (Xk) to Xi				(p123)
-#include<ipjkj.hh>				// Integer product of (Xj) times (Xk) to Xj 			(p52)
-#include<idjkj.hh>				// Integer difference of (Xj) minus k to Xj 			(p58)
-#include<isjkj.hh>				// Integer sum of (Xj) plus k to Xj 				(p57)
-#include<idzkj.hh>				// Integer difference of zero minus (Xk) to Xj 			(p62)
-#include<rdKj.hh>				// Read data at address K to Xj					(p74)
-#include<rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
-#include<rdjk.hh>				// Read data at address (Xk) to (Xj)			(p75)
-#include<sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
-#include<fmul.hh>				// floating point multiplication Xi = Xj * Xk
-#include<fadd.hh>				// floating point addition Xi = Xj + Xk
-#include<fsub.hh>				// floating point subtraction Xi = Xj - Xk
-#include<bb.hh>				    // Branch backward i words if (Xj) < (Xk)
-#include<jmpnz.hh>				// // Jump to P + K if (Xj) unequal to 0 
+#include<instructions/pass.hh>                          // Pass                                                         (p54)
+#include<instructions/jmp.hh>				// Jump to P+K                                                  (p86)
+#include<instructions/jmpz.hh>				// Jump to P + K if (Xj) equal to 0                             (p94)
+#include<instructions/jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
+#include<instructions/jmpn.hh>				// Jump to P + K if (Xj) negative                               (p100)
+#include<instructions/jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
+#include<instructions/jmpk0.hh>				// Subroutine exit, computed jump to (Xj) + k and return 0 
+#include<instructions/xkj.hh>				// Transmit k to Xj                                             (p55)
+#include<instructions/compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
+#include<instructions/lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p37)
+#include<instructions/isjki.hh>				// Integer sum of (Xj) plus (Xk) to Xi				(p122)
+#include<instructions/idjki.hh>              		// Integer difference of (Xj) plus (Xk) to Xi			(p123)
+#include<instructions/ipjkj.hh>				// Integer product of (Xj) times (Xk) to Xj 			(p52)
+#include<instructions/idjkj.hh>				// Integer difference of (Xj) minus k to Xj 			(p58)
+#include<instructions/isjkj.hh>				// Integer sum of (Xj) plus k to Xj 				(p57)
+#include<instructions/idzkj.hh>				// Integer difference of zero minus (Xk) to Xj 			(p62)
+#include<instructions/rdKj.hh>				// Read data at address K to Xj					(p74)
+#include<instructions/rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
+#include<instructions/rdjk.hh>				// Read data at address (Xk) to (Xj)				(p75)
+#include<instructions/sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
+#include<instructions/fmul.hh>				// floating point multiplication Xi = Xj * Xk			(p124)
+#include<instructions/fadd.hh>				// floating point addition Xi = Xj + Xk				(p126)
+#include<instructions/fsub.hh>				// floating point subtraction Xi = Xj - Xk			(p128)
+#include<instructions/bb.hh>				// Branch backward i words if (Xj) < (Xk)
+#include<instructions/jmpnz.hh>				// Jump to P + K if (Xj) unequal to 0 
 
     } // namespace instructions
 
@@ -559,14 +559,11 @@ namespace CDC8600
     {
 	extern u32  count;	// Current instruction count
 	extern bool target;	// Is the current instruction the target of a branch?
+	extern u32  forcealign; // Align this instruction at a word boundary
     };
 
     extern bool 		tracing;
     extern vector<instruction*>	trace;
-
-    extern map<u32, u32> line2addr;
-    extern map<u32, u32> line2encoding;
-    extern map<u32, u32> line2len;
 
     extern bool process(instruction*, u32);
 

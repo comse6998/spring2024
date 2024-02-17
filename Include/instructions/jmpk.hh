@@ -12,4 +12,10 @@ class jmpk : public Fjk
 	{
 	    return "jmpk";
 	}
+
+	bool ops()
+	{
+	    process(new operations::jmpk(_j, _k));
+	    return false;
+	}
 };

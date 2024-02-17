@@ -5,12 +5,18 @@ class idzkj : public Fjk
 
 	bool execute()
 	{
-	     PROC.X(_j).i() = -PROC.X(_k).i();
-	     return false;
+	    PROC.X(_j).i() = -PROC.X(_k).i();
+	    return false;
 	}
 
 	string mnemonic() const
 	{
 	    return "idzkj";
+	}
+
+	bool ops()
+	{
+	    process(new operations::idzkj(_j, _k));
+	    return false;
 	}
 };

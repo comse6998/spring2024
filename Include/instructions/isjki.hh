@@ -13,4 +13,10 @@ class isjki : public Fijk
 	{
 	    return "isjki";
 	}
+
+	bool ops()
+	{
+	    process(new operations::isjki(_i, _j, _k));
+	    return false;
+	}
 };
