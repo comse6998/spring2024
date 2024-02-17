@@ -18,70 +18,70 @@ using namespace std;
 
 namespace CDC8600
 {
-    class word		// 64 bits, interpreted as signed, unsigned, or float
+    class word          // 64 bits, interpreted as signed, unsigned, or float
     {
-	private:
+        private:
 
-	    union
-	    {
-		u64	u;
-		i64	i;
-		f64	f;
-	    } _data;
+            union
+            {
+                u64     u;
+                i64     i;
+                f64     f;
+            } _data;
 
-	public:
+        public:
 
-	    word& operator=(i64 x)
-	    {
-		_data.i = x;
-		return *this;
-	    }
+            word& operator=(i64 x)
+            {
+                _data.i = x;
+                return *this;
+            }
 
-	    u64& u()       { return _data.u; } 
-	    u64  u() const { return _data.u; }
-	    i64& i()       { return _data.i; }
-	    i64  i() const { return _data.i; }
-	    f64& f() 	   { return _data.f; }
-	    f64  f() const { return _data.f; }
+            u64& u()       { return _data.u; } 
+            u64  u() const { return _data.u; }
+            i64& i()       { return _data.i; }
+            i64  i() const { return _data.i; }
+            f64& f()       { return _data.f; }
+            f64  f() const { return _data.f; }
 
-	    operator u64() { return _data.u; }
-	    operator i64() { return _data.i; }
-	    operator f64() { return _data.f; }
+            operator u64() { return _data.u; }
+            operator i64() { return _data.i; }
+            operator f64() { return _data.f; }
     };
 
     template<int n> class reg
     {
-	private:
-	    u32	_loc;	// location of memory word containing this register
-	    u08 _first;	// first bit in word for this register
-	public:
+        private:
+            u32 _loc;   // location of memory word containing this register
+            u08 _first; // first bit in word for this register
+        public:
 
-	    reg(u32 loc, u08 first) : _loc(loc), _first(first) { assert(n <= 20); assert(_first + n <= 64); }
-	    u64 u();
-	    reg<1> operator()(uint8_t);
-	    reg<n>& operator=(bool);
-	    reg<n>& operator=(u64);
+            reg(u32 loc, u08 first) : _loc(loc), _first(first) { assert(n <= 20); assert(_first + n <= 64); }
+            u64 u();
+            reg<1> operator()(uint8_t);
+            reg<n>& operator=(bool);
+            reg<n>& operator=(u64);
     };
 
     class Processor
     {
-	private:
+        private:
 
-	public:
+        public:
 
-	    uint8_t	_XA;		// The address of the current exchange packet	
-	    word&	X(uint8_t i);	// Xi register in current exchange packet
-	    reg<4>	mode();		// mode field of current XPW
-	    reg<8>	cond();		// cond field of current XPW
-	    reg<12>	RA();		// RA field of current XPW
-	    reg<8>	XA();		// XA field of current XPW
-	    reg<12>	FL();		// FL field of current XPW
-	    reg<20>	P();		// P field of current XPW
+            uint8_t     _XA;            // The address of the current exchange packet   
+            word&       X(uint8_t i);   // Xi register in current exchange packet
+            reg<4>      mode();         // mode field of current XPW
+            reg<8>      cond();         // cond field of current XPW
+            reg<12>     RA();           // RA field of current XPW
+            reg<8>      XA();           // XA field of current XPW
+            reg<12>     FL();           // FL field of current XPW
+            reg<20>     P();            // P field of current XPW
     };
 
-    extern vector<word>	MEM;
-    extern uint32_t	FreeMEM;
-    extern Processor	PROC;
+    extern vector<word> MEM;
+    extern uint32_t     FreeMEM;
+    extern Processor    PROC;
 
     void reset();
 
@@ -103,112 +103,112 @@ namespace CDC8600
 
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(4).i() = arg5;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(2).i() = arg3;
+            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(4).i() = arg5;
 
-	    _f();
-	}
+            _f();
+        }
 
         void operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(4).i() = arg5;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(2).i() = arg3;
+            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(4).i() = arg5;
 
-	    _f();
-	}
+            _f();
+        }
 
-	void operator()(u64 arg1, c128 arg2, c128 *arg3, i64 arg4, c128 *arg5, i64 arg6)
-	{
-	    label(_f);
+        void operator()(u64 arg1, c128 arg2, c128 *arg3, i64 arg4, c128 *arg5, i64 arg6)
+        {
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).f() = arg2.real();
-	    PROC.X(2).f() = arg2.imag();
-	    PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(4).i() = arg4;
-	    PROC.X(5).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(6).i() = arg6;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).f() = arg2.real();
+            PROC.X(2).f() = arg2.imag();
+            PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(4).i() = arg4;
+            PROC.X(5).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(6).i() = arg6;
 
-	    _f();
-	}
+            _f();
+        }
 
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5, f64 arg6, f64 arg7)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(4).i() = arg5;
-	    PROC.X(5).f() = arg6;
-	    PROC.X(6).f() = arg7;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(2).i() = arg3;
+            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(4).i() = arg5;
+            PROC.X(5).f() = arg6;
+            PROC.X(6).f() = arg7;
 
-	    _f();
-	    }
+            _f();
+            }
 
-	void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
-	{
-	    label(_f);
+        void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
+        {
+            label(_f);
 
-	    PROC.X(0).i() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(4).i() = arg5;
-	    PROC.X(5).f() = arg6;
-	    PROC.X(6).f() = arg7;
+            PROC.X(0).i() = arg1;
+            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(2).i() = arg3;
+            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(4).i() = arg5;
+            PROC.X(5).f() = arg6;
+            PROC.X(6).f() = arg7;
 
-	    _f();
-	}
+            _f();
+        }
 
         void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).f() = arg2;
-	    PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(3).i() = arg4;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).f() = arg2;
+            PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(3).i() = arg4;
 
-	    _f();
+            _f();
         }
 
-	void operator()(i64 arg1, c128 arg2, c128 *arg3, i64 arg4)
+        void operator()(i64 arg1, c128 arg2, c128 *arg3, i64 arg4)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).i() = arg1;
-	    PROC.X(1).f() = arg2.real();
-	    PROC.X(2).f() = arg2.imag();
-	    PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(4).i() = arg4;
+            PROC.X(0).i() = arg1;
+            PROC.X(1).f() = arg2.real();
+            PROC.X(2).f() = arg2.imag();
+            PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(4).i() = arg4;
 
-	    _f();
-        }	
+            _f();
+        }       
         
         void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4, f64 *arg5, i64 arg6)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).f() = arg2;
-	    PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(3).i() = arg4;
-	    PROC.X(4).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(5).i() = arg6;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).f() = arg2;
+            PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(3).i() = arg4;
+            PROC.X(4).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(5).i() = arg6;
 
-	    _f();
+            _f();
         }
     };
 
@@ -226,46 +226,46 @@ namespace CDC8600
 
         T0 operator()(u64 arg1, f64 *arg2, i64 arg3)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(2).i() = arg3;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(2).i() = arg3;
 
-	    _f();
-		
-	    return (T0) PROC.X(0);
-	}
+            _f();
+                
+            return (T0) PROC.X(0);
+        }
 
         f64 operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(4).i() = arg5;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(2).i() = arg3;
+            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(4).i() = arg5;
 
-	    _f();
+            _f();
 
-	    return PROC.X(0).f();
-	}
+            return PROC.X(0).f();
+        }
 
         c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
-	    label(_f);
+            label(_f);
 
-	    PROC.X(0).u() = arg1;
-	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(2).i() = arg3;
-	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-	    PROC.X(4).i() = arg5;
+            PROC.X(0).u() = arg1;
+            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(2).i() = arg3;
+            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
+            PROC.X(4).i() = arg5;
 
-	    _f();
+            _f();
 
-	    return c128(PROC.X(0).f(), PROC.X(1).f());
-	}
+            return c128(PROC.X(0).f(), PROC.X(1).f());
+        }
     };
 
     template <typename T0, typename T1, typename T2, typename T3> class func3
@@ -280,11 +280,11 @@ namespace CDC8600
         }
         T0 operator()(T1 arg1, T2 arg2, T3 arg3)
         {
-	    return _f(arg1, arg2, arg3);
-	}
+            return _f(arg1, arg2, arg3);
+        }
     };
 
-	template <typename T1, typename T2, typename T3, typename T4> class call4
+        template <typename T1, typename T2, typename T3, typename T4> class call4
     {
       private:
         void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
@@ -296,10 +296,10 @@ namespace CDC8600
         }
         void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
-	    _f(arg1, arg2, arg3, arg4);
+            _f(arg1, arg2, arg3, arg4);
         }
     };
-	
+        
     template <typename T1, typename T2, typename T3, typename T4, typename T5> class call5
     {
       private:
@@ -312,8 +312,8 @@ namespace CDC8600
         }
         void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
-	    _f(arg1, arg2, arg3, arg4, arg5);
-	}
+            _f(arg1, arg2, arg3, arg4, arg5);
+        }
     };
 
     template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5> class func5
@@ -328,24 +328,24 @@ namespace CDC8600
         }
         T0 operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
-	    return _f(arg1, arg2, arg3, arg4, arg5);
-	}
+            return _f(arg1, arg2, arg3, arg4, arg5);
+        }
     };
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> class call6
     {
     private:
-	    void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
+            void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
 
     public:
-	    call6(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
-	    {
-		    _f = f;
-	    }
-	    void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
-	    {
-		    _f(arg1, arg2, arg3, arg4, arg5, arg6);
-	    }
+            call6(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
+            {
+                    _f = f;
+            }
+            void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+            {
+                    _f(arg1, arg2, arg3, arg4, arg5, arg6);
+            }
     };
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> class call7
@@ -360,8 +360,8 @@ namespace CDC8600
         }
         void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
-	    _f(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-	}
+            _f(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+        }
     };
 
     call0 Call(void (*f)());
@@ -372,7 +372,7 @@ namespace CDC8600
         return func0<T0>(f);
     }
 
-	template <typename T0, typename T1, typename T2, typename T3>
+        template <typename T0, typename T1, typename T2, typename T3>
     func3<T0, T1, T2, T3> Func(T0 (*f)(T1 arg1, T2 arg2, T3 arg3))
     {
         return func3<T0, T1, T2, T3>(f);
@@ -382,7 +382,7 @@ namespace CDC8600
     call4<T1, T2, T3, T4> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4))
     {
         return call4<T1, T2, T3, T4>(f);
-    }	
+    }   
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
     call5<T1, T2, T3, T4, T5> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5))
@@ -399,7 +399,7 @@ namespace CDC8600
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
     call6<T1, T2, T3, T4, T5, T6> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
     {
-	    return call6<T1, T2, T3, T4, T5, T6>(f);
+            return call6<T1, T2, T3, T4, T5, T6>(f);
     }
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
@@ -408,131 +408,131 @@ namespace CDC8600
         return call7<T1, T2, T3, T4, T5, T6, T7>(f);
     }
 
-    class instruction					// Generic instruction class
+    class instruction                                   // Generic instruction class
     {
-	protected:
-	    u32	_line;					// line number of instruction in source file
-	    u32 _addr;					// byte (not word) address of instruction in memory
-	public:
-	    virtual bool execute() = 0;			// every instruction must have a method "execute" that implements its semantics and returns "true" if branch is taken
-	    virtual bool ops() { }                      // the ops method processes the internal ops that implement the instrution
-	    virtual u08 len() const = 0;		// length of instruction in bytes (2 or 4)
-	    virtual string mnemonic() const = 0;	// mnemonic for the instruction
-	    virtual string dasm() const = 0;		// disassembly for the instruction
-	    virtual u32 encoding() const = 0;		// instruction encoding
-	    virtual void fixit() { }                    // used to fix displacements in branches
-	    u32& line() { return _line; }
-	    u32& addr() { return _addr; }
+        protected:
+            u32 _line;                                  // line number of instruction in source file
+            u32 _addr;                                  // byte (not word) address of instruction in memory
+        public:
+            virtual bool execute() = 0;                 // every instruction must have a method "execute" that implements its semantics and returns "true" if branch is taken
+            virtual bool ops() { }                      // the ops method processes the internal ops that implement the instrution
+            virtual u08 len() const = 0;                // length of instruction in bytes (2 or 4)
+            virtual string mnemonic() const = 0;        // mnemonic for the instruction
+            virtual string dasm() const = 0;            // disassembly for the instruction
+            virtual u32 encoding() const = 0;           // instruction encoding
+            virtual void fixit() { }                    // used to fix displacements in branches
+            u32& line() { return _line; }
+            u32& addr() { return _addr; }
     };
 
-    class Fijk : public instruction	// Instructions of 4/4/4/4 format
+    class Fijk : public instruction     // Instructions of 4/4/4/4 format
     {
-	protected:
-	    u08 _F;	// 4-bit function code
-	    u08 _i;	// 4-bit i field
-	    u08 _j;	// 4-bit j field
-	    u08 _k;	// 4-bit k field
-	public:
-	    Fijk(u08 F, u08 i, u08 j, u08 k)
-	    {
-		assert(F < 16);
-		assert(i < 16);
-		assert(j < 16);
-		assert(k < 16);
-		_F = F;
-		_i = i;
-		_j = j;
-		_k = k;
-	    }
-	    u08 len() const { return 2; }
-	    string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
-	    u32 encoding() const { return (_F << 12) + (_i << 8) + (_j << 4) + (_k << 0); }
+        protected:
+            u08 _F;     // 4-bit function code
+            u08 _i;     // 4-bit i field
+            u08 _j;     // 4-bit j field
+            u08 _k;     // 4-bit k field
+        public:
+            Fijk(u08 F, u08 i, u08 j, u08 k)
+            {
+                assert(F < 16);
+                assert(i < 16);
+                assert(j < 16);
+                assert(k < 16);
+                _F = F;
+                _i = i;
+                _j = j;
+                _k = k;
+            }
+            u08 len() const { return 2; }
+            string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+            u32 encoding() const { return (_F << 12) + (_i << 8) + (_j << 4) + (_k << 0); }
     };
 
-    class FijK : public instruction	// Instructions of 4/4/4/20 format
+    class FijK : public instruction     // Instructions of 4/4/4/20 format
     {
-	protected:
-	    u08	_F;	// 4-bit function code
-	    u08 _i;	// 4-bit i field
-	    u08 _j;	// 4-bit j field
-	    u32 _K;	// 20-bit K field
-	public:
-	    FijK(u08 F, u08 i, u08 j, u32 K)
-	    {
-		assert(F < 16);
-		assert(i < 16);
-		assert(j < 16);
-		assert(K < (1 << 20));
-		_F = F;
-		_i = i;
-		_j = j;
-		_K = K;
-	    }
-	    u08 len() const { return 4; }
-	    string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_K) + ")"; }
-	    u32 encoding() const { return (_F << 28) + (_i << 24) + (_j << 20) + (_K << 0); }
+        protected:
+            u08 _F;     // 4-bit function code
+            u08 _i;     // 4-bit i field
+            u08 _j;     // 4-bit j field
+            u32 _K;     // 20-bit K field
+        public:
+            FijK(u08 F, u08 i, u08 j, u32 K)
+            {
+                assert(F < 16);
+                assert(i < 16);
+                assert(j < 16);
+                assert(K < (1 << 20));
+                _F = F;
+                _i = i;
+                _j = j;
+                _K = K;
+            }
+            u08 len() const { return 4; }
+            string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_K) + ")"; }
+            u32 encoding() const { return (_F << 28) + (_i << 24) + (_j << 20) + (_K << 0); }
     };
 
-    class Fjn : public instruction	// Instructions of 6/4/6 format
+    class Fjn : public instruction      // Instructions of 6/4/6 format
     {
-	protected:
-	    u08 _F;	// 6-bit function code
-	    u08 _j;	// 4-bit j field
-	    u08 _n;	// 6-bit n field
-	public:
-	    Fjn(u08 F, u08 j, u08 n)
-	    {
-		assert(F < 64);
-		assert(j < 16);
-		assert(n < 64);
-		_F = F;
-		_j = j;
-		_n = n;
-	    }
-	    u08 len() const { return 2; }
-	    string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_n) + ")"; }
+        protected:
+            u08 _F;     // 6-bit function code
+            u08 _j;     // 4-bit j field
+            u08 _n;     // 6-bit n field
+        public:
+            Fjn(u08 F, u08 j, u08 n)
+            {
+                assert(F < 64);
+                assert(j < 16);
+                assert(n < 64);
+                _F = F;
+                _j = j;
+                _n = n;
+            }
+            u08 len() const { return 2; }
+            string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_n) + ")"; }
     };
 
-    class Fjk : public instruction	// Instructions of 8/4/4 format
+    class Fjk : public instruction      // Instructions of 8/4/4 format
     {
-	protected:
-	    u08	_F;	// 8-bit Function code
-	    u08	_j;	// 4-bit j field
-	    u08 _k;	// 4-bit k field
-	public:
-	    Fjk(u08 F, u08 j, u08 k)
-	    {
-		assert(F < 256);
-		assert(j < 16);
-		assert(k < 16);
-		_F = F;
-		_j = j;
-		_k = k;
-	    }
-	    u08 len() const { return 2; }
-	    string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
-	    u32 encoding() const { return (_F << 8) + (_j << 4) + (_k << 0); }
+        protected:
+            u08 _F;     // 8-bit Function code
+            u08 _j;     // 4-bit j field
+            u08 _k;     // 4-bit k field
+        public:
+            Fjk(u08 F, u08 j, u08 k)
+            {
+                assert(F < 256);
+                assert(j < 16);
+                assert(k < 16);
+                _F = F;
+                _j = j;
+                _k = k;
+            }
+            u08 len() const { return 2; }
+            string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
+            u32 encoding() const { return (_F << 8) + (_j << 4) + (_k << 0); }
     };
 
-    class FjK : public instruction	// Instructions of 8/4/20 fomrat
+    class FjK : public instruction      // Instructions of 8/4/20 fomrat
     {
-	protected:
-	    u08 _F;	// 8-bit Function code
-	    u08 _j;	// 4-bit j field
-	    u32 _K;	// 20-bit K field
-	public:
-	    FjK(u08 F, u08 j, u32 K)
-	    {
-		assert(F < 256);
-		assert(j < 16);
-		assert(K < (1 << 20));
-		_F = F;
-		_j = j;
-		_K = K;
-	    }
-	    u08 len() const { return 4; }
-	    string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_K) + ")"; }
-	    u32 encoding() const { return (_F << 24) + (_j << 20) + (_K << 0); }
+        protected:
+            u08 _F;     // 8-bit Function code
+            u08 _j;     // 4-bit j field
+            u32 _K;     // 20-bit K field
+        public:
+            FjK(u08 F, u08 j, u32 K)
+            {
+                assert(F < 256);
+                assert(j < 16);
+                assert(K < (1 << 20));
+                _F = F;
+                _j = j;
+                _K = K;
+            }
+            u08 len() const { return 4; }
+            string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_K) + ")"; }
+            u32 encoding() const { return (_F << 24) + (_j << 20) + (_K << 0); }
     };
 
     extern map<u32, u32>      line2addr;
@@ -543,41 +543,41 @@ namespace CDC8600
     namespace instructions
     {
 #include<instructions/pass.hh>                          // Pass                                                         (p54)
-#include<instructions/jmp.hh>				// Jump to P+K                                                  (p86)
-#include<instructions/jmpz.hh>				// Jump to P + K if (Xj) equal to 0                             (p94)
-#include<instructions/jmpp.hh>				// Jump to P + K if (Xj) positive                               (p98)
-#include<instructions/jmpn.hh>				// Jump to P + K if (Xj) negative                               (p100)
-#include<instructions/jmpk.hh>				// Subroutine exit, computed jump to (Xj) + k                   (p110)
-#include<instructions/jmpk0.hh>				// Subroutine exit, computed jump to (Xj) + k and return 0 
-#include<instructions/xkj.hh>				// Transmit k to Xj                                             (p55)
-#include<instructions/compk.hh>				// Copy complement of (Xk) to Xj 				(p41)
-#include<instructions/lpjkj.hh>				// Logical product of (Xj) times (Xk) to Xj 			(p37)
-#include<instructions/isjki.hh>				// Integer sum of (Xj) plus (Xk) to Xi				(p122)
-#include<instructions/idjki.hh>              		// Integer difference of (Xj) plus (Xk) to Xi			(p123)
-#include<instructions/ipjkj.hh>				// Integer product of (Xj) times (Xk) to Xj 			(p52)
-#include<instructions/idjkj.hh>				// Integer difference of (Xj) minus k to Xj 			(p58)
-#include<instructions/isjkj.hh>				// Integer sum of (Xj) plus k to Xj 				(p57)
-#include<instructions/idzkj.hh>				// Integer difference of zero minus (Xk) to Xj 			(p62)
-#include<instructions/rdKj.hh>				// Read data at address K to Xj					(p74)
-#include<instructions/rdjki.hh>				// Read data at address (Xj) + (Xk) to (Xi)			(p133)
-#include<instructions/rdjk.hh>				// Read data at address (Xk) to (Xj)				(p75)
-#include<instructions/sdjki.hh>				// Store data at address (Xj) + (Xk) from Xi			(p135)
-#include<instructions/fmul.hh>				// floating point multiplication Xi = Xj * Xk			(p124)
-#include<instructions/fadd.hh>				// floating point addition Xi = Xj + Xk				(p126)
-#include<instructions/fsub.hh>				// floating point subtraction Xi = Xj - Xk			(p128)
-#include<instructions/bb.hh>				// Branch backward i words if (Xj) < (Xk)
-#include<instructions/jmpnz.hh>				// Jump to P + K if (Xj) unequal to 0 
+#include<instructions/jmp.hh>                           // Jump to P+K                                                  (p86)
+#include<instructions/jmpz.hh>                          // Jump to P + K if (Xj) equal to 0                             (p94)
+#include<instructions/jmpp.hh>                          // Jump to P + K if (Xj) positive                               (p98)
+#include<instructions/jmpn.hh>                          // Jump to P + K if (Xj) negative                               (p100)
+#include<instructions/jmpk.hh>                          // Subroutine exit, computed jump to (Xj) + k                   (p110)
+#include<instructions/jmpk0.hh>                         // Subroutine exit, computed jump to (Xj) + k and return 0 
+#include<instructions/xkj.hh>                           // Transmit k to Xj                                             (p55)
+#include<instructions/compk.hh>                         // Copy complement of (Xk) to Xj                                (p41)
+#include<instructions/lpjkj.hh>                         // Logical product of (Xj) times (Xk) to Xj                     (p37)
+#include<instructions/isjki.hh>                         // Integer sum of (Xj) plus (Xk) to Xi                          (p122)
+#include<instructions/idjki.hh>                         // Integer difference of (Xj) plus (Xk) to Xi                   (p123)
+#include<instructions/ipjkj.hh>                         // Integer product of (Xj) times (Xk) to Xj                     (p52)
+#include<instructions/idjkj.hh>                         // Integer difference of (Xj) minus k to Xj                     (p58)
+#include<instructions/isjkj.hh>                         // Integer sum of (Xj) plus k to Xj                             (p57)
+#include<instructions/idzkj.hh>                         // Integer difference of zero minus (Xk) to Xj                  (p62)
+#include<instructions/rdKj.hh>                          // Read data at address K to Xj                                 (p74)
+#include<instructions/rdjki.hh>                         // Read data at address (Xj) + (Xk) to (Xi)                     (p133)
+#include<instructions/rdjk.hh>                          // Read data at address (Xk) to (Xj)                            (p75)
+#include<instructions/sdjki.hh>                         // Store data at address (Xj) + (Xk) from Xi                    (p135)
+#include<instructions/fmul.hh>                          // floating point multiplication Xi = Xj * Xk                   (p124)
+#include<instructions/fadd.hh>                          // floating point addition Xi = Xj + Xk                         (p126)
+#include<instructions/fsub.hh>                          // floating point subtraction Xi = Xj - Xk                      (p128)
+#include<instructions/bb.hh>                            // Branch backward i words if (Xj) < (Xk)
+#include<instructions/jmpnz.hh>                         // Jump to P + K if (Xj) unequal to 0 
     } // namespace instructions
 
     namespace instructions
     {
-	extern u32  count;	// Current instruction count
-	extern bool target;	// Is the current instruction the target of a branch?
-	extern u32  forcealign; // Align this instruction at a word boundary
+        extern u32  count;      // Current instruction count
+        extern bool target;     // Is the current instruction the target of a branch?
+        extern u32  forcealign; // Align this instruction at a word boundary
     };
 
-    extern bool 		tracing;
-    extern vector<instruction*>	trace;
+    extern bool                 tracing;
+    extern vector<instruction*> trace;
 
     extern bool process(instruction*, u32);
 
