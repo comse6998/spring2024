@@ -176,9 +176,9 @@ namespace CDC8600
 	label2line[label] = line;
     }
 
-    void label
+    template<typename T> void label
     (
-        void (*f)()
+        T (*f)()
     )
     {
 	line2addr.clear();
@@ -190,6 +190,11 @@ namespace CDC8600
 	f();
 	instructions::labeling = false;
     }
+    
+    template void label(void (*f)());
+    template void label(f64  (*f)());
+    template void label(i64  (*f)());
+    template void label(c128 (*f)());
 
     void labeladdr
     (

@@ -87,7 +87,7 @@ namespace CDC8600
 
     void *memalloc(u64);
 
-    void label(void (*f)());
+    template<typename T> void label(T (*f)());
     void addlabel(string, u32);
 
     class call0
@@ -116,6 +116,8 @@ namespace CDC8600
 
         void operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
+	    label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
@@ -125,27 +127,30 @@ namespace CDC8600
 	    _f();
 	}
 
-		void operator()(u64 arg1, c128 arg2, c128 *arg3, i64 arg4, c128 *arg5, i64 arg6)
-		{
-			PROC.X(0).u() = arg1;
-			PROC.X(1).f() = arg2.real();
-			PROC.X(2).f() = arg2.imag();
-			PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-			PROC.X(4).i() = arg4;
-			PROC.X(5).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
-			PROC.X(6).i() = arg6;
+	void operator()(u64 arg1, c128 arg2, c128 *arg3, i64 arg4, c128 *arg5, i64 arg6)
+	{
+	    label(_f);
 
-			_f();
-		}
+	    PROC.X(0).u() = arg1;
+	    PROC.X(1).f() = arg2.real();
+	    PROC.X(2).f() = arg2.imag();
+	    PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(4).i() = arg4;
+	    PROC.X(5).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
+	    PROC.X(6).i() = arg6;
+
+	    _f();
+	}
 
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5, f64 arg6, f64 arg7)
         {
+	    label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
 	    PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(4).i() = arg5;
-
 	    PROC.X(5).f() = arg6;
 	    PROC.X(6).f() = arg7;
 
@@ -154,6 +159,8 @@ namespace CDC8600
 
 	void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
 	{
+	    label(_f);
+
 	    PROC.X(0).i() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
@@ -167,6 +174,8 @@ namespace CDC8600
 
         void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4)
         {
+	    label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).f() = arg2;
 	    PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
@@ -175,21 +184,23 @@ namespace CDC8600
 	    _f();
         }
 
-		void operator()(i64 arg1, c128 arg2, c128 *arg3, i64 arg4)
+	void operator()(i64 arg1, c128 arg2, c128 *arg3, i64 arg4)
         {
+	    label(_f);
+
 	    PROC.X(0).i() = arg1;
 	    PROC.X(1).f() = arg2.real();
-		PROC.X(2).f() = arg2.imag();
+	    PROC.X(2).f() = arg2.imag();
 	    PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(4).i() = arg4;
 
 	    _f();
         }	
         
-        
-        
         void operator()(u64 arg1, f64 arg2, f64 *arg3, i64 arg4, f64 *arg5, i64 arg6)
         {
+	    label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).f() = arg2;
 	    PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
@@ -199,7 +210,6 @@ namespace CDC8600
 
 	    _f();
         }
-
     };
 
     template<typename T0>
@@ -216,6 +226,8 @@ namespace CDC8600
 
         T0 operator()(u64 arg1, f64 *arg2, i64 arg3)
         {
+	    label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
@@ -223,10 +235,12 @@ namespace CDC8600
 	    _f();
 		
 	    return (T0) PROC.X(0);
-		}
+	}
 
         f64 operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
+	    label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
@@ -236,10 +250,12 @@ namespace CDC8600
 	    _f();
 
 	    return PROC.X(0).f();
-		}
+	}
 
         c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
+	    label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
@@ -249,9 +265,8 @@ namespace CDC8600
 	    _f();
 
 	    return c128(PROC.X(0).f(), PROC.X(1).f());
-		}
+	}
     };
-
 
     template <typename T0, typename T1, typename T2, typename T3> class func3
     {
@@ -317,21 +332,21 @@ namespace CDC8600
 	}
     };
 
-	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> class call6
-	{
-	private:
-		void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> class call6
+    {
+    private:
+	    void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
 
-	public:
-		call6(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
-		{
-			_f = f;
-		}
-		void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
-		{
-			_f(arg1, arg2, arg3, arg4, arg5, arg6);
-		}
-	};
+    public:
+	    call6(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
+	    {
+		    _f = f;
+	    }
+	    void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+	    {
+		    _f(arg1, arg2, arg3, arg4, arg5, arg6);
+	    }
+    };
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> class call7
     {
@@ -381,11 +396,11 @@ namespace CDC8600
         return func5<T0, T1, T2, T3, T4, T5>(f);
     }
 
-	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	call6<T1, T2, T3, T4, T5, T6> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
-	{
-		return call6<T1, T2, T3, T4, T5, T6>(f);
-	}
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+    call6<T1, T2, T3, T4, T5, T6> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6))
+    {
+	    return call6<T1, T2, T3, T4, T5, T6>(f);
+    }
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
     call7<T1, T2, T3, T4, T5, T6, T7> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7))
@@ -552,7 +567,6 @@ namespace CDC8600
 #include<instructions/fsub.hh>				// floating point subtraction Xi = Xj - Xk			(p128)
 #include<instructions/bb.hh>				// Branch backward i words if (Xj) < (Xk)
 #include<instructions/jmpnz.hh>				// Jump to P + K if (Xj) unequal to 0 
-
     } // namespace instructions
 
     namespace instructions
@@ -568,7 +582,6 @@ namespace CDC8600
     extern bool process(instruction*, u32);
 
     extern void dump(vector<instruction*>&);
-
 } // namespace CDC8600
 
 #endif // _CDC8600_HH_
