@@ -29,6 +29,8 @@ void test_zdotu(int count)
     for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
     for (int i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
 
+    tracing = false; if (n < 10) tracing = true;
+
     c128 res_ref = zdotu_(&n, x, &incx, y, &incy);
     c128 res_new = CDC8600::BLAS::zdotu(n, x, incx, y, incy);
 
