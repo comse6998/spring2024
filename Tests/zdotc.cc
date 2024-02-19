@@ -22,6 +22,8 @@ void test_zdotc(int count)
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
 
+    tracing = false; if (n < 10) tracing = true;
+
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
 

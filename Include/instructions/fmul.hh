@@ -13,4 +13,10 @@ class fmul : public Fijk
 	{
 	    return "fmul";
 	}
+
+	bool ops()
+	{
+	    process(new operations::fmul(_i,_j, _k));
+	    return false;
+	}
 };

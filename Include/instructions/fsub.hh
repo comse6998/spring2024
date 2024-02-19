@@ -13,4 +13,10 @@ class fsub : public Fijk
 	{
 	    return "fsub";
 	}
+
+	bool ops()
+	{
+	    process(new operations::fsub(_i,_j, _k));
+	    return false;
+	}
 };
