@@ -140,6 +140,8 @@ namespace CDC8600
 
         void operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5, f64 arg6, f64 arg7)
         {
+		label(_f);
+
 	    PROC.X(0).u() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
@@ -154,6 +156,8 @@ namespace CDC8600
 
 	void operator()(i64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5, f64 arg6, f64 arg7)
 	{
+		label(_f);
+
 	    PROC.X(0).i() = arg1;
 	    PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
 	    PROC.X(2).i() = arg3;
