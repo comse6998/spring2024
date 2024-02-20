@@ -50,6 +50,7 @@ namespace CDC8600
 			xkj(7, 0)           // X7 (tmp) = 0
 			idjkj(7, 1)         // X7 (tmp) = -1
 			isjki(7, 7, 4)      // X7 (tmp) = X7 (-1) + X4 (incx)
+			pass()              // padding
 			jmpnz(7, general)   // if X4 (incx) != 1 goto general
 			idjkj(7, 1)         // X7 (tmp) = -1
 			isjki(7, 7, 6)      // X7 (tmp) = X7 (-1) + X6 (incy)
@@ -57,9 +58,9 @@ namespace CDC8600
 
 			/* optimization */
 			idjkj(0, 1)         // X0 (n) = X0 (n) - 1
+			pass()              // padding
 
-LABEL(opt_loop)
-			jmpn(0, end)        // if X0 (n) < 0 goto end
+LABEL(opt_loop) jmpn(0, end)        // if X0 (n) < 0 goto end
 
 			isjki(8, 0, 0)      // X8 (i) = 2 * X0 (n)
 			rdjki(9, 5, 8)      // X9 (tmp1) = MEM[X5 (y) + X8 (i)] (y.real)
@@ -86,10 +87,10 @@ LABEL(opt_loop)
 
 			idjkj(0, 1)         // X0 (n) = X0 (n) - 1
 			jmp(opt_loop)
+			pass()              // padding
+			pass()              // padding
 
-			/* general cases */ 
-LABEL(general)
-			isjki(4, 4, 4)      // X4 (incx) = 2 * X4 (incx)
+LABEL(general) isjki(4, 4, 4)      // X4 (incx) = 2 * X4 (incx)
 			isjki(6, 6, 6)      // X6 (incy) = 2 * X6 (incy)
 			xkj(7, 0)           // X7 (ix) = 0
 			xkj(8, 0)           // X8 (iy) = 0
@@ -97,13 +98,19 @@ LABEL(general)
 			idzkj(7, 0)         // X7 (ix) = -X0 (n)
 			isjkj(7, 1)         // X7 (ix) = X7(-n) + 1
 			ipjkj(7, 4)         // X7 (ix) = X7 (-n+1) * X4 (incx)
-LABEL(L1)	
-			jmpp(6, loop)       // if X6 (incy) > 0 goto loop
+			pass()              // padding
+			pass()              // padding
+			pass()              // padding
+
+LABEL(L1)   jmpp(6, loop)       // if X6 (incy) > 0 goto loop
 			idzkj(8, 0)         // X8 (iy) = -X0 (n)
 			isjkj(8, 1)         // X8 (iy) = X8(-n) + 1
 			ipjkj(8, 6)         // X8 (iy) = X8 (-n+1) * X6 (incy)
-LABEL(loop)	
-			jmpz(0, end)        // if X0 (n) = 0 goto end
+			pass()              // padding
+			pass()              // padding
+			pass()              // padding
+
+LABEL(loop) jmpz(0, end)        // if X0 (n) = 0 goto end
 			rdjki(9, 5, 8)      // X9 (tmp1) = MEM[X5 (y) + X8 (iy)] (y.real)
 			rdjki(10, 3, 7)     // X10 (tmp2) = MEM[X3 (x) + X7 (ix)] (x.real)
 			fmul(10, 10, 1)     // X10 (tmp2) = X10 (x.real) * X1 (a.real)
@@ -129,10 +136,10 @@ LABEL(loop)
 			isjki(7, 7, 4)      // X7 (ix) = X7 (ix) + X4 (incx)
 			isjki(8, 8, 6)      // X8 (iy) = X8 (iy) + X6 (incy)
 			idjkj(0, 1)         // X0 (n) = X0 (n) - 1
+			pass()              // padding
 			jmp(loop)
 
-LABEL(end)	
-			jmpk(15, 1)         // return to X15 (calling address) + 1
+LABEL(end)  jmpk(15, 1)         // return to X15 (calling address) + 1
 		}
 	} // namespace BLAS
 } // namespace CDC8600
