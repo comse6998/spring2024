@@ -171,6 +171,23 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
 	};
 
+        class idjki : public FXop
+	{
+	    private:
+		u08	_i;
+		u08	_j;
+		u08	_k;
+
+	    public:
+		idjki(u08 i, u08 j, u08 k) { _i = i; _j = j; _k = k; }
+		u64 ready() const { return max(REGready[_k], REGready[_j]); }
+		u64 target(u64 cycle) { REGready[_i] = cycle; }
+		u64 latency() const { return 2; }
+		u64 throughput() const { return 1; }
+		string mnemonic() const { return "idjki"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+	};
+
 	class isjkj : public FXop
 	{
 	    private:
@@ -327,6 +344,20 @@ namespace CDC8600
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmpz"; }
+		string dasm() const { return mnemonic() + "(" + ")"; }
+	};
+
+        class jmpnz : public BRop
+	{
+	    private:
+
+	    public:
+		jmpnz() { }
+		u64 ready() const { return REGready[params::micro::CMPFLAGS]; }
+		u64 target(u64 cycle) { nextdispatch = cycle; }
+		u64 latency() const { return 1; }
+		u64 throughput() const { return 1; }
+		string mnemonic() const { return "jmpnz"; }
 		string dasm() const { return mnemonic() + "(" + ")"; }
 	};
 
