@@ -13,4 +13,10 @@ class fadd : public Fijk
 	{
 	    return "fadd";
 	}
+
+	bool ops()
+	{
+	    process(new operations::fadd(_i, _j, _k));
+	    return false;
+	}
 };
