@@ -42,7 +42,7 @@ namespace CDC8600
         // f64 c		[ X5 ]
         // f64 s		[ X6 ]
 	)
-	{
+	    {
             // Optimization 1: If n<=0, return right away.
             // Jmp if zero or negative
             jmpz(0, end);                                               // 0
