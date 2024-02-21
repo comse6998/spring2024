@@ -32,7 +32,7 @@ class bb : public Fijk
 	    u32 targetaddr = line2addr[targetline];
 	    assert(line2addr.count(_line));
 	    u32 sourceaddr = line2addr[_line];
-		assert(sourceaddr >= targetaddr);
+	    assert(sourceaddr >= targetaddr);
 	    _i = (sourceaddr/8) - (targetaddr/8); // Finally calculate and assert _i
 	    assert(_i < 16);
 	}
