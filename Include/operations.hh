@@ -374,7 +374,7 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + ")"; }
 	};
 
-		class bb : public BRop
+	class bb : public BRop
 	{
 	    private:
 		u08	_i;
