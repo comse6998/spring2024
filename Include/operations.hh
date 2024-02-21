@@ -290,7 +290,7 @@ namespace CDC8600
 	{
 	    private:
 	        u08 _j;
-			u08 _k;
+	        u08 _k;
 
 	    public:
 		cmp(u08 j, u08 k) { _j = j;  _k = k; }

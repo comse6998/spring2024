@@ -19,7 +19,7 @@ class bb : public Fijk
 
 	bool ops()
 	{
-		process(new operations::cmp(_j, _k));
+	    process(new operations::cmp(_j, _k));
 	    process(new operations::bb(_i));
 	    return false;
 	}
@@ -33,6 +33,6 @@ class bb : public Fijk
 	    assert(line2addr.count(_line));
 	    u32 sourceaddr = line2addr[_line];
 	    _i = (sourceaddr/8) - (targetaddr/8); // Finally calculate and assert _i
-		assert(_i < 16);
+	    assert(_i < 16);
 	}
 };
