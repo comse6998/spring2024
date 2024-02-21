@@ -46,54 +46,55 @@ namespace CDC8600
         {
             jmpn(0, end)        // if n < 0 goto end
             jmpz(0, end)        // if n == 0 goto end
-            
+
             xkj(7, 0)           // X7 (tmp) = 0
             idjkj(7, 1)         // X7 (tmp) = -1
             isjki(7, 7, 4)      // X7 (tmp) = X7 (-1) + X4 (incx)
             pass()              // padding
-            jmpnz(7, general)   // if X4 (incx) != 1 goto general
+            jmpnz(7, gen)       // if X4 (incx) != 1 goto general
             idjkj(7, 1)         // X7 (tmp) = -1
             isjki(7, 7, 6)      // X7 (tmp) = X7 (-1) + X6 (incy)
-            jmpnz(7, general)   // if X6 (incy) != 1 goto general
+            jmpnz(7, gen)       // if X6 (incy) != 1 goto general
 
             /* optimization */
-            idjkj(0, 1)         // X0 (n) = X0 (n) - 1
+            isjki(0, 0, 0)      // X0 (n) = X(0) * 2
+            isjki(4, 4, 3)      // X4 (xbase.imag) = X3 (xbase.real) + X4 (1)
+            isjki(6, 6, 5)      // X6 (ybase.imag) = X5 (ybase.real) + X6 (1)
+            pass()              // padding
+            pass()              // padding
             pass()              // padding
 
-LABEL(opt_loop) jmpn(0, end)    // if X0 (n) < 0 goto end
-
-            isjki(8, 0, 0)      // X8 (i) = 2 * X0 (n)
-            rdjki(9, 5, 8)      // X9 (tmp1) = MEM[X5 (y) + X8 (i)] (y.real)
-            rdjki(10, 3, 8)     // X10 (tmp2) = MEM[X3 (x) + X8 (i)] (x.real)
+LABEL(opt)  rdjki(9, 5, 7)      // X9 (tmp1) = MEM[X5 (yb.real) + X7 (i)] (y.real)
+            rdjki(10, 3, 7)     // X10 (tmp2) = MEM[X3 (xb.real) + X7 (i)] (x.real)
             fmul(10, 10, 1)     // X10 (tmp2) = X10 (x.real) * X1 (a.real)
             fadd(9, 9, 10)      // X9 (tmp1) = X9 (y.real) + X10 (x.real * a.real)
-            isjkj(3, 1)         // X3 (x) = X3 (x) + 1
-            rdjki(10, 3, 8)     // X10 (tmp2) = MEM(X3 (x) + X8 (i)) (x.imag)
+            rdjki(10, 4, 7)     // X10 (tmp2) = MEM(X4 (xb.imag) + X7 (i)) (x.imag)
             fmul(10, 10, 2)     // X10 (tmp2) = X(10) (x.imag) * X2 (a.imag)
             fsub(9, 9, 10)      // X9 (tmp1) = X9 (y.real + x.real * a.real) - X10 (x.imag * a.imag)
-            sdjki(9, 5, 8)      // MEM[X5 (y) + X8 (i)] (y.real) = X9 (tmp1)
+            sdjki(9, 5, 7)      // MEM[X5 (yb.real) + X7 (i)] (y.real) = X9 (tmp1)
 
-            isjkj(5, 1)         // X5 (y) = X5 (y) + 1
-            rdjki(9, 5, 8)      // X9 (tmp1) = MEM(X5 (y) + X8 (i)) (y.imag)
-            rdjki(10, 3, 8)     // X10 (tmp2) = MEM(X3 (x) + X8 (i)) (x.imag)
+            rdjki(9, 6, 7)      // X9 (tmp1) = MEM(X6 (yb.imag) + X8 (i)) (y.imag)
+            rdjki(10, 4, 7)     // X10 (tmp2) = MEM(X3 (xb.imag) + X8 (i)) (x.imag)
             fmul(10, 10, 1)     // X10 (tmp2) = X10 (x.imag) * X1 (a.real)
             fadd(9, 9, 10)      // X9 (tmp1) = X9 (y.imag) + X10 (x.imag * a.real)
-            idjkj(3, 1)         // X3 (x) = X3 (x) - 1
-            rdjki(10, 3, 8)     // X10 (tmp2) = MEM[X3 (x) + X8 (i)] (x.real)
+            rdjki(10, 3, 7)     // X10 (tmp2) = MEM[X3 (xb.real) + X7 (i)] (x.real)
             fmul(10, 10, 2)     // X10 (tmp2) = X10 (x.real) * X2 (a.imag)
             fadd(9, 9, 10)      // X9 (tmp1) = X9 (y.imag + x.imag * a.real) + X10 (x.imag * a.real)
-            sdjki(9, 5, 8)      // MEM[X5 (y) + X8 (i)] (y.imag) = X9 (tmp1)
-            idjkj(5, 1)         // X5 (y) = X5 (y) - 1
+            sdjki(9, 6, 7)      // MEM[X5 (yb.imag) + X7 (i)] (y.imag) = X9 (tmp1)
 
-            idjkj(0, 1)         // X0 (n) = X0 (n) - 1
-            jmp(opt_loop)
-            pass()              // padding
-            pass()              // padding
+            isjkj(7, 2)         // X7 (i) = X7 (i) + 2
+            bb(7, 0, opt)
+            jmp(end)
 
-LABEL(general) isjki(4, 4, 4)   // X4 (incx) = 2 * X4 (incx)
+LABEL(gen)  isjki(4, 4, 4)      // X4 (incx) = 2 * X4 (incx)
             isjki(6, 6, 6)      // X6 (incy) = 2 * X6 (incy)
             xkj(7, 0)           // X7 (ix) = 0
             xkj(8, 0)           // X8 (iy) = 0
+            xkj(9, 1)           // X9 (xbase.imag) = 1
+            xkj(10, 1)          // X10 (ybase.imag) = 1
+            isjki(9, 9, 3)      // X9 (xb.imag) = X3 (xb.real) + X9 (1)
+            isjki(10, 10, 5)    // X10 (yb.imag) = X10 (yb.real) + X10 (1)
+
             jmpp(4, L1)         // if X4 (incx) > 0 goto L1
             idzkj(7, 0)         // X7 (ix) = -X0 (n)
             isjkj(7, 1)         // X7 (ix) = X7(-n) + 1
@@ -111,27 +112,23 @@ LABEL(L1)   jmpp(6, loop)       // if X6 (incy) > 0 goto loop
             pass()              // padding
 
 LABEL(loop) jmpz(0, end)        // if X0 (n) = 0 goto end
-            rdjki(9, 5, 8)      // X9 (tmp1) = MEM[X5 (y) + X8 (iy)] (y.real)
-            rdjki(10, 3, 7)     // X10 (tmp2) = MEM[X3 (x) + X7 (ix)] (x.real)
-            fmul(10, 10, 1)     // X10 (tmp2) = X10 (x.real) * X1 (a.real)
-            fadd(9, 9, 10)      // X9 (tmp1) = X9 (y.real) + X10 (x.real * a.real)
-            isjkj(3, 1)         // X3 (x) = X3 (x) + 1
-            rdjki(10, 3, 7)     // X10 (tmp2) = MEM[X3 (x) + X7 (ix)] (x.imag)
-            fmul(10, 10, 2)     // X10 (tmp2) = X10 (x.imag) * X2 (a.imag)
-            fsub(9, 9, 10)      // X9 (tmp1) = X9 (y.real + x.real * a.real) - X10 (x.imag * a.imag)
-            sdjki(9, 5, 8)      // MEM[X5 (y) + X8 (iy)] (y.real) = X9 (tmp1)
+            rdjki(11, 5, 8)     // X11 (tmp1) = MEM[X5 (yb.real) + X8 (iy)] (y.real)
+            rdjki(12, 3, 7)     // X12 (tmp2) = MEM[X3 (xb.real) + X7 (ix)] (x.real)
+            fmul(12, 12, 1)     // X12 (tmp2) = X12 (x.real) * X1 (a.real)
+            fadd(11, 11, 12)    // X11 (tmp1) = X11 (y.real) + X12 (x.real * a.real)
+            rdjki(12, 9, 7)     // X12 (tmp2) = MEM[X9 (xb.imag) + X7 (ix)] (x.imag)
+            fmul(12, 12, 2)     // X12 (tmp2) = X12 (x.imag) * X2 (a.imag)
+            fsub(11, 11, 12)    // X11 (tmp1) = X10 (y.real + x.real * a.real) - X12 (x.imag * a.imag)
+            sdjki(11, 5, 8)      // MEM[X5 (yb.real) + X8 (iy)] (y.real) = X11 (tmp1)
 
-            isjkj(5, 1)         // X5 (y) = X5 (y) + 1
-            rdjki(9, 5, 8)      // X9 (tmp1) = MEM(X5 (y) + X8 (iy)) (y.imag)
-            rdjki(10, 3, 7)     // X10 (tmp2) = MEM(X3 (x) + X7 (ix)) (x.imag)
-            fmul(10, 10, 1)     // X10 (tmp2) = X10 (x.imag) * X1 (a.real)
-            fadd(9, 9, 10)      // X9 (tmp1) = X9 (y.imag) + X10 (x.imag * a.real)
-            idjkj(3, 1)         // X3 (x) = X3 (x) - 1
-            rdjki(10, 3, 7)     // X10 (tmp2) = MEM[X3 (x) + X7 (ix)] (x.real)
-            fmul(10, 10, 2)     // X10 (tmp2) = X10 (x.real) * X2 (a.imag)
-            fadd(9, 9, 10)      // X9 (tmp1) = X9 (y.imag + x.imag * a.real) + X10 (x.imag * a.real)
-            sdjki(9, 5, 8)      // MEM[X5 (y) + X8 (iy)] (y.imag) = X9 (tmp1)
-            idjkj(5, 1)         // X5 (y) = X5 (y) - 1
+            rdjki(11, 10, 8)    // X11 (tmp1) = MEM(X5 (yb.imag) + X8 (iy)) (y.imag)
+            rdjki(12, 9, 7)     // X12 (tmp2) = MEM(X3 (xb.imag) + X7 (ix)) (x.imag)
+            fmul(12, 12, 1)     // X12 (tmp2) = X12 (x.imag) * X1 (a.real)
+            fadd(11, 11, 12)    // X11 (tmp1) = X11 (y.imag) + X12 (x.imag * a.real)
+            rdjki(12, 3, 7)     // X12 (tmp2) = MEM[X3 (xb.real) + X7 (ix)] (x.real)
+            fmul(12, 12, 2)     // X12 (tmp2) = X12 (x.real) * X2 (a.imag)
+            fadd(11, 11, 12)    // X11 (tmp1) = X11 (y.imag + x.imag * a.real) + X12 (x.imag * a.real)
+            sdjki(11, 10, 8)    // MEM[X5 (yb.imag) + X8 (iy)] (y.imag) = X9 (tmp1)
 
             isjki(7, 7, 4)      // X7 (ix) = X7 (ix) + X4 (incx)
             isjki(8, 8, 6)      // X8 (iy) = X8 (iy) + X6 (incy)
