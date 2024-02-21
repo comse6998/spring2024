@@ -25,9 +25,9 @@
 
 #define jmpp(Xj,L)		if (process(new instructions::jmpp   (Xj,  #L), __LINE__)) goto L;
 
-#define jmpn(Xj,L)		if (process(new instructions::jmpn   (Xj,  0), __LINE__)) goto L;
+#define jmpn(Xj,L)		if (process(new instructions::jmpn   (Xj,  #L), __LINE__)) goto L;
 
-#define bb(Xj,Xk,L)		if (process(new instructions::bb     (Xj, Xk), __LINE__)) goto L;
+#define bb(Xj,Xk,L)		if (process(new instructions::bb     (Xj, Xk, #L), __LINE__)) goto L;
 
 #define call(Xj,func)		if (process(new instructions::call   (Xj), __LINE__))     func ();
 
