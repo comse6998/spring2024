@@ -21,7 +21,7 @@
 
 #define jmpz(Xj,L)		if (process(new instructions::jmpz   (Xj,  #L), __LINE__)) goto L;
 
-#define jmpnz(Xj,L)		if (process(new instructions::jmpnz  (Xj,  0), __LINE__)) goto L;
+#define jmpnz(Xj,L)		if (process(new instructions::jmpnz  (Xj,  #L), __LINE__)) goto L;
 
 #define jmpp(Xj,L)		if (process(new instructions::jmpp   (Xj,  #L), __LINE__)) goto L;
 
