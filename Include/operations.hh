@@ -360,6 +360,20 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + ")"; }
 	};
 
+	class jmpn : public BRop
+	{
+	    private:
+
+	    public:
+		jmpn() { }
+		u64 ready() const { return REGready[params::micro::CMPFLAGS]; }
+		u64 target(u64 cycle) { nextdispatch = cycle; }
+		u64 latency() const { return 1; }
+		u64 throughput() const { return 1; }
+		string mnemonic() const { return "jmpn"; }
+		string dasm() const { return mnemonic() + "(" + ")"; }
+	};
+
 		class bb : public BRop
 	{
 	    private:
