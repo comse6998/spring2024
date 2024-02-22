@@ -7,7 +7,7 @@
 #include <complex>
 
 using namespace CDC8600;
-//test
+
 extern "C" void dger_(i32*, i32*, f64*, f64*, i32*, f64*, i32*, f64*, i32*);
 
 const int N = 20;
