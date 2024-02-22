@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "iomanip": "cpp",
+        "iostream": "cpp",
+        "new": "cpp",
+        "initializer_list": "cpp",
+        "__bit_reference": "cpp",
+        "bitset": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "unordered_map": "cpp",
+        "ios": "cpp",
+        "cmath": "cpp"
+    }
+}
