@@ -1,0 +1,1581 @@
+[33mcommit 239b97ea02c9b267a602f5ab58e20235889aa91a[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31mupstream/main[m[33m, [m[1;32mproject3[m[33m)[m
+Merge: 980c27a f2f82e9
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Feb 20 21:04:35 2024 -0500
+
+    Merge pull request #49 from tengjiang/main
+    
+    Fixed drot; Add operations for jmpn and bb.
+
+[33mcommit 980c27ab43980c7b6e98e3d39f3bd076e7407bed[m
+Merge: 7b31522 205ed7c
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Feb 20 21:02:29 2024 -0500
+
+    Merge pull request #48 from pxhuangxyl/main
+    
+    ZSWAP hw3 add jmpnz operations
+
+[33mcommit f2f82e9e19b08501d8fdb2c22d6694f400b317b8[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 20:20:12 2024 -0500
+
+    Indentation.
+
+[33mcommit d4a541dbd40d3d94336b720f345b94afaf5c401a[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 20:18:48 2024 -0500
+
+    Ensure that bb will only go back, and can only go back less than 16 words.
+
+[33mcommit 06e39816393d174fe6443017c76eb5c22e193f74[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 20:10:15 2024 -0500
+
+    More indentations...
+
+[33mcommit 958a6d064a89869f2c433100f43102c033762c42[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 20:08:19 2024 -0500
+
+    More indentations...
+
+[33mcommit 152859c8c372242c0bfcca0f2b17ba878f715493[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 20:03:16 2024 -0500
+
+    Fix indentations.
+
+[33mcommit de921407276e8e74f70096ade5187dc310c54b6d[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 19:58:23 2024 -0500
+
+    Finished jmpn.
+
+[33mcommit f2f3d66d5b4edb24f5fc278724565e3931a1c9f7[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 19:42:13 2024 -0500
+
+    Define operations for bb (also new op cmp).
+
+[33mcommit c8dec9a75c9b0368b3ca2ff14c3e458f42010dcb[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 16:36:24 2024 -0500
+
+    Reformat code.
+
+[33mcommit 80a47c252fe574e9d5859afa83814b0b8e5008fe[m
+Merge: a4f4c68 7b31522
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Tue Feb 20 16:23:32 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024
+
+[33mcommit 205ed7cc49a87ef13d32414a69c5b9e7e83a8242[m
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Tue Feb 20 07:53:06 2024 -0500
+
+    hw3 add jmpnz, idjki
+
+[33mcommit 7b3152236c5cb14a668d0548419b7bea3133a26c[m
+Merge: edb5a30 1f62d2e
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 19 20:30:20 2024 -0500
+
+    Merge pull request #47 from trev1no2/main
+    
+    Fixed padding issue in ddot
+
+[33mcommit 1f62d2e8e6b275535cc69b58d43d3fecd48e22ab[m
+Author: trev1no2 <jmt2235@columbia.edu>
+Date:   Mon Feb 19 18:26:47 2024 -0500
+
+    Fixed padding issue in ddot (need to check if there are needless paddings)
+
+[33mcommit a4f4c688c1dd49eaa6668af739c96304f4f8e001[m
+Merge: e261e03 edb5a30
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Mon Feb 19 15:18:30 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024
+
+[33mcommit edb5a30a521732647a6fb56c97ac76a6bc724f21[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 19 15:16:57 2024 -0500
+
+    Additional BLAS files
+
+[33mcommit 3bdf15c74b1f3e1f6bf9f475a4e07211ce98537f[m
+Merge: dfaaacf d4139f5
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 19 14:18:49 2024 -0500
+
+    Merge pull request #44 from atcheng2/zdotu-exploration
+    
+    Zdotu
+
+[33mcommit dfaaacff8f9ef187e929f0bfc793ae8bb3f4d6e8[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 19 14:09:11 2024 -0500
+
+    Added some BLAS2 routines
+
+[33mcommit ae9f893c29a72a8b40a37572fb8ab6645020a74b[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 19 14:08:49 2024 -0500
+
+    fixed bug in idjki
+
+[33mcommit d4139f5004313f7355e4cc6c0f29409a6302350f[m
+Author: Andy Cheng <atc2150@columbia.edu>
+Date:   Sun Feb 18 01:28:55 2024 -0500
+
+    Reformat zdotu and add fp operations
+
+[33mcommit 516bdc0c44208a3f91e193af74fe534c4e6de312[m
+Author: Andy Cheng <atc2150@columbia.edu>
+Date:   Sun Feb 18 00:10:02 2024 -0500
+
+    Update zdotu for instruction alignment
+
+[33mcommit e261e03f7c111eb70e5038da03f3bd707e1a60de[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Sat Feb 17 20:14:27 2024 -0500
+
+    drot optimized routine instruction aligned.
+
+[33mcommit 9506ad2b75b858283f7ff651115e86c3f6e27567[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Sat Feb 17 18:30:38 2024 -0500
+
+    Fix instruction alignment errors for the baseline drot().
+
+[33mcommit bc09871ff6bb5975aabf7d6f822b556b1d16fee4[m[33m ([m[1;32m__DAXPY__[m[33m)[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 15:59:22 2024 -0500
+
+    removed tabs
+
+[33mcommit 946e5a0b00f78f86cf35617485b4b8bbbc661b46[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 15:35:49 2024 -0500
+
+    Added labeling to all cases
+
+[33mcommit ba2b0b736fdb25855f2a0062b86239d54135b338[m
+Merge: 109e6c6 e738cdf
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 15:09:28 2024 -0500
+
+    Merge pull request #43 from ChokaThenappan/main
+    
+    Update Makefile - added dswap - new
+
+[33mcommit e738cdf86672d70e95e53b5391806216cb5027e6[m
+Author: ChokaThenappan <157332276+ChokaThenappan@users.noreply.github.com>
+Date:   Sat Feb 17 12:20:28 2024 -0500
+
+    Update Makefile - added dswap
+
+[33mcommit 109e6c61e906d977905e0a9360878260d60396b1[m
+Merge: bcc30d3 c4d210f
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 09:59:52 2024 -0500
+
+    Merge pull request #41 from ChokaThenappan/main
+    
+    Choka
+
+[33mcommit bcc30d36ce29ffed7244f13609fb136146cd90ae[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 07:36:04 2024 -0500
+
+    Merged advanced and main
+
+[33mcommit 64ed29cad04938598930ba0561e2facaec47addc[m
+Merge: fbd4f55 c7d2477
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 06:48:24 2024 -0500
+
+    Merge pull request #40 from yl5334/__DAXPY__
+    
+    new clone __daxpy__
+
+[33mcommit c7d24775e627d9788ef088a9f658c39db2ff8031[m[33m ([m[1;31morigin/__DAXPY__[m[33m)[m
+Merge: 78653d3 fbd4f55
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 06:48:16 2024 -0500
+
+    Merge branch 'main' into __DAXPY__
+
+[33mcommit fbd4f55e19d89737c4f83f6336c62307eed7a4d8[m
+Merge: fa05dd7 d48b1fa
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 06:46:49 2024 -0500
+
+    Merge pull request #39 from LeoYan-1/main
+    
+    hw2_v2.0
+
+[33mcommit d48b1fab274e52c93a67c5316af2a0c820126e9c[m
+Merge: 6046f04 fa05dd7
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 17 06:46:42 2024 -0500
+
+    Merge branch 'main' into main
+
+[33mcommit 78653d350d5604a8ff2107bfa0ac1427860366c3[m
+Author: yl5334 <yl5334@columbia.edu>
+Date:   Sat Feb 17 02:22:18 2024 -0500
+
+    new clone __daxpy__
+
+[33mcommit 6046f0406a92172c40639d6a2c6501cee4d70dec[m
+Author: LeoYan-1 <157628773+LeoYan-1@users.noreply.github.com>
+Date:   Sat Feb 17 00:12:39 2024 -0500
+
+    Add files via upload
+
+[33mcommit a2b3badc48796f02aa3dcc394ca57acd41dce8f5[m
+Author: LeoYan-1 <157628773+LeoYan-1@users.noreply.github.com>
+Date:   Sat Feb 17 00:07:35 2024 -0500
+
+    Delete Src/ISA.cc
+
+[33mcommit 33e2c6969c3af8d9f2a7f414af35c01bf198000d[m
+Author: Leo <zy2593@columbia.edu>
+Date:   Fri Feb 16 23:59:51 2024 -0500
+
+    hw2_v2.0
+
+[33mcommit fa05dd77f1d9fd3497bac2df76b43c06978b1663[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 1f16d09 a0461b2
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Fri Feb 16 21:52:01 2024 -0500
+
+    Merge pull request #38 from TsukiCU/tsuki
+    
+    DASUM
+
+[33mcommit a0461b2a841d88d73de02d1bf9363f22bb6a53fc[m
+Author: tsuki <hs3475@columbia.edu>
+Date:   Fri Feb 16 17:17:27 2024 -0500
+
+    modified hw2. no extra files modified. all test cases passed.
+
+[33mcommit 1f16d09148af7cc2614972092b702e8e161dca00[m
+Merge: f5143c7 397f69f
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Thu Feb 15 22:39:53 2024 -0500
+
+    Merge pull request #33 from gaurav956/main
+    
+    removed printf
+
+[33mcommit 7cec4b9cd21b323fcac91a9229edcf6da27f5b58[m
+Author: Leo <zy2593@columbia.edu>
+Date:   Thu Feb 15 03:30:00 2024 -0500
+
+    hw2
+
+[33mcommit 6afe0dc1b94b8a4fb642585d8fb4f360c810c528[m
+Author: Leo <zy2593@columbia.edu>
+Date:   Thu Feb 15 03:29:19 2024 -0500
+
+    hw2
+
+[33mcommit c4d210f937f8af6b6388089dc16448fd1e2cfb96[m
+Author: ChokaThenappan <157332276+ChokaThenappan@users.noreply.github.com>
+Date:   Thu Feb 15 00:37:29 2024 -0500
+
+    Update dswap.cc
+
+[33mcommit e311fb38fbab96c2562dd3e3c24db77d7e429d98[m
+Author: ChokaThenappan <157332276+ChokaThenappan@users.noreply.github.com>
+Date:   Thu Feb 15 00:29:54 2024 -0500
+
+    Create dswap.cc
+
+[33mcommit e9919f42f76719667d3a71760f73828fc31aafa5[m
+Author: ChokaThenappan <157332276+ChokaThenappan@users.noreply.github.com>
+Date:   Thu Feb 15 00:28:51 2024 -0500
+
+    Create dswap.cc
+
+[33mcommit 36688543b9a4954543a9dc69597dbd51a4cde273[m
+Author: ChokaThenappan <157332276+ChokaThenappan@users.noreply.github.com>
+Date:   Thu Feb 15 00:27:52 2024 -0500
+
+    Create dswap.hh
+
+[33mcommit f072232d949325801043c6253deb3c03f243005f[m
+Merge: 3d63847 f5143c7
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Feb 14 22:37:30 2024 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/main'
+    aaa
+
+[33mcommit 397f69fb0955f2ae51688b883ac6b6b205800b30[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 21:56:10 2024 -0500
+
+    fixed
+
+[33mcommit f5143c7bf7b7bfe5d36218490983f1d874c4aa67[m
+Merge: e052dd1 aec89cd
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 14 21:51:00 2024 -0500
+
+    Merge pull request #23 from gaurav956/main
+    
+    Implementation of asm and cpp IDAMAX
+
+[33mcommit 3d63847813555550fb30a5084cafabb4bd3c1fc1[m
+Merge: 51e8e20 e052dd1
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Feb 14 21:09:46 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+    a
+
+[33mcommit e052dd1a46d52cc73078ef46b913902350addf81[m
+Merge: 38a8de0 c43ea02
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 14 21:05:34 2024 -0500
+
+    Merge pull request #30 from trev1no2/main
+    
+    Removed debug printing
+
+[33mcommit 51e8e206d06100a2fef0ca03eecd230c0cfebfed[m
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Feb 14 21:03:33 2024 -0500
+
+            new file:   Src/ISA.cc
+            new file:   Src/blas/dcopy.cc
+
+[33mcommit aec89cdb9f4e86d59a4dd5aa4d7f91787876c237[m
+Merge: a91efd3 38a8de0
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 20:58:50 2024 -0500
+
+    merge
+
+[33mcommit c43ea0295a520e9dfd9a7670b904ad941f6ca582[m
+Author: trev1no2 <jmt2235@columbia.edu>
+Date:   Wed Feb 14 20:57:36 2024 -0500
+
+    Removed debug printing
+
+[33mcommit a91efd39065d53df4209c937af73ad472ee27cba[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 20:51:43 2024 -0500
+
+    fixed code
+
+[33mcommit e68a11b8bc26119a7ee61370740644490b2de108[m
+Merge: 1dae80d 38a8de0
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Feb 14 20:33:20 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+    a
+
+[33mcommit 38a8de0b0d96aadda22cfcbd014d7de394eb83ce[m
+Merge: 1b098aa 7f1f74f
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 14 20:31:13 2024 -0500
+
+    Merge pull request #28 from tengjiang/hw2
+    
+    Hw2 DROT optimization
+
+[33mcommit 1dae80de0001aca0df20c4f4a52ae1859415c6c9[m
+Merge: 97abc9e 1b098aa
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Feb 14 20:30:38 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 1b098aa0f6b5c90fe2411ed4e75362ddbe453d88[m
+Merge: cbcd238 ca4648c
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 14 20:29:24 2024 -0500
+
+    Merge pull request #27 from Anirudh-1149/main
+    
+    HW2 zdotc
+
+[33mcommit ca4648c99cefe44af8277118f5a4686d7b268755[m
+Merge: 023feef cbcd238
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 14 20:29:10 2024 -0500
+
+    Merge branch 'main' into main
+
+[33mcommit 97abc9e715cc3e8e991af87097da9831ed5d3aa0[m
+Merge: 417b564 cbcd238
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Feb 14 20:28:49 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit cbcd2389dd6082290f83b83461edee69c4c41695[m
+Merge: 68b6868 578c1b2
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 14 20:27:15 2024 -0500
+
+    Merge pull request #25 from lafis002/main
+    
+    bb optimization for extra credit
+
+[33mcommit 417b564ee8c5c5f2548855e56c3008bc82fd39bd[m
+Merge: 5055c45 68b6868
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Feb 14 20:27:02 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 68b68682910c56e868f3a2c0b96a55779524dc73[m
+Merge: 751c9e1 fe6b274
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 14 20:25:58 2024 -0500
+
+    Merge pull request #24 from trev1no2/main
+    
+    ddot implementation for Juan Trevino (finishing HW2)
+
+[33mcommit 5055c45b76713cf31ce1cba6a989c4095e3ed651[m
+Merge: 8dd46b4 751c9e1
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Feb 14 20:23:58 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 217408b9371858f70962cbdbeff10ee2dee7bf92[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 18:42:17 2024 -0500
+
+    reversed changes
+
+[33mcommit 556d9db6d3029232a89bf01609d87a43ec121c08[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 18:41:35 2024 -0500
+
+    reversed changes
+
+[33mcommit 15c6d1031903298f9ea684691bff6805db281ddd[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 18:40:28 2024 -0500
+
+    reversed changes
+
+[33mcommit f76a33b5601a2f71803db67cbb04a584da136443[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 18:38:53 2024 -0500
+
+    reversed changes
+
+[33mcommit 66b105314a815d565724b785f9b8bd3b46c55098[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 17:02:03 2024 -0500
+
+    added comments
+
+[33mcommit 7f1f74ff89f2cbca54c96515635b387a81744d8c[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Wed Feb 14 16:44:12 2024 -0500
+
+    Finish up extra credit for optimization using branch back.
+
+[33mcommit df75b86db06904e02889798133b849531721d9fc[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Wed Feb 14 16:28:35 2024 -0500
+
+    fixed issues
+
+[33mcommit 023feef9cfd727f66e90df3505be2adb15286b2c[m
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Wed Feb 14 14:22:00 2024 -0500
+
+    Final changes. HW2 tested and finished
+
+[33mcommit 8a7bac6ce5b00d32329c7fd64a03fa1ab2d14b82[m
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Wed Feb 14 14:16:02 2024 -0500
+
+    changes to prevent conflicts
+
+[33mcommit 03f5948273ba48a7521c169fd16a9a5fff9cbfb8[m
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Wed Feb 14 14:03:10 2024 -0500
+
+    changes to zdotc after upstream merge
+
+[33mcommit fbad69e3635cc8575a06547c4eea0a93655ff585[m
+Merge: beadabf 751c9e1
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Wed Feb 14 14:02:53 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit beadabf30653522869267fc401ab2788dec7f875[m
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Wed Feb 14 13:58:38 2024 -0500
+
+    hw2 changes
+
+[33mcommit dc6a3ae6e437ae3a9d22153123f4ca2581fd1660[m
+Merge: f7464e8 3d6fcaf
+Author: Anirudh-1149 <45738362+Anirudh-1149@users.noreply.github.com>
+Date:   Wed Feb 14 13:13:16 2024 -0500
+
+    Merge pull request #1 from Anirudh-1149/hw2
+    
+    Hw2
+
+[33mcommit 3d6fcaf24610c360dc05e597c8e79c017d6b260a[m
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Wed Feb 14 13:11:32 2024 -0500
+
+    Implemented zdotc
+
+[33mcommit 578c1b23131e4432ffc25b3cc8a1537a97099720[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Wed Feb 14 13:02:04 2024 -0500
+
+    bb optimization for extra credit
+
+[33mcommit 6d61d3c668b459b0fc960b78003afb3b23b8f1d1[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Wed Feb 14 02:30:16 2024 -0500
+
+    optimization for drot (n = 0; incx==incy==1)
+
+[33mcommit fe6b274949ad70e0394e74b8fe8b1a530d943e8a[m
+Author: trev1no2 <jmt2235@columbia.edu>
+Date:   Wed Feb 14 01:24:24 2024 -0500
+
+    Finished hw1
+
+[33mcommit 37aa35bbc2cbb7bbb89dc7ec7c674ac252d64efb[m
+Merge: 2b6c1e8 751c9e1
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Wed Feb 14 00:15:19 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024 into hw2
+
+[33mcommit 2b6c1e8d4f0b3c1f815eb64024efa75447bc3ced[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Wed Feb 14 00:12:16 2024 -0500
+
+    Start to optimize drot.
+
+[33mcommit 2b765bd064577b9bfd2475efec634ec43350873a[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Tue Feb 13 16:00:15 2024 -0500
+
+    added jmpk0
+
+[33mcommit e31faee366be6268e97efc4ec38a18c95f9cde85[m
+Merge: 434f21a 751c9e1
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Tue Feb 13 14:57:06 2024 -0500
+
+    merged
+
+[33mcommit 434f21ac182803fe3eb393bae79c4e8a54ef7f4a[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Tue Feb 13 14:56:02 2024 -0500
+
+    asm
+
+[33mcommit 751c9e1a1ba87e359ba1c736d1272ce7caeb4435[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Feb 13 11:07:49 2024 -0500
+
+    fixed return value of various instructions execute() method
+
+[33mcommit 233f191b696c253dfdd51427c9149ff9d0a1621c[m
+Merge: 5c8728a 97a29e3
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Feb 13 09:23:42 2024 -0500
+
+    Merge pull request #22 from yunjiw1/main
+    
+    HW2: zaxpy - optimization
+
+[33mcommit 5c8728af59d7a6ee65a99ce211fbc52f7c360978[m
+Merge: 70a30e8 4111f48
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Feb 13 09:22:45 2024 -0500
+
+    Merge pull request #21 from Manasmw01/main
+    
+    HW2 DSCAL Optimizations added
+
+[33mcommit 70a30e86b7f0468c4b4bbca8f31b0491e0e785e3[m
+Merge: 1d9663e 8f758c4
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Feb 13 09:17:20 2024 -0500
+
+    Merge pull request #18 from pxhuangxyl/main
+    
+    HW2
+
+[33mcommit 94faea594aeeec17167f2608cd43b18ea8019bed[m
+Merge: 12aa6ce 1d9663e
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Mon Feb 12 22:52:20 2024 -0500
+
+    merge
+
+[33mcommit 97a29e32e127324f8273ee7a243ff9dbdfbedf10[m
+Author: Yunjia Wang <yunjiw1@gmail.com>
+Date:   Mon Feb 12 22:34:45 2024 -0500
+
+    HW2: zaxpy - optimization
+
+[33mcommit 12aa6ceaa22262ffa1232e4f75c6b0009845beb7[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Mon Feb 12 22:33:55 2024 -0500
+
+    new
+
+[33mcommit 4111f48fb6905dedbee88d68187f61128a0fdc5e[m
+Author: Manasmw01 <manas.pange@somaiya.edu>
+Date:   Mon Feb 12 21:51:16 2024 -0500
+
+    Clean
+
+[33mcommit 58248d4023a3259ec6c3dd7bf46f2930a3708f7b[m
+Author: Manasmw01 <manas.pange@somaiya.edu>
+Date:   Mon Feb 12 21:45:30 2024 -0500
+
+    Optimizations added
+
+[33mcommit c219c6cfb539dea1f2f6a5f47e58136e953b774d[m
+Author: Manasmw01 <manas.pange@somaiya.edu>
+Date:   Mon Feb 12 19:51:42 2024 -0500
+
+    jpjkj implemented
+
+[33mcommit 8f758c4f56d5fa1a3947d7318da9b96a40a1a8bb[m
+Author: pxhuangxyl <115938780+pxhuangxyl@users.noreply.github.com>
+Date:   Mon Feb 12 16:11:22 2024 -0500
+
+    Update Makefile
+
+[33mcommit 1d9663e90bbd31878355ce97ea5d43aa1dfd0e4a[m
+Merge: ee19771 ece1a3e
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 12 15:31:13 2024 -0500
+
+    Merge pull request #20 from atcheng2/zdotu
+    
+    ZDOTU Implementation
+
+[33mcommit ee19771455e995e65763b0742515e1a98b8d76d5[m
+Merge: b86612a 512bbbc
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 12 15:30:23 2024 -0500
+
+    Merge pull request #19 from atcheng2/fix-func
+    
+    Add definition of Func for asm versions, required for compilation
+
+[33mcommit b86612a5a242b44414430dbbe91a8a4ed6f0cb2e[m
+Merge: 1e7e484 3db02c2
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 12 15:27:42 2024 -0500
+
+    Merge pull request #17 from Manasmw01/main
+    
+    HW2, dscal
+
+[33mcommit 1e7e4840a6dcefedde862da44e44770151a8a706[m
+Merge: bda6da9 cb33049
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 12 15:25:11 2024 -0500
+
+    Merge pull request #16 from lafis002/main
+    
+    optimization, (more than 10% less instructions)
+
+[33mcommit 3db02c20296d08ae776961ca9480773f198c7dfe[m
+Author: Manasmw01 <manas.pange@somaiya.edu>
+Date:   Mon Feb 12 15:17:48 2024 -0500
+
+    fmuljk removed
+
+[33mcommit ece1a3e53219ea68076f72d674c4d5025e0d2604[m
+Author: Andy Cheng <atc2150@columbia.edu>
+Date:   Sun Feb 11 22:05:08 2024 -0500
+
+    naming for zdotu testcase
+
+[33mcommit 37350e9f80f7ab76eb1329e86addb12ed5ec1e9f[m
+Author: Andy Cheng <atc2150@columbia.edu>
+Date:   Sun Feb 11 22:02:01 2024 -0500
+
+    Output message for zdotu testcase
+
+[33mcommit 662f444dbb1ee70d96cdec08196785efec1575dd[m
+Merge: ea0d3c5 512bbbc
+Author: Andy Cheng <atc2150@columbia.edu>
+Date:   Sun Feb 11 21:57:38 2024 -0500
+
+    Merge branch 'fix-func' into zdotu
+
+[33mcommit 512bbbc8ca075e36d71dfcb251dca683f1c9156a[m
+Author: Andy Cheng <atc2150@columbia.edu>
+Date:   Sun Feb 11 21:56:57 2024 -0500
+
+    Add definition of Func for asm versions, required for compilation
+
+[33mcommit ea0d3c5d4ff355943bcdc3b897475e7a3f36c9cd[m
+Author: Andy Cheng <atc2150@columbia.edu>
+Date:   Sun Feb 11 21:56:03 2024 -0500
+
+    Fix calling conventions, add testcase
+
+[33mcommit 832401e3a33ebddbe5390742d61a4d1cbeb3b37e[m
+Author: Andy Cheng <atc2150@columbia.edu>
+Date:   Sun Feb 11 21:02:37 2024 -0500
+
+    First attempt at implementation of zdotu, return semantics bad
+
+[33mcommit 9657564bcb0348b5abf7e04a58fccc66a282162d[m
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Sun Feb 11 20:14:01 2024 -0500
+
+    zswap
+
+[33mcommit 07f39003225ed13ffd229f8019566d885cc5a5eb[m
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Sun Feb 11 20:12:31 2024 -0500
+
+    zswap
+
+[33mcommit 49e37021aa42f94d8725de897709f0c266a9bd5b[m
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Sun Feb 11 20:07:53 2024 -0500
+
+    zswap
+
+[33mcommit a8341d0331b16f9a990f223f3e486cba020ad109[m
+Merge: e0773b0 bda6da9
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Sun Feb 11 19:58:42 2024 -0500
+
+    zswap
+
+[33mcommit 1cbe6460d0fdfcebd0ff7ceed5f8e4b690ded7d4[m
+Author: Manasmw01 <manas.pange@somaiya.edu>
+Date:   Sun Feb 11 16:32:32 2024 -0500
+
+    HW2, dscal
+
+[33mcommit cb33049eb4a81c1b6a37f4906217151673f99c5c[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Sun Feb 11 12:29:59 2024 -0500
+
+    optimization, (more than 10% less instructions)
+
+[33mcommit bda6da900be71ec32dc841dad229544de30bc559[m
+Merge: 8f77199 f56fc6f
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 10 22:44:51 2024 -0500
+
+    Merge pull request #14 from yunjiw1/main
+    
+    HW2: zaxpy - epsilon
+
+[33mcommit 8f771997dae2764341cac0f4f4bba576325b1368[m
+Merge: fb175a8 bf5c0fd
+Author: lafis002 <92206652+lafis002@users.noreply.github.com>
+Date:   Sat Feb 10 22:04:39 2024 -0500
+
+    Merge pull request #15 from lafis002/main
+    
+    prints correct function name
+
+[33mcommit bf5c0fd9f213006af02d73a5d3203c180440c4a5[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Sat Feb 10 22:03:26 2024 -0500
+
+    prints correct function name
+
+[33mcommit f56fc6fdb3ecd6a4555434b46f3f245b7d961b5e[m
+Author: Yunjia Wang <yunjiw1@gmail.com>
+Date:   Sat Feb 10 21:32:10 2024 -0500
+
+    HW2: zaxpy - epsilon
+
+[33mcommit fb175a87f623df61b86499a125add28e27a5db02[m
+Merge: 2c91476 af411fc
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 10 21:09:21 2024 -0500
+
+    Merge pull request #13 from yunjiw1/main
+    
+    HW2: zaxpy - fix x init
+
+[33mcommit af411fce770616b015e45916cdb463f8430576f2[m
+Author: Yunjia Wang <yunjiw1@gmail.com>
+Date:   Sat Feb 10 18:49:00 2024 -0500
+
+    HW2: zaxpy - fix x init
+
+[33mcommit 2c9147665c51f213e2ca264ca9d64cb60808ace3[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 10 18:50:38 2024 -0500
+
+    Assign addresses to instructions and trace during simulation
+
+[33mcommit bcee48005ab1e55f8ed291ac61c9b74689dc99f2[m
+Merge: 7b77667 9afd2dc
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 10 16:49:07 2024 -0500
+
+    Merge pull request #10 from yunjiw1/main
+    
+    HW2: zaxpy
+
+[33mcommit 9afd2dc468aa0dbc66c5ab052472636c1c7270eb[m
+Author: Yunjia Wang <yunjiw1@gmail.com>
+Date:   Sat Feb 10 16:28:28 2024 -0500
+
+    HW2: zaxpy
+
+[33mcommit 7b77667629002d30e64463ac9aed47dbd722dfcd[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 10 16:27:50 2024 -0500
+
+    formatting
+
+[33mcommit 4733857cc5f3febd83862a70baf91a14de2adb81[m
+Merge: eea4f44 9b2481e
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 10 15:39:39 2024 -0500
+
+    Merge pull request #9 from tengjiang/hw2
+    
+    HW2: DROT implementation
+
+[33mcommit 9b2481e2980b29af97cd0ca2359ded8145df3da9[m
+Merge: 19d01b1 eea4f44
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 10 15:39:15 2024 -0500
+
+    Merge branch 'main' into hw2
+
+[33mcommit eea4f440304a1599a56b26f909f4112784c5869c[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Feb 10 15:28:13 2024 -0500
+
+    Build all test cases
+
+[33mcommit 19d01b152d90fd745a39835a9e8ba80586350342[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Sat Feb 10 09:19:42 2024 -0500
+
+    Finished hw2
+
+[33mcommit 4bc8a7f00455db6a1cb27f71fa94466e1090706c[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Sat Feb 10 07:57:04 2024 -0500
+
+    Reformat for pull request.
+
+[33mcommit eaea755451a0d9fb1ae3e0008550cbaf019945e5[m
+Merge: 3d34aeb a38604d
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Sat Feb 10 07:47:12 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024 into hw2
+
+[33mcommit a38604d4c573e3524ea37c806cc391d270d98812[m
+Merge: f91fd4c e92744e
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Fri Feb 9 09:16:31 2024 -0500
+
+    Merge pull request #8 from lafis002/main
+    
+    HW2
+
+[33mcommit d57c82d8bd069925e476430a203acec5c9419ccc[m
+Merge: aded24a f91fd4c
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Wed Feb 7 13:35:14 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main' into hw2
+    Pulling new Func class changes
+
+[33mcommit f91fd4cf7351fccbb2e85bcfd9b7efefa74bb0c8[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 7 10:29:10 2024 -0500
+
+    Update README.md
+
+[33mcommit b6e260d55a94fa23ba02852fb44da33e0a2cc616[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 7 10:24:40 2024 -0500
+
+    Update README.md
+
+[33mcommit 302bc8e765765b8589e8868727f6de676eddb687[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 7 10:22:26 2024 -0500
+
+    Update README.md
+
+[33mcommit e0773b0f61e88094691517f413f4eb9db35b3212[m
+Merge: d7d3f30 0ca2809
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Wed Feb 7 10:19:13 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main' into main
+
+[33mcommit 0ca2809a6d3982379d60490f3bf230cf979448cb[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Feb 7 10:17:41 2024 -0500
+
+    Update README.md
+
+[33mcommit d7d3f30149b9ddf360486e5cbdaf3e16fc98702e[m
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Wed Feb 7 10:15:52 2024 -0500
+
+    zswap1
+
+[33mcommit 73d7f30c2ce57cca0cb40ce71a01fce4a1c9b1ad[m
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Wed Feb 7 10:15:39 2024 -0500
+
+    zswap1
+
+[33mcommit d0ab1e9ea73a2044653643b8302593640c0aebc2[m
+Author: pxhuangxyl <xh2373@columbia.edu>
+Date:   Wed Feb 7 10:05:53 2024 -0500
+
+    zswap
+
+[33mcommit aded24a579a6e1248b9d1b92662342184fa053ac[m
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Wed Feb 7 00:25:41 2024 -0500
+
+    hw2 progess till now
+
+[33mcommit 4f6f47c417710fe8d086b11e609ad39cf3700f2a[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Feb 6 21:54:39 2024 -0500
+
+    Support for function calls
+
+[33mcommit c1be2b21d9e5d0af762e81794476b014a54e3b53[m
+Merge: f81503a 5f2614c
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Tue Feb 6 14:40:13 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main' into hw2
+
+[33mcommit e92744e3855d7fe7b6f10408fd082216e2232420[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Tue Feb 6 10:28:34 2024 -0500
+
+    update .gitignore
+
+[33mcommit 4561176cec5f972bae727f152dfd023e9d65ed22[m
+Author: lafis002 <92206652+lafis002@users.noreply.github.com>
+Date:   Tue Feb 6 10:27:14 2024 -0500
+
+    Update .gitignore
+
+[33mcommit d02b9ac57d23cfe9368ac1ca5539d7c4e3dc50eb[m
+Author: lafis002 <92206652+lafis002@users.noreply.github.com>
+Date:   Tue Feb 6 10:24:54 2024 -0500
+
+    Create .gitignore
+
+[33mcommit 7174c2953bed7745239ec82cc2044576c72d7d3e[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Tue Feb 6 10:17:35 2024 -0500
+
+    works without optimization
+
+[33mcommit cfe76a22d65de213b0440d7b5a7a8d3b2fcea6cb[m
+Merge: 30bf83c 5f2614c
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Tue Feb 6 09:41:04 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 5f2614ca975aef0cb7df97c9a01c8102c78685a5[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Feb 6 09:39:02 2024 -0500
+
+    Added function call to dispatch for 7-argument call0
+
+[33mcommit 30bf83c1c5753343478d9bc235ec9a9469b7577e[m
+Merge: 491fdbf 256db6f
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Mon Feb 5 22:40:57 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 491fdbf6ce50475c366887f3dabb0ed06ae27001[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Mon Feb 5 22:40:05 2024 -0500
+
+    small changes
+
+[33mcommit b8bc84a03c4d6a37ef126a38f7a844b06b4ed2c8[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Mon Feb 5 22:38:57 2024 -0500
+
+    c++ works, asm is implemented but not tested
+
+[33mcommit 256db6f5a75e3e3102707d72fa349e230a890fd6[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 5 22:03:33 2024 -0500
+
+    Added a Call7 version and fixed bug in dcopy/zcopy when increments are 0
+
+[33mcommit e1d2f8324a6b53e5ea3c8e09da1c07240de8549d[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Feb 5 13:19:00 2024 -0500
+
+    Added dcabs1.f
+
+[33mcommit 3d34aeb6d5b9e8aa70f8ef1be7a90111ed99cb51[m
+Merge: 3b01f70 c3a13a1
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Mon Feb 5 12:52:51 2024 -0500
+
+    Merge branch 'main' into hw2
+
+[33mcommit c3a13a173245b785b0a25445314b03f617aeda24[m
+Merge: 5aba70c ce8e033
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Mon Feb 5 12:40:52 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024
+
+[33mcommit 8dd46b469c493150df493caf02fc4b75da32810d[m
+Author: Leo <zy2593@columbia.edu>
+Date:   Mon Feb 5 12:02:35 2024 -0500
+
+    v0.1
+
+[33mcommit e26ad235a4df0ad8dd8df097c3c3eb232b086ac7[m
+Merge: 073da3c ce8e033
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Mon Feb 5 09:21:31 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 073da3c2461e0e7719aa0d38d4b346b37ca4d67c[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Mon Feb 5 09:16:43 2024 -0500
+
+    cpp works 50%
+
+[33mcommit ce8e033b57670d43cb60e6cb49d02be9a796c6e8[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Feb 4 21:29:14 2024 -0500
+
+    Conforming to Principles of Operation
+
+[33mcommit b2a4f93065d2543b1f8b5a2a2f76e8d8cccff7a4[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Feb 4 20:53:22 2024 -0500
+
+    new code
+
+[33mcommit f81503a591095498b1d8f9f544d867d08b1f7c8c[m
+Merge: f7464e8 e11c9ec
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Sat Feb 3 15:11:46 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main' into hw2
+    pulling from upstream for hw2
+
+[33mcommit 3b01f70f7aad1ff2c2f5f479c6392e92f2f34253[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Sat Feb 3 03:40:13 2024 -0500
+
+    Fixed C++ version: nx and ny wrong!
+
+[33mcommit fe3745c2048a48ccda39bcd3fc7e3e54e5b8334d[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Sat Feb 3 02:18:02 2024 -0500
+
+    Still having bug with CPP version.
+
+[33mcommit b96a63159759ce5b2fed92db3211dcd0716e4208[m
+Merge: d56d453 5aba70c
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Wed Jan 31 23:08:20 2024 -0500
+
+    Merge branch 'main' into hw2
+
+[33mcommit 5aba70ce06b8e4e87b864dcdc54088c7d884133a[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Wed Jan 31 22:59:29 2024 -0500
+
+    Comment out setting of RA in reset()
+
+[33mcommit 9e9e7d5135de4df1155734f30e67dcd20f6eb41b[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Wed Jan 31 22:53:51 2024 -0500
+
+    Change header to make addr reflects the offset against RA;
+
+[33mcommit 294165447ac238549c92d754ead5eff10d510f3d[m
+Merge: 28af547 e11c9ec
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Wed Jan 31 22:31:28 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024
+
+[33mcommit 4e380679a2202ba924a00e051f2d400b78707c22[m
+Author: Leo <zy2593@columbia.edu>
+Date:   Wed Jan 31 21:47:43 2024 -0500
+
+    v0.1
+
+[33mcommit d56d45355b60b2e83541263c7ebb4f1a26378dc6[m
+Merge: 28af547 e11c9ec
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Mon Jan 29 17:17:15 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024 into hw2
+
+[33mcommit 28af54791dab4dfcd91ce173123074532b749520[m
+Merge: 08cb5c8 e839275
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Mon Jan 29 16:52:55 2024 -0500
+
+    Merge pull request #1 from tengjiang/hw1
+    
+    HW 1 finished, merge to main
+
+[33mcommit e83927562ccbfaed479ef6df48c030995654cb1f[m
+Merge: d0246f0 08cb5c8
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Mon Jan 29 16:52:46 2024 -0500
+
+    Merge branch 'main' into hw1
+
+[33mcommit d0246f0f4f2ef5529c32c011b05ff8e1f7533e93[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Mon Jan 29 16:50:28 2024 -0500
+
+    Minor Fix
+
+[33mcommit 8357d7d83cc90aed3e847a3334708836437501e9[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Mon Jan 29 16:47:19 2024 -0500
+
+    Cleaned up ISA, fixed several bugs in passing in the address
+
+[33mcommit 79657f8b36a3ad9cd75d26f4cca91cf8f7afbae7[m
+Merge: 1a48ba0 e11c9ec
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Mon Jan 29 16:28:36 2024 -0500
+
+    merged
+
+[33mcommit 9073f9a45e1fbbe6cc40053fd2f9646efb067280[m
+Author: tengjiang <jiangteng0403@gmail.com>
+Date:   Mon Jan 29 16:12:36 2024 -0500
+
+    rewrite rdjki and sdjki
+
+[33mcommit 1a48ba0c4e64cd815b148c16d484f5b0dd3b9302[m
+Author: Gaurav Agarwal <gaurav@Gauravs-MacBook-Air.local>
+Date:   Mon Jan 29 15:49:52 2024 -0500
+
+    finished
+
+[33mcommit f7464e83addc34eb00072dcf9812d73a59edbbdf[m
+Author: Anirudh-1149 <anirudh18@iitg.ac.in>
+Date:   Mon Jan 29 15:40:07 2024 -0500
+
+    Finished implementing the instructions
+
+[33mcommit 7dc8cef43725bd9b0354ab93fe6b9969c05bc0e6[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Mon Jan 29 12:02:14 2024 -0500
+
+    address only 20 bits
+
+[33mcommit edd8cb4d3e5ea1d564fffa242d6bc6f1bc858c3e[m
+Merge: 15c0d0d e11c9ec
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Mon Jan 29 11:53:16 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 15c0d0d9fec081124eab5a26647edb82a31776ac[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Mon Jan 29 11:46:48 2024 -0500
+
+    memory check now works
+
+[33mcommit e11c9ec609f0fe7efb2231b9bd3964b11defa170[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 28 15:33:21 2024 -0500
+
+    ISA documentation
+
+[33mcommit 2119102fb52f2109958bdc5975dfbbdff25778bb[m
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Sun Jan 28 01:38:13 2024 -0500
+
+    Basic implementations; passed tests. TODO: Corner cases. Check for inputs.
+
+[33mcommit eb353414fdc1c0fffe1543499e544642ba618557[m
+Merge: 9c91fc4 4d11f4a
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Jan 27 22:40:52 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024 into main
+
+[33mcommit 9c91fc4218e8ca39a54e2340587172c88768e5dc[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Jan 27 22:40:38 2024 -0500
+
+    Linking only with the corresponding Fortran routine
+
+[33mcommit 4d11f4a41964cdf1eeda7bf736947583cfa9d313[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Jan 27 22:34:05 2024 -0500
+
+    Update README.md
+
+[33mcommit de5db5a784d144e1e93872200539fa86542215ef[m
+Merge: a32b9da 85f97c3
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Jan 27 22:24:00 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024 into main
+
+[33mcommit a32b9da0a44a5b7334c23b2d094fb55c0307c034[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Jan 27 22:23:30 2024 -0500
+
+    Additional BLAS 1 routines
+
+[33mcommit 85f97c3c4cdc7950f369699a6061ea059c9ab15d[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Jan 27 21:54:46 2024 -0500
+
+    Update README.md
+
+[33mcommit ab7f7b8dd67486f1b2097bd1d21ae9331c6a954a[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Jan 27 21:49:22 2024 -0500
+
+    Cleanup Blas directory
+
+[33mcommit 1eb74833aaac48148a5ac639f53dbdf9c6b4ac9b[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sat Jan 27 21:48:41 2024 -0500
+
+    Added ZCOPY
+
+[33mcommit 95b5633538dedaf52ca6fb231edccc5833e80f17[m
+Merge: f89ed33 55b367a
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Sat Jan 27 19:03:02 2024 -0500
+
+    Merge branch 'main' of github.com:comse6998/spring2024 into hw1
+
+[33mcommit f89ed338cfe14bb1c06f29b6cc3903420c710cd2[m
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Sat Jan 27 19:02:54 2024 -0500
+
+    Add comments
+
+[33mcommit 6473c8c866bb35dd40324c368c3d4817044cdf4f[m
+Merge: d9d8e90 7496720
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Thu Jan 25 21:04:53 2024 -0500
+
+    Merge commit '7496720962bb05ab811380cadf836ac3664b4e3d' into hw1
+
+[33mcommit 08cb5c85f1adb6178c76b5401e4dd1319cfbc820[m
+Merge: dc8baaa d9d8e90
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Thu Jan 25 20:48:03 2024 -0500
+
+    Merge branch 'hw1'
+
+[33mcommit dc8baaae450ff2b26dd98e69b2d6d649b6b035c8[m
+Merge: 9d401e2 55b367a
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Thu Jan 25 20:41:42 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit d9d8e901c26809d41e7eac856ca3f08943cddac4[m
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Thu Jan 25 20:40:33 2024 -0500
+
+    Finished (1st version of rdjki).
+
+[33mcommit 00d5751dc1dc85e718e03a8b83f2088931af8437[m
+Merge: d56d286 55b367a
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Thu Jan 25 20:13:51 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit d56d2860210fcb08d0489a53622afddb2bf6ee84[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Thu Jan 25 20:11:37 2024 -0500
+
+    test
+
+[33mcommit 55b367a5daa9d9f4503c7c90154c89b46dfc2e89[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Thu Jan 25 13:24:33 2024 -0500
+
+    Implemented various registers
+
+[33mcommit 5d1feea2116b45bf5bfbb1f945acbbede2808192[m
+Merge: 9c4f56a 7496720
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Wed Jan 24 22:10:27 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 7496720962bb05ab811380cadf836ac3664b4e3d[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Jan 24 18:27:44 2024 -0500
+
+    Added rdKj instruction and general register declarations
+
+[33mcommit 9c4f56a1f0625effd9505a45b4f65cb64f6c8033[m
+Merge: 24f73f2 0eb8806
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Wed Jan 24 12:00:51 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit 24f73f2aff7d243b1629f2e42c4534fcba7a7520[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Wed Jan 24 11:52:54 2024 -0500
+
+    Test HW1
+
+[33mcommit 0eb880600d4377dc9d6086b30669166f6f445669[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Jan 24 11:08:43 2024 -0500
+
+    Added XA() field of XPW
+
+[33mcommit e544e2c697f9bf6599dc5708a73a4073d7358125[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Wed Jan 24 10:37:25 2024 -0500
+
+    update
+
+[33mcommit 9735f62baf484b530031ed03095f6e64a18cdabe[m
+Author: lafis002 <l.fischer00@yahoo.de>
+Date:   Tue Jan 23 23:19:00 2024 -0500
+
+    hw1
+
+[33mcommit b6d6148ee9047e3fd88e8d1a9f24cee392235be5[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 22:17:13 2024 -0500
+
+    README
+
+[33mcommit 3bb66768e7c7a807dbcec12d9833dcf476e5a6f7[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:40:39 2024 -0500
+
+    Update README.md
+
+[33mcommit 8c21725498f6db350a5f70321bc994a79fe8af84[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:39:30 2024 -0500
+
+    Update README.md
+
+[33mcommit 9865c183ac33b0f52ab8d5bad457e6db79bc9de6[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:37:30 2024 -0500
+
+    Update README.md
+
+[33mcommit e5d66c1ab5c93103d86d6732c1315237f1685d85[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:35:59 2024 -0500
+
+    Add files via upload
+
+[33mcommit e690a976f6b28d5783f5c19627c269da6c49fbfa[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:32:24 2024 -0500
+
+    Update README.md
+
+[33mcommit 23289f98cd58d7e801d7f957778d33c65f1f9684[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:32:06 2024 -0500
+
+    Update README.md
+
+[33mcommit 2aa9051d90b25c7a0a031253a5beaeb092cf4fed[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:31:30 2024 -0500
+
+    Update README.md
+
+[33mcommit a3b337e5a3b671e2edaf85ce08c8ec089ac08c0c[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:10:54 2024 -0500
+
+    Update README.md
+
+[33mcommit 1718c00d9d8af6520e103ec940dd399d50339a0f[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 21:10:10 2024 -0500
+
+    Update README.md
+
+[33mcommit dd7717ec3c89b85102b036f9272e73c8aba402f8[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Tue Jan 23 19:31:47 2024 -0500
+
+    Fully compliant dcopy
+
+[33mcommit 9d401e2f9eaf1eaf42e6a145a3abaefd1d95efa9[m
+Merge: e2b1029 dca7d10
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Mon Jan 22 14:52:10 2024 -0500
+
+    Merge remote-tracking branch 'upstream/main'
+
+[33mcommit e2b10299d25587c8369cebf44d5d4332faa1865c[m
+Author: Teng Jiang <jiangteng0403@gmail.com>
+Date:   Mon Jan 22 14:46:50 2024 -0500
+
+    Some changes
+
+[33mcommit dca7d1082bf307f1d65561cd830b1db790daf072[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Jan 22 14:31:09 2024 -0500
+
+    changes
+
+[33mcommit 9ecdabb3e799693ecedeb84dd88496b6f227f8b2[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Jan 22 10:30:29 2024 -0500
+
+    removed implementation
+
+[33mcommit e4e5280702007af9373318ef6e10c3d61f314503[m
+Merge: b404ac0 81b2eb9
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Jan 22 10:22:11 2024 -0500
+
+    Merge pull request #3 from joseemoreira/main
+    
+    dcopy example
+
+[33mcommit 81b2eb9d1617c8b81d8699e6269b5c5963f593a6[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Jan 22 10:18:10 2024 -0500
+
+    removed cout
+
+[33mcommit bea50277a51af085fa4977b118869b4bcb231dfd[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Jan 22 10:16:04 2024 -0500
+
+    ../Include/CDC8600.hh
+
+[33mcommit 0d946784550fff7a19219ee6a866c8797cbdf99e[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Jan 22 07:01:17 2024 -0500
+
+    edits
+
+[33mcommit aa027b7a7e47c7d61b3185bc50b719398a337c7a[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 23:29:54 2024 -0500
+
+    edits
+
+[33mcommit 7518b85c9e439a99fcd51b70579db1fd1f67f753[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 22:50:47 2024 -0500
+
+    edits
+
+[33mcommit 880d9a67e4d834cc6d5454e66459512aa9d34ba0[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 16:39:31 2024 -0500
+
+    code
+
+[33mcommit b404ac03d63fe7d77ca2f07bde18c01c1bc68611[m
+Merge: 6c1cae2 0e3d3b1
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 13:05:31 2024 -0500
+
+    Merge pull request #2 from joseemoreira/main
+    
+    Update README.md
+
+[33mcommit 0e3d3b17b63dbebfd6e07e94f0434cf00b8a0eed[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 13:04:31 2024 -0500
+
+    Update README.md
+
+[33mcommit 6c1cae2645dedd6a3e72fb6a3ccdf1ed04b12704[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 13:00:03 2024 -0500
+
+    Update README.md
+
+[33mcommit 27a9ac9ac34fc9a1207f7ce9c32277dd270508b0[m
+Merge: 601661d 6fb95b9
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 12:59:21 2024 -0500
+
+    Merge pull request #1 from joseemoreira/main
+    
+    Edits
+
+[33mcommit 6fb95b914c4f01773ba90df429f354260bf5b40a[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 12:53:34 2024 -0500
+
+    Update README.md
+
+[33mcommit 2d630856a9f6f4bc7f43320c5b7b858334b3e753[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 12:46:17 2024 -0500
+
+    Update README.md
+
+[33mcommit 76f7f087cec1bc21ba90250a6be7102d81aa6e2c[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Sun Jan 21 12:44:26 2024 -0500
+
+    Update README.md
+
+[33mcommit 601661dc8e7e8c4b5626d056fd84a29a848d2125[m
+Author: Jose Moreira <jmoreira@us.ibm.com>
+Date:   Mon Jan 15 11:33:55 2024 -0500
+
+    Initial commit

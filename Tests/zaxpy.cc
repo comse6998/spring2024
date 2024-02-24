@@ -17,12 +17,17 @@ void test_zaxpy(int count)
 {
     reset();
 
+
+
     i32 n = rand() % 256;
     i32 incx = (rand() % 16) - 8;
     i32 incy = (rand() % 16) - 8;
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
     c128 a = c128(drand48(), drand48());
+
+    tracing = false; if (n < 10) tracing = true;
+
 
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
@@ -46,11 +51,23 @@ void test_zaxpy(int count)
 
     delete [] Y;
 
-    cout << "zaxpy [" << setw(2) << count << "] (n = " << setw(3) << n << ", a = " << setw(20) << a <<  ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
+    cout << "daxpy [" << setw(2) << count << "] ";
+    cout << "(n = " << setw(3) << n;
+    cout << ", a = " << setw(20) << a;
+    cout << ", incx = " << setw(2) << incx;
+    cout << ", incy = " << setw(2) << incy;
+    cout << ", # of instr = " << setw(9) << instructions::count;
+    cout << ", # of cycles = " << setw(9) << operations::maxcycle;
+    cout << ") : ";
+
+    //cout << "zaxpy [" << setw(2) << count << "] (n = " << setw(3) << n << ", a = " << setw(20) << a <<  ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
+
+    if (n < 10) dump(trace);
+
 }
 
 int main()
