@@ -24,32 +24,11 @@ namespace CDC8600
 		P	  = 23
 	    };
 
-		#ifndef _NFPU_
-		#define _NFPU_ 1
-		#endif
-
-		#ifndef _NFXU_
-		#define _NFXU_ 1
-		#endif
-
-		#ifndef _NBRU_
-		#define _NBRU_ 1
-		#endif
-
-		#ifndef _NLDU_
-		#define _NLDU_ 1
-		#endif
-
-		#ifndef _NSTU_
-		#define _NSTU_ 1
-		#endif
-
-		
-	    const u32	nFPUs = _NFPU_;
-	    const u32	nFXUs = _NFXU_;
-	    const u32	nBRUs = _NBRU_;
-	    const u32   nLDUs = _NLDU_;
-	    const u32 	nSTUs = _NSTU_;
+	    const u32	nFPUs = 1;
+	    const u32	nFXUs = 1;
+	    const u32	nBRUs = 1;
+	    const u32   nLDUs = 1;
+	    const u32 	nSTUs = 1;
 
 	    const u32	nregs = 24;	// number of micro-architected registers
 	    				// 0-15 : X registers

@@ -238,13 +238,6 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 	};
 
-	#ifndef _RDLA_
-	#define _RDLA_ 30
-	#endif
-	#ifndef _RDTP_
-	#define _RDTP_ 1
-	#endif
-
 	class rdw : public LDop
 	{
 	    private:
@@ -256,18 +249,11 @@ namespace CDC8600
 		rdw(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
 		u64 ready() const { return max(REGready[_k], MEMready[_addr]); }
 		u64 target(u64 cycle) { REGready[_j] = cycle; }
-		u64 latency() const { return _RDLA_; }
-		u64 throughput() const { return _RDTP_; }
+		u64 latency() const { return 30; }
+		u64 throughput() const { return 1; }
 		string mnemonic() const { return "rdw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_addr) + ")"; }
 	};
-
-	#ifndef _STLA_
-	#define _STLA_ 30
-	#endif
-	#ifndef _STTP_
-	#define _STTP_ 1
-	#endif
 
 	class stw : public STop
 	{
@@ -281,7 +267,7 @@ namespace CDC8600
 		u64 ready() const { return max(REGready[_k], REGready[_j]); }
 		u64 target(u64 cycle) { MEMready[_addr] = cycle; }
 		u64 latency() const { return 30; }
-		u64 throughput() const { return _STTP_; }
+		u64 throughput() const { return 1; }
 		string mnemonic() const { return "stw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_addr) + ")"; }
 	};
