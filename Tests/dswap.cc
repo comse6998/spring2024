@@ -59,7 +59,16 @@ void test_dswap(int count)
 
     delete [] Y;
 
+    
+    
     cout << "dswap [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
+    //cout << "dcopy [" << setw(2) << count << "] ";
+    cout << "(n = " << setw(3) << n;
+    cout << ", incx = " << setw(2) << incx;
+    cout << ", incy = " << setw(2) << incy;
+    cout << ", # of instr = " << setw(9) << instructions::count;
+    cout << ", # of cycles = " << setw(9) << operations::maxcycle;
+    cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
