@@ -82,6 +82,7 @@ namespace CDC8600
     extern vector<word> MEM;
     extern uint32_t     FreeMEM;
     extern Processor    PROC;
+    extern L1::cache	L1D;
 
     void reset();
 

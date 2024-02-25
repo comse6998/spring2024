@@ -60,6 +60,7 @@ namespace CDC8600
 			xkj(6, 0)           // X6 (tmp) = 0
 			idjkj(6, 1)         // X6 (tmp) = -1
 			isjki(6, 6, 3)      // X6 (tmp) = X6 (-1) + X4 (incx)
+			pass()
 			jmpnz(6, Common)   // if X4 (incx) != 1 goto general
 			idjkj(7, 1)         // X7 (tmp) = -1
 			isjki(7, 7, 5)      // X7 (tmp) = X7 (-1) + X5 (incy)
@@ -71,16 +72,15 @@ namespace CDC8600
             xkj(6, 0)           // initiate M = 0
             rdjk(7, 0)           // the tmp number of M, initial as n
 
-LABEL(MOD)
-            rdjk(6, 7)          // assign tem M to M
+LABEL(MOD) rdjk(6, 7)          // assign tem M to M
             rdjk(8, 6)          // another tem M[10] for M
             idjkj(7, 4)         // tem - 4 = tmp
+			pass()
             jmpn(7, Loop_M)     // if tem < 0, M != 0, do the loop
             jmpz(7, Loop_chunk4)        //when M = 0, move to loop chunk_4
             jmp(MOD)
 
-LABEL(Loop_M)
-            jmpz(6, Loop_chunk4)  // when M is 0, jump to Loop_chunk4
+LABEL(Loop_M) jmpz(6, Loop_chunk4)  // when M is 0, jump to Loop_chunk4
             
             idjkj(6, 1)             // M = M - 1
 			idjkj(0, 1)				// X[0] = X[0] - 1
@@ -89,11 +89,10 @@ LABEL(Loop_M)
 			fmul(10,10,1)			// X[tmp1] = X[10](x) * a
 			fadd(11, 10, 11)		// X[tmp2] = X[tmp1] + X[tmp2]
 			sdjki(11, 4, 6)			// MEM[X[4] + X[6](M)] = X[tmp2]
-
+			pass()
 			jmp(Loop_M)
 
-LABEL(Loop_chunk4)
-			jmpz(0, end)			// if n<4 return or complete the loop
+LABEL(Loop_chunk4) jmpz(0, end)			// if n<4 return or complete the loop
 			idjkj(0, 4)				// // X[0] = X[0] - 4
 			rdjki(9, 4, 8)      // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
 			rdjki(10, 2, 8)     // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
@@ -125,21 +124,28 @@ LABEL(Loop_chunk4)
 			jmp(Loop_chunk4)
 			
 
-LABEL(Common)
-			xkj(7, 0)           // X7 (ix) = 0
+LABEL(Common) xkj(7, 0)           // X7 (ix) = 0
 			xkj(8, 0)           // X8 (iy) = 0
 			jmpp(3, L_Y)         // if X4 (incx) > 0 goto L_Y
 			idzkj(7, 0)         // X7 (ix) = -X0 (n)
 			isjkj(7, 1)         // X7 (ix) = X7(-n) + 1
 			ipjkj(7, 3)         // X7 (ix) = X7 (-n+1) * X3 (incx)
-LABEL(L_Y)	
-			jmpp(5, Main_loop)       // if X5 (incy) > 0 goto Main_loop
+			pass()
+			pass()
+			pass()
+			pass()
+			pass()
+
+LABEL(L_Y)	jmpp(5, Main_loop)       // if X5 (incy) > 0 goto Main_loop
 			idzkj(8, 0)         // X8 (iy) = -X0 (n)
 			isjkj(8, 1)         // X8 (iy) = X8(-n) + 1
 			ipjkj(8, 5)         // X8 (iy) = X8 (-n+1) * X5 (incy)
+			pass()
+			pass()
+			pass()
 
-LABEL(Main_loop)
-			jmpz(0, end)        // if X0 (n) = 0 goto end
+
+LABEL(Main_loop) jmpz(0, end)        // if X0 (n) = 0 goto end
 			rdjki(9, 4, 8)      // X9 (tmp1) = MEM[X4 (y) + X8 (iy)]
 			rdjki(10, 2, 7)     // X10 (tmp2) = MEM[X3 (x) + X7 (ix)]
 			fmul(10, 10, 1)     // X10 (tmp2) = X[10] * X[1](a)
@@ -151,8 +157,7 @@ LABEL(Main_loop)
 			idjkj(0, 1)         // X0 (n) = X0 (n) - 1
 			jmp(Main_loop)
 
-LABEL(end)	
-			jmpk(15, 1)         // return to X15 (calling address) + 1
+LABEL(end)	jmpk(15, 1)         // return to X15 (calling address) + 1
 		}
 	} // namespace BLAS
 } // namespace CDC8600

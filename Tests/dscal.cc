@@ -20,7 +20,8 @@ void test_dscal(int count)
     int32_t incx = (rand() % 16) - 8;
     double a = drand48();
     
-    tracing = false; if (n < 10) tracing = true;
+    tracing = false; 
+    if (n < 40) tracing = true;
 
     f64 *x = (f64*)CDC8600::memalloc(n*abs(incx)); //Fortran input variable
     f64 *xX = (f64*)CDC8600::memalloc(n*abs(incx));//Fortran input variable
@@ -43,14 +44,21 @@ void test_dscal(int count)
         }
 
     }
+    cout << "dscal [" << setw(2) << count << "] ";
+    cout << "(n = " << setw(3) << n;
+    cout << ", incx = " << setw(2) << incx;
+    cout << ", a = " << setw(11) << a;
+    cout << ", # of instr = " << setw(5) << instructions::count;
+    cout << ", # of cycles = " << setw(6) << operations::maxcycle;
+    cout << ") : ";
 
-    cout << "dscal [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", a = " << setw(12) << a << ", # of instr = " << setw(5) << instructions::count << ") : ";
+    // cout << "dscal [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", a = " << setw(12) << a << ", # of instr = " << setw(5) << instructions::count << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(trace);
+    if (n < 45) dump(trace);
 }
 
 int main()
