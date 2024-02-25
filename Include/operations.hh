@@ -5,6 +5,8 @@ using namespace std;
 
 namespace CDC8600
 {
+    extern L1::cache L1D;
+
     namespace operations
     {
 	extern u64 		count;		// operation count
@@ -15,7 +17,7 @@ namespace CDC8600
 
 	class operation
 	{
-	     private:
+	     protected:
 		 u64 _count;	// operation #
 		 u64 _ready;    // inputs ready
 		 u64 _dispatch;	// dispatch time
@@ -134,7 +136,7 @@ namespace CDC8600
 		u64 ready() const { return 0; }
 		u64 target(u64 cycle) { REGready[_j] = cycle; }
 		u64 latency() const { return 2; }
-		u64 throughput() const { return 2; }
+		u64 throughput() const { return 1; }
 		string mnemonic() const { return "xkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
 	};
@@ -238,19 +240,6 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 	};
 
-		#ifndef LD_LTC
-			#define LD_LTC 30
-		#endif
-		#ifndef LD_TRP
-			#define LD_TRP 1
-		#endif
-		#ifndef ST_LTC
-			#define ST_LTC 30
-		#endif
-		#ifndef ST_TRP
-			#define ST_TRP 1
-		#endif
-
 	class rdw : public LDop
 	{
 	    private:
@@ -262,8 +251,8 @@ namespace CDC8600
 		rdw(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
 		u64 ready() const { return max(REGready[_k], MEMready[_addr]); }
 		u64 target(u64 cycle) { REGready[_j] = cycle; }
-		u64 latency() const { return LD_LTC; }
-		u64 throughput() const { return LD_TRP; }
+		u64 latency() const { return L1D.loadhit(_addr, _issue) ? params::L1::latency : params::MEM::latency; }
+		u64 throughput() const { return 1; }
 		string mnemonic() const { return "rdw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_addr) + ")"; }
 	};
@@ -279,8 +268,8 @@ namespace CDC8600
 		stw(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
 		u64 ready() const { return max(REGready[_k], REGready[_j]); }
 		u64 target(u64 cycle) { MEMready[_addr] = cycle; }
-		u64 latency() const { return ST_LTC; }
-		u64 throughput() const { return ST_TRP; }
+		u64 latency() const { return L1D.storehit(_addr, _issue) ? params::L1::latency : params::MEM::latency; }
+		u64 throughput() const { return 1; }
 		string mnemonic() const { return "stw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_addr) + ")"; }
 	};

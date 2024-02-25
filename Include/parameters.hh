@@ -24,47 +24,37 @@ namespace CDC8600
 		P	  = 23
 	    };
 
-		#ifndef FPU
-			#define FPU 1
-		#endif
-
-		#ifndef FXU
-			#define FXU 1
-		#endif
-
-		#ifndef BRU
-			#define BRU 1
-		#endif
-
-		#ifndef LDU
-			#define LDU 1
-		#endif
-
-		#ifndef STU
-			#define STU 1
-		#endif
-
-	    const u32	nFPUs = FPU;
-	    const u32	nFXUs = FXU;
-	    const u32	nBRUs = BRU;
-	    const u32   nLDUs = LDU;
-	    const u32 	nSTUs = STU;
+	    const u32	nFPUs = 1;
+	    const u32	nFXUs = 1;
+	    const u32	nBRUs = 1;
+	    const u32   nLDUs = 1;
+	    const u32 	nSTUs = 1;
 
 	    const u32	nregs = 24;	// number of micro-architected registers
 	    				// 0-15 : X registers
-					// 16 : X scratch register
-					// 17 : mode flags
-					// 18 : condition flags
-					// 19 : compare flags
-					// 20 : RA
-					// 21 : XA
-					// 22 : FL
-					// 23 : P
+					//   16 : X scratch register
+					//   17 : mode flags
+					//   18 : condition flags
+					//   19 : compare flags
+					//   20 : RA
+					//   21 : XA
+					//   22 : FL
+					//   23 : P
 	}
+
 	namespace MEM
 	{
 	    const u32	N = 262144;	// Memory size = 256Ki words
+	    const u32	latency = 30;	// Memory latency
 	} // namespace MEM
+
+	namespace L1
+	{
+	    const u32	linesize = 4;	// # of words in a cache line
+	    const u32	nsets = 8;	// # of sets in the cache
+	    const u32	nways = 4;	// cache associativity
+	    const u32	latency = 4;	// L1 latency
+	} // namespace L1
     } // namespace params
 } // namespace CDC8600
 
