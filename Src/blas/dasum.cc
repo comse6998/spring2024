@@ -53,8 +53,10 @@ namespace CDC8600
     )
     {
             // clang-format off
-            xkj(4, 0);      // X4 (sum) = 0
-            xkj(5, 0);      // X5 (ix) = 0
+            xkj(4, 0)       // X4 (sum) = 0
+            xkj(5, 0)       // X5 (ix) = 0
+            pass()          // padding
+            pass()
 LABEL(loop) jmpz(0, end)    // if X(n) = 0 goto end
             rdjki(6, 1, 5)  // X6 (tmp) = MEM[X1 (x) + X5 (ix)]
             fadd(4, 4, 6)   // X4 (sum) = X4 (sum) + X6 (tmp)
