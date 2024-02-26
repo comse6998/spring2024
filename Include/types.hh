@@ -31,12 +31,6 @@ namespace CDC8600
 		    return true;
 		}
 	};
-
-	extern vector<unit>	LDUs;	// load units
-	extern vector<unit>	STUs;	// store units
-	extern vector<unit>	FXUs;	// fixed-point units
-	extern vector<unit>	FPUs;	// floating-point units
-	extern vector<unit>	BRUs;	// branch units
     } // namespace units
 
     namespace L1
@@ -71,6 +65,105 @@ namespace CDC8600
 		bool storehit(u32 addr, u64 cycle);
 	};
     }
+
+    class word          // 64 bits, interpreted as signed, unsigned, or float
+    {
+        private:
+
+            union
+            {
+                u64     u;
+                i64     i;
+                f64     f;
+            } _data;
+
+        public:
+
+            word& operator=(i64 x)
+            {
+                _data.i = x;
+                return *this;
+            }
+
+            u64& u()       { return _data.u; } 
+            u64  u() const { return _data.u; }
+            i64& i()       { return _data.i; }
+            i64  i() const { return _data.i; }
+            f64& f()       { return _data.f; }
+            f64  f() const { return _data.f; }
+
+            operator u64() { return _data.u; }
+            operator i64() { return _data.i; }
+            operator f64() { return _data.f; }
+    };
+
+    template<int n> class reg
+    {
+        private:
+            u32 _loc;   // location of memory word containing this register
+            u08 _first; // first bit in word for this register
+        public:
+
+            reg(u32 loc, u08 first) : _loc(loc), _first(first) { assert(n <= 20); assert(_first + n <= 64); }
+            u64 u();
+            reg<1> operator()(uint8_t);
+            reg<n>& operator=(bool);
+            reg<n>& operator=(u64);
+    };
+
+    class instruction                                   // Generic instruction class
+    {
+        protected:
+            u32 _line;                                  // line number of instruction in source file
+            u32 _addr;                                  // byte (not word) address of instruction in memory
+        public:
+            virtual bool execute() = 0;                 // every instruction must have a method "execute" that implements its semantics and returns "true" if branch is taken
+            virtual bool ops() { }                      // the ops method processes the internal ops that implement the instrution
+            virtual u08 len() const = 0;                // length of instruction in bytes (2 or 4)
+            virtual string mnemonic() const = 0;        // mnemonic for the instruction
+            virtual string dasm() const = 0;            // disassembly for the instruction
+            virtual u32 encoding() const = 0;           // instruction encoding
+            virtual void fixit() { }                    // used to fix displacements in branches
+            u32& line() { return _line; }
+            u32& addr() { return _addr; }
+    };
+
+    class Processor
+    {
+        private:
+
+        public:
+            uint8_t     		_XA;            	// The address of the current exchange packet   
+            word&       		X(uint8_t i);   	// Xi register in current exchange packet
+            reg<4>      		mode();         	// mode field of current XPW
+            reg<8>      		cond();         	// cond field of current XPW
+            reg<12>     		RA();           	// RA field of current XPW
+            reg<8>      		XA();           	// XA field of current XPW
+            reg<12>     		FL();           	// FL field of current XPW
+            reg<20>     		P();            	// P field of current XPW
+	    L1::cache			L1D;			// L1 data cache for this processor
+	    vector<units::unit>		BRUs;			// branch units
+	    vector<units::unit>		FXUs;			// fixed-point units
+	    vector<units::unit>		FPUs;			// floating-point units
+	    vector<units::unit>		LDUs;			// load units
+	    vector<units::unit>		STUs;			// store units
+     	    map<u32, u32>      		line2addr;		// line -> instruction address map
+     	    map<u32, u32>      		line2encoding;		// line -> instruction encoding map
+     	    map<u32, u32>      		line2len;		// line -> instruction length map
+     	    map<string, u32>   		label2line;     	// label -> line map
+	    vector<instruction*>	trace;			// instruction trace
+	    vector<u64>			REGready; 		// ready cycle for microarchitected registers
+	    u64 			op_count;		// operation count
+	    u64 			op_nextdispatch;	// next operation dispatch cycle
+	    u64			 	op_maxcycle;		// maximum observed completion cycle
+            u32  			instr_count;    	// Current instruction count
+            bool 			instr_target;   	// Is the current instruction the target of a branch?
+            u32  			instr_forcealign;	// Align this instruction at a word boundary
+	    bool			labeling;		// In instruction address labeling mode
+	    u32				runningaddr;		// Running instruction address during labeling
+
+	    void			reset(u32);		// Reset a particular processor number
+    };
 } // namespace CDC8600
 
 #endif // _TYPES_HH

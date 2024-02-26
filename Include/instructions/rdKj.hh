@@ -5,18 +5,18 @@ class rdjK : public FjK
 
 	bool execute()
 	{
-	    if (_K < PROC.FL().u()*256)			// Check that displacement is within bounds of field length
+	    if (_K < PROC[me()].FL().u()*256)			// Check that displacement is within bounds of field length
 	    {
 		// Good
-		uint32_t addr = PROC.RA().u()*256 + _K;	// Architected address
+		uint32_t addr = PROC[me()].RA().u()*256 + _K;	// Architected address
 		assert(addr < params::MEM::N);		// Check against hardware limit
-		PROC.X(_j) = MEM[addr];			// Read data
+		PROC[me()].X(_j) = MEM[addr];			// Read data
 	    }
 	    else
 	    {
 		// Bad
-		PROC.cond()(2) = true;
-		PROC._XA = PROC.XA().u();
+		PROC[me()].cond()(2) = true;
+		PROC[me()]._XA = PROC[me()].XA().u();
 		assert(false);
 	    }
 	    return false;

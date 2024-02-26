@@ -5,7 +5,7 @@ class xkj : public Fjk
 
 	bool execute()
 	{
-	    PROC.X(_j).u() = _k;
+	    PROC[me()].X(_j).u() = _k;
 	    return false;
 	}
 
