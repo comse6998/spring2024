@@ -37,7 +37,40 @@ namespace CDC8600
 	extern vector<unit>	FXUs;	// fixed-point units
 	extern vector<unit>	FPUs;	// floating-point units
 	extern vector<unit>	BRUs;	// branch units
-    }; // namespace units
+    } // namespace units
+
+    namespace L1
+    {
+	class cacheset
+	{
+	    private:
+		vector<bool>	_valid;
+		vector<u32>	_tag;
+		vector<u64>	_used;
+
+	    public:
+		cacheset();
+		void reset();
+		bool valid(u32 i) { return _valid[i]; }
+		u32& tag(u32 i) { return _tag[i]; }
+		u64& used(u32 i) { return _used[i]; }
+		void invalidate(u32 i) { _valid[i] = false; }
+		void validate(u32 i) { _valid[i] = true; }
+	};
+
+	class cache
+	{
+	    private:
+		vector<cacheset>	_sets;
+
+	    public:
+		cache();
+		void reset();
+		bool hit(u32 addr);
+		bool loadhit(u32 addr, u64 cycle);
+		bool storehit(u32 addr, u64 cycle);
+	};
+    }
 } // namespace CDC8600
 
 #endif // _TYPES_HH
