@@ -8,7 +8,7 @@ class rdjki : public Fijk
 
 	bool execute()
 	{
-	    int64_t addr = (PROC[me()].X(_j).i() + PROC[me()].X(_k).i()) & 0xfffff;	// Compute displacement
+	    u64 addr = (PROC[me()].X(_j).i() + PROC[me()].X(_k).i()) & 0xfffff;	// Compute displacement
 	    if (addr < PROC[me()].FL().u()*256 )		    // Is displacement within bounds of field length
 	    {
 		// Good

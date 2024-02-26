@@ -26,15 +26,15 @@ void test_zcopy(int count)
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
     c128 *Y = new c128[ny];
 
-    for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
-    for (int i = 0; i < ny; i++) { y[i] = 0.0;	 }
-    for (int i = 0; i < ny; i++) { Y[i] = 0.0;	 }
+    for (u32 i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
+    for (u32 i = 0; i < ny; i++) { y[i] = 0.0;	 }
+    for (u32 i = 0; i < ny; i++) { Y[i] = 0.0;	 }
 
     zcopy_(&n, x, &incx, Y, &incy);		// Reference implementation of DCOPY
     CDC8600::BLAS::zcopy(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600
 
     bool pass = true;
-    for (int i = 0; i < ny; i++)
+    for (u32 i = 0; i < ny; i++)
     {
         if (Y[i] != y[i])
         {
