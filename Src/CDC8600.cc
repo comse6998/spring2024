@@ -467,7 +467,7 @@ namespace CDC8600
     {
 	vector<u64>		MEMready(params::MEM::N);				// ready cycle for memory locations
 
-	bool process
+	void process
 	(
 	    operation* op
 	)

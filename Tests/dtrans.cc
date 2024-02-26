@@ -47,9 +47,9 @@ void test_dtrans(int count)
     cout << "(m = " << setw(3) << m;
     cout << ", n = " << setw(3) << n;
     cout << ", # of instr = ";
-    for (int p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
     cout << ", # of cycles = ";
-    for (int p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
