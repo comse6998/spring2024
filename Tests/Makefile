@@ -28,6 +28,8 @@ blasref:
 dtrans:	dtrans.cc ../Src/blas/dtrans.cc ../Src/blas/dcopy.cc ../Include/blas/dcopy.hh ../Include/blas/dtrans.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrans.cc ../Src/blas/dtrans.cc ../Src/blas/dcopy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
+dgemv_ta: dgemv_ta.cc ../Src/blas/dgemv_ta.cc ../Src/blas/daxpy.cc ../Include/blas/daxpy.hh ../Include/blas/dgemv_ta.hh blasref
+	  ${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_ta.cc ../Src/blas/dgemv_ta.cc ../Src/blas/daxpy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 clean:
 	/bin/rm -rf ${TESTS}
 	bash -c "pushd ${BLAS_REF} && make clean && popd > /dev/null"
