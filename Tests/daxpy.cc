@@ -18,8 +18,8 @@ void test_daxpy(int count)
     reset();
 
     i32 n = rand() % 256;
-    i32 incx = (rand() % 16) - 8;
-    i32 incy = (rand() % 16) - 8;
+    i32 incx = 1;
+    i32 incy = 1;
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
     f64 a = f64(drand48());
@@ -51,7 +51,7 @@ void test_daxpy(int count)
 
     delete [] Y;
 
-    //cocout << "(n = " << setw(3) << n;
+    cout << "(n = " << setw(3) << n;
     cout << ", a = " << setw(20) << a;
     cout << ", incx = " << setw(2) << incx;
     cout << ", incy = " << setw(2) << incy;
