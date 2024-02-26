@@ -1,8 +1,11 @@
 BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax dasum zscal daxpy dswap
+#BLAS_1		= zscal
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC			= g++
+#PARAM		= 
 CCFLAGS		= -g -O0 -I../Include
+#${PARAM}
 BLAS_DEPS 	= ../Src/blas
 SRC_DEPS	= ../Src/CDC8600.cc ../Src/ISA.cc
 INC_DEPS	= ../Include/CDC8600.hh
@@ -13,6 +16,7 @@ FLIBS = -L/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/
 else
 FLIBS =
 endif
+
 
 all:	${TESTS}
 
