@@ -61,6 +61,8 @@ namespace CDC8600
 			idjkj(6, 1)         // X6 (tmp) = -1
 			isjki(6, 6, 3)      // X6 (tmp) = X6 (-1) + X4 (incx)
 			pass()
+			pass()
+			pass()
 			jmpnz(6, Common)   // if X4 (incx) != 1 goto general
 			idjkj(7, 1)         // X7 (tmp) = -1
 			isjki(7, 7, 5)      // X7 (tmp) = X7 (-1) + X5 (incy)
@@ -69,16 +71,21 @@ namespace CDC8600
 			
 			//idjkj(0, 1)         // X0 (n) = X0 (n) - 1
 
-            xkj(6, 0)           // initiate M = 0
+            rdjk(6, 0)           // initiate M = 0
             rdjk(7, 0)           // the tmp number of M, initial as n
 
+
 LABEL(MOD) rdjk(6, 7)          // assign tem M to M
-            rdjk(8, 6)          // another tem M[10] for M
+            rdjk(8, 7)          // another tem M[10] for M
             idjkj(7, 4)         // tem - 4 = tmp
 			pass()
+			pass()
+			pass()
             jmpn(7, Loop_M)     // if tem < 0, M != 0, do the loop
-            jmpz(7, Loop_chunk4)        //when M = 0, move to loop chunk_4
+            jmpz(7, equal_0)        //when M = 0, move to loop chunk_4
             jmp(MOD)
+			
+			
 
 LABEL(Loop_M) jmpz(6, Loop_chunk4)  // when M is 0, jump to Loop_chunk4
             
@@ -91,6 +98,12 @@ LABEL(Loop_M) jmpz(6, Loop_chunk4)  // when M is 0, jump to Loop_chunk4
 			sdjki(11, 4, 6)			// MEM[X[4] + X[6](M)] = X[tmp2]
 			pass()
 			jmp(Loop_M)
+
+LABEL(equal_0) xkj(8, 0)			// when n mod 4 == 0, we could directly deal with this problem
+				pass()
+				pass()
+				pass()
+				
 
 LABEL(Loop_chunk4) jmpz(0, end)			// if n<4 return or complete the loop
 			idjkj(0, 4)				// // X[0] = X[0] - 4
@@ -121,6 +134,8 @@ LABEL(Loop_chunk4) jmpz(0, end)			// if n<4 return or complete the loop
 			fadd(9, 9, 10)      // X9 (tmp1) = X[9] + X[10]
 			sdjki(9, 4, 8)      // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
 
+			isjkj(8, 1)			// M = M+4 (next location)
+			pass()
 			jmp(Loop_chunk4)
 			
 
@@ -133,15 +148,11 @@ LABEL(Common) xkj(7, 0)           // X7 (ix) = 0
 			pass()
 			pass()
 			pass()
-			pass()
-			pass()
 
 LABEL(L_Y)	jmpp(5, Main_loop)       // if X5 (incy) > 0 goto Main_loop
 			idzkj(8, 0)         // X8 (iy) = -X0 (n)
 			isjkj(8, 1)         // X8 (iy) = X8(-n) + 1
 			ipjkj(8, 5)         // X8 (iy) = X8 (-n+1) * X5 (incy)
-			pass()
-			pass()
 			pass()
 
 
@@ -156,6 +167,9 @@ LABEL(Main_loop) jmpz(0, end)        // if X0 (n) = 0 goto end
 			isjki(8, 8, 5)      // X8 (iy) = X8 (iy) + X5 (incy)
 			idjkj(0, 1)         // X0 (n) = X0 (n) - 1
 			jmp(Main_loop)
+			pass()
+			pass()
+
 
 LABEL(end)	jmpk(15, 1)         // return to X15 (calling address) + 1
 		}
