@@ -7,7 +7,7 @@ class fadd : public Fijk
 
     bool execute()
     {
-        PROC.X(_i).f() = PROC.X(_j).f() + PROC.X(_k).f();
+        PROC[me()].X(_i).f() = PROC[me()].X(_j).f() + PROC[me()].X(_k).f();
         return false;
     }
 

@@ -5,7 +5,7 @@ class idjki : public Fijk
 
 	bool execute()
 	{
-	    PROC.X(_i).i() = PROC.X(_j).i() - PROC.X(_k).i();
+	    PROC[me()].X(_i).i() = PROC[me()].X(_j).i() - PROC[me()].X(_k).i();
 	    return false;
 	}
 

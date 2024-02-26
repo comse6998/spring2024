@@ -49,15 +49,15 @@ void test_dcopy(int count)
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
     cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << instructions::count;
-    cout << ", # of cycles = " << setw(9) << operations::maxcycle;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(trace);
+    if (n < 10) dump(PROC[0].trace);
 }
 
 int main()

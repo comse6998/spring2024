@@ -48,6 +48,11 @@ namespace CDC8600
 	    const u32	latency = 30;	// Memory latency
 	} // namespace MEM
 
+	namespace Proc
+	{
+	    const u32 	N = 4;		// Number of processors
+	} // namespace Proc
+
 	namespace L1
 	{
 	    const u32	linesize = 4;	// # of words in a cache line
