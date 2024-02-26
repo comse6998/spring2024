@@ -1,4 +1,4 @@
-BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax dasum zscal daxpy dswap dger
+BLAS_1		= daxpy dger#dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax dasum zscal daxpy dswap dger
 BLAS		= ${BLAS_1}
 TESTS 		= ${BLAS}
 CCC			= g++
@@ -22,6 +22,10 @@ blasref:
 # Rule for building BLAS test cases
 %::	%.cc ../Src/blas/%.cc ../Include/blas/%.hh blasref
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< ../Src/blas/$< ../Blas/*.o ${FLIBS} -lgfortran -o $@
+
+dger: dger.cc ../Src/blas/dger.cc ../Src/blas/daxpy.cc ../Include/blas/daxpy.hh ../Include/blas/dger.hh blasref
+	${CCC} ${CCFLAGS} ${SRC_DEPS} dger.cc ../Src/blas/dger.cc ../Src/blas/daxpy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+
 
 clean:
 	/bin/rm -rf ${TESTS}
