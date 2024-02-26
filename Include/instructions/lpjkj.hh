@@ -5,7 +5,7 @@ class lpjkj : public Fjk
 
 	bool execute()
 	{
-	    PROC.X(_j).u() = PROC.X(_j).u() & PROC.X(_k).u();
+	    PROC[me()].X(_j).u() = PROC[me()].X(_j).u() & PROC[me()].X(_k).u();
 	    return false;
 	}
 
