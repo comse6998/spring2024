@@ -60,34 +60,34 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
     i32 N = n;
     i32 INCX = incx;
     i32 INCY = incy;
-    i32 one = 1;
-
     if (m <= 0 || n <= 0 || alpha == 0.0)
         return;
 
-//#pragma omp parallel
-
+#pragma omp parallel
+{
     if (incy > 0) {
-        int jy = 0;
-        for (int j = 0; j < n; j++) {
+        int jy = me() * incy;
+
+        for (int j = me(); j < n; j += nump()) {
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
-                daxpy(M, temp, x, INCX, &a[j * lda], one);
+                daxpy(M, temp, x, INCX, &a[j * lda], 1);
             }
-            jy += incy;
+            jy += incy*nump();
         }
     } else {
-        int jy = (1 - n) * incy;
-        for (int j = 0; j < n; j++) {
+        int jy = (1 - n) * incy + me() * incy;
+        for (int j = me(); j < n; j += nump()) {
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
-                daxpy(M, temp, x, INCX, &a[j * lda], one);
+                daxpy(M, temp, x, INCX, &a[j * lda], 1);
             }
-            jy += incy;
+            jy += incy*nump();
         }
     }
+}
 
        //     cout << "me():" << me() << std::endl;
        //     cout << "nump():" << nump() << std::endl;
