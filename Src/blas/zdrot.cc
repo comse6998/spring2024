@@ -69,18 +69,17 @@ namespace CDC8600
 	)
 	{ 
         //jmpn(0, end)          // !!! jump if n<0
-        jmpz(0, end)
-        
+       jmpz(0, end)         
         xkj(7, 0)               // X7 (ix) == 0
-
-        
-  
+ 
         xkj(12, 0)              // X12 = 0
-        fadd(9, 2, 12)          // X9 = incx (X2) + 0 (X12) 
-        fadd(10, 4, 12)         // X10 = incy (X4) + 0 (X12) 
-        idjkj(9, 1)		        // X9 (incx) = X9 (incx) - 2
+        isjki(9, 2, 12)          // X9 = incx (X2) + 0 (X12) 
+        isjki(10, 4, 12)         // X10 = incy (X4) + 0 (X12) 
+        idjkj(9, 1)
+        pass()		        // X9 (incx) = X9 (incx) - 2
         jmpnz(9, start_r)
         idjkj(10, 1)		    // X10 (incy) = X10 (incy) - 2
+        pass()
         jmpnz(10, start_r)
 
 //Optimized Version using backward branch
@@ -88,8 +87,8 @@ namespace CDC8600
         xkj(13, 2)
         ipjkj(0, 13)		    // X0 (n) = X2 (n) * 2
 
-
-LABEL(start_o)//jmpz(0, end)      // jump to end if X0 (n) == 0 
+        //REAL PART
+LABEL(start_o)rdjki(11, 1, 7)	        // X11 (x.real, temp1) = MEM[X1 (x) + X7 (i)] (real)
         //REAL PART
         rdjki(11, 1, 7)	        // X11 (x.real, temp1) = MEM[X1 (x) + X7 (i)] (real)
         rdjki(12, 3, 7)	        // X12 (y.real, temp2) = MEM[X3 (y) + X7 (i)] (real)
@@ -104,7 +103,7 @@ LABEL(start_o)//jmpz(0, end)      // jump to end if X0 (n) == 0
 
         //cpjk(11, 9)           // X11 (x.real) = X9 (ctemp.real)
         xkj(13, 0)              
-        fadd(11, 9, 13)  
+        isjki(11, 9, 13)  
 
         sdjki(11, 1, 7)	        // MEM[X1 (x) + X7 (i)] = X11 (tmp) (real)
         sdjki(12, 3, 7)	        // MEM[X3 (y) + X7 (i)] = X12 (tmp) (real)
@@ -126,7 +125,7 @@ LABEL(start_o)//jmpz(0, end)      // jump to end if X0 (n) == 0
 
         //cpjk(11, 9)           // X11 (x.imag) = X9 (ctemp.imag)
         xkj(13, 0)              
-        fadd(11, 9, 13)           
+        isjki(11, 9, 13)           
 
 
         sdjki(11, 1, 7)	        // MEM[X1 (x) + X7 (i)] = X11 (tmp) (imag)
@@ -142,23 +141,28 @@ LABEL(start_o)//jmpz(0, end)      // jump to end if X0 (n) == 0
 //END OPTIMIZATION
 
 //START REGULAR
-        
-LABEL(start_r)xkj(8, 0)               // X8 (iy) == 0
+        pass()
+        pass()
+LABEL(start_r)  xkj(8, 0)               // X8 (iy) == 0
         xkj(13, 2)
         ipjkj(2, 13)		    // X2 (incx) = X2 (incx) * 2
         ipjkj(4, 13)		    // X4 (incx) = X4 (incx) * 2
-
         //test for increments < 0
 LABEL(start)jmpp(2, check)      //skip this section if incx > 0
         idzkj(7, 0)		        // X7 (ix) = -X0 (n)
-	    isjkj(7, 1)		        // X7 (ix) = X7(-n) + 1
-        ipjkj(7, 2)		        // X7 (ix) = X7 (-n+1) * X2 (incx)
+	isjkj(7, 1)		        // X7 (ix) = X7(-n) + 1
+        ipjkj(7, 2)	
+        pass()	        // X7 (ix) = X7 (-n+1) * X2 (incx)
+        pass()
+        pass()
 
 LABEL(check)jmpp(4, loop1)      //skip this section if incy > 0
         idzkj(8, 0)		        // X8 (iy) = -X0 (n)
-	    isjkj(8, 1)		        // X8 (iy) = X8(-n) + 1
-        ipjkj(8, 4)		        // X8 (iy) = X8 (-n+1) * X4 (incy)
-    
+        isjkj(8, 1)		        // X8 (iy) = X8(-n) + 1
+        ipjkj(8, 4)
+        pass()		        // X8 (iy) = X8 (-n+1) * X4 (incy)
+        pass()
+        pass() 
 LABEL(loop1) jmpz(0, end)       // jump to end if X0 (n) == 0   
 //REAL PART
         rdjki(11, 1, 7)	        // X11 (x.real, temp1) = MEM[X1 (x) + X7 (ix)] (real)
@@ -174,7 +178,7 @@ LABEL(loop1) jmpz(0, end)       // jump to end if X0 (n) == 0
 
         //cpjk(11, 9)           // X11 (x.real) = X9 (ctemp.real)
         xkj(13, 0)              
-        fadd(11, 9, 13)  
+        isjki(11, 9, 13)  
 
         sdjki(11, 1, 7)	        // MEM[X1 (x) + X7 (ix)] = X11 (tmp) (real)
         sdjki(12, 3, 8)	        // MEM[X3 (y) + X8 (iy)] = X12 (tmp) (real)
@@ -197,7 +201,7 @@ LABEL(loop1) jmpz(0, end)       // jump to end if X0 (n) == 0
 
         //cpjk(11, 9)           // X11 (x.imag) = X9 (ctemp.imag)
         xkj(13, 0)              
-        fadd(11, 9, 13)           
+        isjki(11, 9, 13)           
 
 
         sdjki(11, 1, 7)	        // MEM[X1 (x) + X7 (ix)] = X11 (tmp) (imag)
@@ -210,10 +214,13 @@ LABEL(loop1) jmpz(0, end)       // jump to end if X0 (n) == 0
         isjki(7, 7, 2)	        // X7 (ix) = X7 (ix) + X2 (incx)
         isjki(8, 8, 4)	        // X8 (iy) = X8 (iy) + X4 (incy)
 
-        idjkj(0, 1)		        // X0 (n) = X0 (n) - 1
+        idjkj(0, 1)
+        pass()		        // X0 (n) = X0 (n) - 1
         jmp(loop1)              // jump to beginning of the loop
 
+
 LABEL(end)jmpk(15, 1)           // return to X15 (calling address) + 1
+
 
 	    }
     } // namespace BLAS
