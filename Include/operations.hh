@@ -450,8 +450,8 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
         };
 
-			class fsub : public FPop
-	{
+        class fsub : public FPop
+        {
 	    private:
 		u08	_i;
 		u08	_j;
@@ -465,7 +465,7 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fsub"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
-	};
+        };
     } // namespace operations
 } // namespace CDC8600
 
