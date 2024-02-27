@@ -33,8 +33,7 @@ void test_dger(int count)
     for (int i = 0; i < n*lda; i++) { A[i] = a[i]; }
 
 
-    //tracing = false; if (n < 10) tracing = true;
-    //tracing = true;
+    tracing = false;
 
     // Call the dger function
     CDC8600::BLAS::dger(m, n, alpha, x, incx, y, incy, a, lda);
@@ -57,22 +56,22 @@ void test_dger(int count)
 
     delete [] A;
 
-    cout << "dger [" << setw(2) << count << "] ";
-    cout << "(n = " << setw(3) << n;
-    cout << ", m = " << setw(3) << m;
-    cout << ", incx = " << setw(2) << incx;
-    cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << instructions::count;
-    cout << ", # of cycles = " << setw(9) << operations::maxcycle;
-    cout << ") : ";    if (pass)
+    cout << "dtrans [" << setw(2) << count << "] ";
+    cout << "(m = " << setw(3) << m;
+    cout << ", n = " << setw(3) << n;
+    cout << ", incx = " << setw(3) << incx;
+    cout << ", incy = " << setw(3) << incy;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ", # of instr = " << setw(9) << PROC[1].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[1].op_maxcycle;
+    cout << ") : ";
+    if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    //cout << "completion:" << setw(8) << std::endl;
-
-    //if (n < 2000)
-     //dump(trace);
+    //if (n < 10) dump(PROC[0].trace);
 }
 
 int main()
