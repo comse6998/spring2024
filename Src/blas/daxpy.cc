@@ -149,12 +149,11 @@ LABEL(Common) xkj(7, 0)           // X7 (ix) = 0
 			ipjkj(7, 3)         // X7 (ix) = X7 (-n+1) * X3 (incx)
 			pass()
 
+
 LABEL(L_Y)	jmpp(5, Main_loop)       // if X5 (incy) > 0 goto Main_loop
 			idzkj(8, 0)         // X8 (iy) = -X0 (n)
 			isjkj(8, 1)         // X8 (iy) = X8(-n) + 1
 			ipjkj(8, 5)         // X8 (iy) = X8 (-n+1) * X5 (incy)
-			pass()
-			pass()
 			pass()
 
 
@@ -169,6 +168,9 @@ LABEL(Main_loop) jmpz(0, end)        // if X0 (n) = 0 goto end
 			isjki(8, 8, 5)      // X8 (iy) = X8 (iy) + X5 (incy)
 			idjkj(0, 1)         // X0 (n) = X0 (n) - 1
 			jmp(Main_loop)
+			pass()
+			pass()
+
 
 
 

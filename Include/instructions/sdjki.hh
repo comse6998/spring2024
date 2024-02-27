@@ -8,21 +8,21 @@ class sdjki : public Fijk
 
 	bool execute()
 	{
-	    int64_t addr = (PROC.X(_j).i() + PROC.X(_k).i()) & 0xfffff;	// Compute displacement
-	    if (addr < PROC.FL().u()*256 )		    // Is displacement within bounds of field length
+	    int64_t addr = (PROC[me()].X(_j).i() + PROC[me()].X(_k).i()) & 0xfffff;	// Compute displacement
+	    if (addr < PROC[me()].FL().u()*256 )		    // Is displacement within bounds of field length
 	    {
 		// Good
-		addr += PROC.RA().u()*256;		    // Add reference address
+		addr += PROC[me()].RA().u()*256;		    // Add reference address
 		assert(addr >= 0);			    // Address should be nonnegative
 		assert(addr < params::MEM::N);              // Check against hardware limit
-		MEM[addr] = PROC.X(_i);                     // Store data
+		MEM[addr] = PROC[me()].X(_i);                     // Store data
 		_addr = addr;				    // Save store address
 	    }
 	    else
 	    {
 		// Bad
-		PROC._XA = PROC.XA().u();
-		PROC.cond()(2) = true;
+		PROC[me()]._XA = PROC[me()].XA().u();
+		PROC[me()].cond()(2) = true;
 		assert(false);
 	    }
 	    return false;
