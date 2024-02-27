@@ -1,5 +1,5 @@
 BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax dasum zscal daxpy dswap
-BLAS_2		= dtrans dtrmv_unn dgemv_ta
+BLAS_2		= dtrans dtrmv_unn dgemv_ta dtrmv_ltu
 BLAS		= ${BLAS_1} ${BLAS_2}
 TESTS 		= ${BLAS}
 CCC			= g++
@@ -33,6 +33,9 @@ dtrmv_unn:	dtrmv_unn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Include/
 
 dgemv_ta:	dgemv_ta.cc ../Src/blas/dgemv_ta.cc ../Src/blas/daxpy.cc ../Src/blas/dscal.cc ../Include/blas/daxpy.hh ../Include/blas/dscal.hh ../Include/blas/dgemv_ta.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_ta.cc ../Src/blas/dgemv_ta.cc ../Src/blas/daxpy.cc ../Src/blas/dscal.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+
+dtrmv_ltu:	dtrmv_ltu.cc ../Src/blas/dtrmv_ltu.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_ltu.hh blasref
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_ltu.cc ../Src/blas/dtrmv_ltu.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 clean:
 	/bin/rm -rf ${TESTS}
