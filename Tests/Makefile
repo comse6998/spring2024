@@ -3,8 +3,6 @@ BLAS_2		= dtrans dtrmv_unn dger
 BLAS		= ${BLAS_1} ${BLAS_2}
 TESTS 		= ${BLAS}
 CCC			= g++
-CCFLAGS		= -Wall -I/opt/homebrew/Cellar/libomp/17.0.6/include -g -O0 -I../Include
-OMPFLAGS	= -Xpreprocessor -fopenmp -L/opt/homebrew/Cellar/libomp/17.0.6/lib -lomp
 BLAS_DEPS 	= ../Src/blas
 SRC_DEPS	= ../Src/CDC8600.cc ../Src/ISA.cc
 INC_DEPS	= ../Include/CDC8600.hh
@@ -16,6 +14,8 @@ CCFLAGS		= -I/opt/homebrew/Cellar/libomp/17.0.6/include -g -O0 -I../Include
 OMPFLAGS	= -Xpreprocessor -fopenmp -L/opt/homebrew/Cellar/libomp/17.0.6/lib -lomp
 else
 FLIBS =
+OMPFLAGS	= -fopenmp
+CCFLAGS		= -Wall -g -O0 -I../Include
 endif
 
 all:	${TESTS}
