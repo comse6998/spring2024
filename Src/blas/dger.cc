@@ -65,11 +65,11 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
     if (m <= 0 || n <= 0 || alpha == 0.0)
         return;
 
-#pragma omp parallel
+//#pragma omp parallel
 
     if (incy > 0) {
         int jy = 0;
-        for (int j = me(); j < n; j += nump()) {
+        for (int j = 0; j < n; ++j) {
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
@@ -79,7 +79,7 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
         }
     } else {
         int jy = (1 - n) * incy;
-        for (int j = me(); j < n; j += nump()) {
+        for (int j = 0; j < n; ++j) {
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
