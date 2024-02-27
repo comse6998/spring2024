@@ -117,8 +117,9 @@ namespace CDC8600
             u32 _line;                                  // line number of instruction in source file
             u32 _addr;                                  // byte (not word) address of instruction in memory
         public:
+	    virtual ~instruction() { }			// virtual destructor
             virtual bool execute() = 0;                 // every instruction must have a method "execute" that implements its semantics and returns "true" if branch is taken
-            virtual bool ops() { }                      // the ops method processes the internal ops that implement the instrution
+            virtual bool ops() { return false; }        // the ops method processes the internal ops that implement the instrution
             virtual u08 len() const = 0;                // length of instruction in bytes (2 or 4)
             virtual string mnemonic() const = 0;        // mnemonic for the instruction
             virtual string dasm() const = 0;            // disassembly for the instruction
