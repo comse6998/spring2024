@@ -137,6 +137,8 @@ LABEL(Loop_chunk4) jmpz(0, end)			// if n<4 return or complete the loop
 			isjkj(8, 1)			// M = M+4 (next location)
 			pass()
 			jmp(Loop_chunk4)
+			pass()
+			pass()
 			
 
 LABEL(Common) xkj(7, 0)           // X7 (ix) = 0
@@ -146,8 +148,7 @@ LABEL(Common) xkj(7, 0)           // X7 (ix) = 0
 			isjkj(7, 1)         // X7 (ix) = X7(-n) + 1
 			ipjkj(7, 3)         // X7 (ix) = X7 (-n+1) * X3 (incx)
 			pass()
-			pass()
-			pass()
+
 
 LABEL(L_Y)	jmpp(5, Main_loop)       // if X5 (incy) > 0 goto Main_loop
 			idzkj(8, 0)         // X8 (iy) = -X0 (n)
@@ -169,6 +170,8 @@ LABEL(Main_loop) jmpz(0, end)        // if X0 (n) = 0 goto end
 			jmp(Main_loop)
 			pass()
 			pass()
+
+
 
 
 LABEL(end)	jmpk(15, 1)         // return to X15 (calling address) + 1
