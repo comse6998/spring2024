@@ -1,6 +1,8 @@
 #include <CDC8600.hh>
 #include <ISA.hh>
 #include <blas/dger.hh>
+#include <blas/daxpy.hh>
+
 namespace CDC8600
 {
 
@@ -16,7 +18,7 @@ namespace CDC8600
             dger_cpp(m, n, alpha, x, incx, y, incy, a, lda);
         }
 
-void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* a, u64 lda) {
+/* void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* a, u64 lda) {
 
 
     i32 M = m;
@@ -34,7 +36,7 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
-                daxpy_(&M, &temp, x, &INCX, &a[j * lda], &one);
+                daxpy(M, temp, x, INCX, &a[j * lda], one);
             }
             jy += incy;
         }
@@ -44,14 +46,51 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
-                daxpy_(&M, &temp, x, &INCX, &a[j * lda], &one);
+                daxpy(M, temp, x, INCX, &a[j * lda], one);
             }
             jy += incy;
         }
     }
+}  */
 
-/*      // Local Variables
-    double temp;
+void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* a, u64 lda) {
+
+
+    i32 M = m;
+    i32 N = n;
+    i32 INCX = incx;
+    i32 INCY = incy;
+    i32 one = 1;
+
+    if (m <= 0 || n <= 0 || alpha == 0.0)
+        return;
+
+#pragma omp parallel
+
+    if (incy > 0) {
+        int jy = 0;
+        for (int j = me(); j < n; j += nump()) {
+            if (y[jy] != 0.0)
+            {
+                double temp = alpha * y[jy];
+                daxpy(M, temp, x, INCX, &a[j * lda], one);
+            }
+            jy += incy;
+        }
+    } else {
+        int jy = (1 - n) * incy;
+        for (int j = me(); j < n; j += nump()) {
+            if (y[jy] != 0.0)
+            {
+                double temp = alpha * y[jy];
+                daxpy(M, temp, x, INCX, &a[j * lda], one);
+            }
+            jy += incy;
+        }
+    }
+} 
+      // Local Variables
+ /*    double temp;
     int i, info, ix, j, jy, kx;
     const double zero = 0.0;
 
@@ -113,7 +152,7 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
             }
             jy += incy;
         }
-    } */ 
-}
+    }  */
+
     } // namespace BLAS
 } // namespace CDC8600
