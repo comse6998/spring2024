@@ -17,42 +17,7 @@ namespace CDC8600
             //Call(dger_cpp)(m, n, alpha, x, incx, y, incy, a, lda);
             dger_cpp(m, n, alpha, x, incx, y, incy, a, lda);
         }
-
-/* void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* a, u64 lda) {
-
-
-    i32 M = m;
-    i32 N = n;
-    i32 INCX = incx;
-    i32 INCY = incy;
-    i32 one = 1;
-
-    if (m <= 0 || n <= 0 || alpha == 0.0)
-        return;
-
-    if (incy > 0) {
-        int jy = 0;
-        for (int j = 0; j < n; ++j) {
-            if (y[jy] != 0.0)
-            {
-                double temp = alpha * y[jy];
-                daxpy(M, temp, x, INCX, &a[j * lda], one);
-            }
-            jy += incy;
-        }
-    } else {
-        int jy = (1 - n) * incy;
-        for (int j = 0; j < n; ++j) {
-            if (y[jy] != 0.0)
-            {
-                double temp = alpha * y[jy];
-                daxpy(M, temp, x, INCX, &a[j * lda], one);
-            }
-            jy += incy;
-        }
-    }
-}  */
-
+        
 void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* a, u64 lda) {
 
     if (m <= 0 || n <= 0 || alpha == 0.0)
