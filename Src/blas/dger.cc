@@ -69,7 +69,7 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
 
     if (incy > 0) {
         int jy = 0;
-        for (int j = 0; j < n; ++j) {
+        for (int j = 0; j < n; j++) {
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
@@ -79,7 +79,7 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
         }
     } else {
         int jy = (1 - n) * incy;
-        for (int j = 0; j < n; ++j) {
+        for (int j = 0; j < n; j++) {
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
@@ -88,6 +88,9 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
             jy += incy;
         }
     }
+
+       //     cout << "me():" << me() << std::endl;
+       //     cout << "nump():" << nump() << std::endl;
 } 
       // Local Variables
  /*    double temp;

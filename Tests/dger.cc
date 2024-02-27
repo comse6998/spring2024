@@ -56,7 +56,7 @@ void test_dger(int count)
 
     delete [] A;
 
-    cout << "dtrans [" << setw(2) << count << "] ";
+    cout << "dger [" << setw(2) << count << "] ";
     cout << "(m = " << setw(3) << m;
     cout << ", n = " << setw(3) << n;
     cout << ", incx = " << setw(3) << incx;
