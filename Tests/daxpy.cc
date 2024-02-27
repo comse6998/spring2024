@@ -13,13 +13,13 @@ extern "C" i32 daxpy_(int32_t *, double *, double *, int32_t *, double *, int32_
 const int N = 20;
 const double EPSILON = 1e-9;
 
-void test_daxpy(int count)
+void test_daxpy(int count, i32 incx, i32 incy)
 {
     reset();
 
     i32 n = rand() % 256;
-    i32 incx = 1;
-    i32 incy = 1;
+    //i32 incx = (rand() % 16) - 8;
+    //i32 incy = (rand() % 16) - 8;
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
     f64 a = f64(drand48());
@@ -72,7 +72,10 @@ int main()
 {
     for (int i = 0; i < N; i++)
     {
-        test_daxpy(i);
+        test_daxpy(i, (rand() % 16) - 8, (rand() % 16) - 8);
     }
+    test_daxpy(20, 1, 1);
+    test_daxpy(21, 1, (rand() % 16) - 8);
+    test_daxpy(22, (rand() % 16) - 8, 1);
     return 0;
 }
