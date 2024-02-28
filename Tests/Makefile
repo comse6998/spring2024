@@ -1,5 +1,5 @@
 BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax dasum zscal daxpy dswap
-BLAS_2		= dtrans dtrmv_unn
+BLAS_2		= dtrans dtrmv_unn dtrmv_lnu
 BLAS		= ${BLAS_1} ${BLAS_2}
 TESTS 		= ${BLAS}
 CCC			= g++
@@ -30,6 +30,9 @@ dtrans:	dtrans.cc ../Src/blas/dtrans.cc ../Src/blas/dcopy.cc ../Include/blas/dco
 
 dtrmv_unn:	dtrmv_unn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_unn.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_unn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+
+dtrmv_lnu:	dtrmv_lnu.cc ../Src/blas/dtrmv_lnu.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_lnu.hh blasref
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_lnu.cc ../Src/blas/dtrmv_lnu.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 clean:
 	/bin/rm -rf ${TESTS}

@@ -26,7 +26,7 @@ namespace CDC8600
             }
             for(u32 i = n-1;i>0;i--)
             {
-                X[ix] = X[ix] +  ddot(i, X, incx, A + i, lda);
+                X[ix] = X[ix] +  ddot(i, X + (incx < 0 ? (i-n)*incx : 0), incx, A + i, lda);
                 ix -= incx;
             }
         }

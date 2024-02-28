@@ -23,6 +23,7 @@ void test_dtrmv_lnu(int count)
 
     i32 n = rand() % 256;
     i32 incx = (rand() % 16) - 8;
+    if (incx == 0) incx = 1;
     // how big should lda be than n ?? 
     i32 lda = n + rand()%256;
     
@@ -33,15 +34,15 @@ void test_dtrmv_lnu(int count)
     f64 *X = (f64*)CDC8600::memalloc(nx);
     f64 *x = new f64[nx];
 
-    for (int i = 0; i < na; i++) { A[i] = drand48();}
-    for(int i = 0;i<nx;i++){X[i] = x[i] = drand48();}
+    for (u32 i = 0; i < na; i++) { A[i] = drand48();}
+    for(u32 i = 0;i<nx;i++){X[i] = x[i] = drand48();}
 
     dtrmv_(&UPLO, &TRANS, &DIAG, &n, A, &lda, x, &incx);
     CDC8600::BLAS::dtrmv_lnu(n,A,lda,X,incx);
 
     bool pass = true;
 
-    for(int i = 0;i<nx;i++)
+    for(u32 i = 0;i<nx;i++)
     {
         if(!(abs(X[i] - x[i]) < (min(abs(X[i]), abs(x[i])) + epsilon) * epsilon ))
         {
@@ -73,7 +74,7 @@ int main()
 {
     for (int i = 0; i < N; i++)
     {
-        // test_dtrans(i);
+        test_dtrmv_lnu(i);
     }
     return 0;
 }
