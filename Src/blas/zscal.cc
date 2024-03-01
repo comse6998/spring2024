@@ -47,6 +47,8 @@ namespace CDC8600
             jmpz(6,loop1)       //jmpz(loop1, cmp)
             //printf("execute loop2\n");
             jmp(loop2)          //jmp (loop2)
+            pass()
+            pass()
             
 
 LABEL(loop1)xkj(5,0)
@@ -68,6 +70,7 @@ LABEL(loop1)xkj(5,0)
 
             isjkj(3,2)          //pt=pt+2
             idjkj(0,1)          //n=n-1
+            pass()
 
             jmpp(0,loop1)       //jmpp (loop1, n)
             jmp(end)            //jmp (exit)
@@ -94,7 +97,8 @@ LABEL(loop2)xkj(5,0)
             isjki(3,3,4)          //pt=pt+incx
             idjkj(0,1)
 
-            jmpp(0,loop2)
+            pass()
+            jmpp(0,loop2)   
             jmp(end)
 
 LABEL(end)  jmpk(15, 1)         // return to X15 (calling address) + 1

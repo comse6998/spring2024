@@ -32,19 +32,34 @@ namespace CDC8600
 
 	    const u32	nregs = 24;	// number of micro-architected registers
 	    				// 0-15 : X registers
-					// 16 : X scratch register
-					// 17 : mode flags
-					// 18 : condition flags
-					// 19 : compare flags
-					// 20 : RA
-					// 21 : XA
-					// 22 : FL
-					// 23 : P
+					//   16 : X scratch register
+					//   17 : mode flags
+					//   18 : condition flags
+					//   19 : compare flags
+					//   20 : RA
+					//   21 : XA
+					//   22 : FL
+					//   23 : P
 	}
+
 	namespace MEM
 	{
 	    const u32	N = 262144;	// Memory size = 256Ki words
+	    const u32	latency = 30;	// Memory latency
 	} // namespace MEM
+
+	namespace Proc
+	{
+	    const u32 	N = 4;		// Number of processors
+	} // namespace Proc
+
+	namespace L1
+	{
+	    const u32	linesize = 4;	// # of words in a cache line
+	    const u32	nsets = 8;	// # of sets in the cache
+	    const u32	nways = 4;	// cache associativity
+	    const u32	latency = 4;	// L1 latency
+	} // namespace L1
     } // namespace params
 } // namespace CDC8600
 

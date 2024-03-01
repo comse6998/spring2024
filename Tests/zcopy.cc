@@ -26,15 +26,15 @@ void test_zcopy(int count)
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
     c128 *Y = new c128[ny];
 
-    for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
-    for (int i = 0; i < ny; i++) { y[i] = 0.0;	 }
-    for (int i = 0; i < ny; i++) { Y[i] = 0.0;	 }
+    for (u32 i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
+    for (u32 i = 0; i < ny; i++) { y[i] = 0.0;	 }
+    for (u32 i = 0; i < ny; i++) { Y[i] = 0.0;	 }
 
     zcopy_(&n, x, &incx, Y, &incy);		// Reference implementation of DCOPY
     CDC8600::BLAS::zcopy(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600
 
     bool pass = true;
-    for (int i = 0; i < ny; i++)
+    for (u32 i = 0; i < ny; i++)
     {
         if (Y[i] != y[i])
         {
@@ -44,13 +44,13 @@ void test_zcopy(int count)
 
     delete [] Y;
 
-    cout << "zcopy [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
+    cout << "zcopy [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << PROC[0].instr_count << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(trace);
+    if (n < 10) dump(PROC[0].trace);
 }
     
 

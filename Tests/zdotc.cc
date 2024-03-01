@@ -22,6 +22,8 @@ void test_zdotc(int count)
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
 
+    tracing = false; if (n < 10) tracing = true;
+
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
 
@@ -42,13 +44,19 @@ void test_zdotc(int count)
         pass = false;
     }
 
-    cout << "zdotc [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
+    cout << "dcopy [" << setw(2) << count << "] ";
+    cout << "(n = " << setw(3) << n;
+    cout << ", incx = " << setw(2) << incx;
+    cout << ", incy = " << setw(2) << incy;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
     
-    if (n < 10) dump(trace);
+    if (n < 10) dump(PROC[0].trace);
 }
 
 int main()

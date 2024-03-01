@@ -11,6 +11,7 @@
 #include<iomanip>
 #include<complex>
 #include<types.hh>
+#include<globals.hh>
 #include<parameters.hh>
 #include<operations.hh>
 
@@ -18,71 +19,6 @@ using namespace std;
 
 namespace CDC8600
 {
-    class word          // 64 bits, interpreted as signed, unsigned, or float
-    {
-        private:
-
-            union
-            {
-                u64     u;
-                i64     i;
-                f64     f;
-            } _data;
-
-        public:
-
-            word& operator=(i64 x)
-            {
-                _data.i = x;
-                return *this;
-            }
-
-            u64& u()       { return _data.u; } 
-            u64  u() const { return _data.u; }
-            i64& i()       { return _data.i; }
-            i64  i() const { return _data.i; }
-            f64& f()       { return _data.f; }
-            f64  f() const { return _data.f; }
-
-            operator u64() { return _data.u; }
-            operator i64() { return _data.i; }
-            operator f64() { return _data.f; }
-    };
-
-    template<int n> class reg
-    {
-        private:
-            u32 _loc;   // location of memory word containing this register
-            u08 _first; // first bit in word for this register
-        public:
-
-            reg(u32 loc, u08 first) : _loc(loc), _first(first) { assert(n <= 20); assert(_first + n <= 64); }
-            u64 u();
-            reg<1> operator()(uint8_t);
-            reg<n>& operator=(bool);
-            reg<n>& operator=(u64);
-    };
-
-    class Processor
-    {
-        private:
-
-        public:
-
-            uint8_t     _XA;            // The address of the current exchange packet   
-            word&       X(uint8_t i);   // Xi register in current exchange packet
-            reg<4>      mode();         // mode field of current XPW
-            reg<8>      cond();         // cond field of current XPW
-            reg<12>     RA();           // RA field of current XPW
-            reg<8>      XA();           // XA field of current XPW
-            reg<12>     FL();           // FL field of current XPW
-            reg<20>     P();            // P field of current XPW
-    };
-
-    extern vector<word> MEM;
-    extern uint32_t     FreeMEM;
-    extern Processor    PROC;
-
     void reset();
 
     void *memalloc(u64);
@@ -105,11 +41,11 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(2).i() = arg3;
-            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(4).i() = arg5;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).u() = (word*)arg2 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(2).i() = arg3;
+            PROC[me()].X(3).u() = (word*)arg4 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(4).i() = arg5;
 
             _f();
         }
@@ -118,11 +54,11 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(2).i() = arg3;
-            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(4).i() = arg5;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).u() = (word*)arg2 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(2).i() = arg3;
+            PROC[me()].X(3).u() = (word*)arg4 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(4).i() = arg5;
 
             _f();
         }
@@ -131,13 +67,13 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).f() = arg2.real();
-            PROC.X(2).f() = arg2.imag();
-            PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(4).i() = arg4;
-            PROC.X(5).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(6).i() = arg6;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).f() = arg2.real();
+            PROC[me()].X(2).f() = arg2.imag();
+            PROC[me()].X(3).u() = (word*)arg3 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(4).i() = arg4;
+            PROC[me()].X(5).u() = (word*)arg5 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(6).i() = arg6;
 
             _f();
         }
@@ -146,13 +82,13 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(2).i() = arg3;
-            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(4).i() = arg5;
-            PROC.X(5).f() = arg6;
-            PROC.X(6).f() = arg7;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).u() = (word*)arg2 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(2).i() = arg3;
+            PROC[me()].X(3).u() = (word*)arg4 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(4).i() = arg5;
+            PROC[me()].X(5).f() = arg6;
+            PROC[me()].X(6).f() = arg7;
 
             _f();
             }
@@ -161,13 +97,13 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).i() = arg1;
-            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(2).i() = arg3;
-            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(4).i() = arg5;
-            PROC.X(5).f() = arg6;
-            PROC.X(6).f() = arg7;
+            PROC[me()].X(0).i() = arg1;
+            PROC[me()].X(1).u() = (word*)arg2 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(2).i() = arg3;
+            PROC[me()].X(3).u() = (word*)arg4 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(4).i() = arg5;
+            PROC[me()].X(5).f() = arg6;
+            PROC[me()].X(6).f() = arg7;
 
             _f();
         }
@@ -176,10 +112,10 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).f() = arg2;
-            PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(3).i() = arg4;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).f() = arg2;
+            PROC[me()].X(2).u() = (word*)arg3 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(3).i() = arg4;
 
             _f();
         }
@@ -188,11 +124,11 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).i() = arg1;
-            PROC.X(1).f() = arg2.real();
-            PROC.X(2).f() = arg2.imag();
-            PROC.X(3).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(4).i() = arg4;
+            PROC[me()].X(0).i() = arg1;
+            PROC[me()].X(1).f() = arg2.real();
+            PROC[me()].X(2).f() = arg2.imag();
+            PROC[me()].X(3).u() = (word*)arg3 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(4).i() = arg4;
 
             _f();
         }       
@@ -201,12 +137,12 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).f() = arg2;
-            PROC.X(2).u() = (word*)arg3 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(3).i() = arg4;
-            PROC.X(4).u() = (word*)arg5 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(5).i() = arg6;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).f() = arg2;
+            PROC[me()].X(2).u() = (word*)arg3 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(3).i() = arg4;
+            PROC[me()].X(4).u() = (word*)arg5 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(5).i() = arg6;
 
             _f();
         }
@@ -228,43 +164,43 @@ namespace CDC8600
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(2).i() = arg3;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).u() = (word*)arg2 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(2).i() = arg3;
 
             _f();
                 
-            return (T0) PROC.X(0);
+            return (T0) PROC[me()].X(0);
         }
 
         f64 operator()(u64 arg1, f64 *arg2, i64 arg3, f64 *arg4, i64 arg5)
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(2).i() = arg3;
-            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(4).i() = arg5;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).u() = (word*)arg2 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(2).i() = arg3;
+            PROC[me()].X(3).u() = (word*)arg4 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(4).i() = arg5;
 
             _f();
 
-            return PROC.X(0).f();
+            return PROC[me()].X(0).f();
         }
 
         c128 operator()(u64 arg1, c128 *arg2, i64 arg3, c128 *arg4, i64 arg5)
         {
             label(_f);
 
-            PROC.X(0).u() = arg1;
-            PROC.X(1).u() = (word*)arg2 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(2).i() = arg3;
-            PROC.X(3).u() = (word*)arg4 - &(MEM[PROC.RA().u()*256]);
-            PROC.X(4).i() = arg5;
+            PROC[me()].X(0).u() = arg1;
+            PROC[me()].X(1).u() = (word*)arg2 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(2).i() = arg3;
+            PROC[me()].X(3).u() = (word*)arg4 - &(MEM[PROC[me()].RA().u()*256]);
+            PROC[me()].X(4).i() = arg5;
 
             _f();
 
-            return c128(PROC.X(0).f(), PROC.X(1).f());
+            return c128(PROC[me()].X(0).f(), PROC[me()].X(1).f());
         }
     };
 
@@ -284,7 +220,7 @@ namespace CDC8600
         }
     };
 
-        template <typename T1, typename T2, typename T3, typename T4> class call4
+    template <typename T1, typename T2, typename T3, typename T4> class call4
     {
       private:
         void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
@@ -364,6 +300,22 @@ namespace CDC8600
         }
     };
 
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10> class call10
+    {
+      private:
+        void (*_f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10);
+
+      public:
+        call10(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10))
+        {
+            _f = f;
+        }
+        void operator()(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
+        {
+            _f(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+        }
+    };
+
     call0 Call(void (*f)());
 
     template<typename T0>
@@ -372,7 +324,7 @@ namespace CDC8600
         return func0<T0>(f);
     }
 
-        template <typename T0, typename T1, typename T2, typename T3>
+    template <typename T0, typename T1, typename T2, typename T3>
     func3<T0, T1, T2, T3> Func(T0 (*f)(T1 arg1, T2 arg2, T3 arg3))
     {
         return func3<T0, T1, T2, T3>(f);
@@ -408,22 +360,11 @@ namespace CDC8600
         return call7<T1, T2, T3, T4, T5, T6, T7>(f);
     }
 
-    class instruction                                   // Generic instruction class
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
+    call10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> Call(void (*f)(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10))
     {
-        protected:
-            u32 _line;                                  // line number of instruction in source file
-            u32 _addr;                                  // byte (not word) address of instruction in memory
-        public:
-            virtual bool execute() = 0;                 // every instruction must have a method "execute" that implements its semantics and returns "true" if branch is taken
-            virtual bool ops() { }                      // the ops method processes the internal ops that implement the instrution
-            virtual u08 len() const = 0;                // length of instruction in bytes (2 or 4)
-            virtual string mnemonic() const = 0;        // mnemonic for the instruction
-            virtual string dasm() const = 0;            // disassembly for the instruction
-            virtual u32 encoding() const = 0;           // instruction encoding
-            virtual void fixit() { }                    // used to fix displacements in branches
-            u32& line() { return _line; }
-            u32& addr() { return _addr; }
-    };
+        return call10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(f);
+    }
 
     class Fijk : public instruction     // Instructions of 4/4/4/4 format
     {
@@ -535,11 +476,6 @@ namespace CDC8600
             u32 encoding() const { return (_F << 24) + (_j << 20) + (_K << 0); }
     };
 
-    extern map<u32, u32>      line2addr;
-    extern map<u32, u32>      line2encoding;
-    extern map<u32, u32>      line2len;
-    extern map<string, u32>     label2line;                     // label -> line map
-
     namespace instructions
     {
 #include<instructions/pass.hh>                          // Pass                                                         (p54)
@@ -569,15 +505,7 @@ namespace CDC8600
 #include<instructions/jmpnz.hh>                         // Jump to P + K if (Xj) unequal to 0 
     } // namespace instructions
 
-    namespace instructions
-    {
-        extern u32  count;      // Current instruction count
-        extern bool target;     // Is the current instruction the target of a branch?
-        extern u32  forcealign; // Align this instruction at a word boundary
-    };
-
     extern bool                 tracing;
-    extern vector<instruction*> trace;
 
     extern bool process(instruction*, u32);
 

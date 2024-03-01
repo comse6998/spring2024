@@ -9,7 +9,7 @@ using namespace CDC8600;
 
 extern "C" int32_t dcopy_(int32_t *, double *, int32_t *, double *, int32_t *);
 
-const int N = 20;
+const u32 N = 20;
 
 void test_dcopy(int count)
 {
@@ -27,15 +27,15 @@ void test_dcopy(int count)
     f64 *y = (f64*)CDC8600::memalloc(ny);
     f64 *Y = new f64[ny];
 
-    for (int i = 0; i < nx; i++) { x[i] = drand48(); }
-    for (int i = 0; i < ny; i++) { y[i] = 0.0;	 }
-    for (int i = 0; i < ny; i++) { Y[i] = 0.0;	 }
+    for (u32 i = 0; i < nx; i++) { x[i] = drand48(); }
+    for (u32 i = 0; i < ny; i++) { y[i] = 0.0;	 }
+    for (u32 i = 0; i < ny; i++) { Y[i] = 0.0;	 }
 
     dcopy_(&n, x, &incx, Y, &incy);		// Reference implementation of DCOPY
     CDC8600::BLAS::dcopy(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600
 
     bool pass = true;
-    for (int i = 0; i < ny; i++)
+    for (u32 i = 0; i < ny; i++)
     {
         if (Y[i] != y[i])
         {
@@ -49,20 +49,20 @@ void test_dcopy(int count)
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
     cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << instructions::count;
-    cout << ", # of cycles = " << setw(9) << operations::maxcycle;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(trace);
+    if (n < 10) dump(PROC[0].trace);
 }
 
 int main()
 {
-    for (int i = 0; i < N; i++)
+    for (u32 i = 0; i < N; i++)
     {
         test_dcopy(i);
     }
