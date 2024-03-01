@@ -38,6 +38,9 @@ void test_zdrot(int count)
     for (int i = 0; i < n*abs(incx); i++) { X[i] = x[i]; }
     for (int i = 0; i < n*abs(incy); i++) { Y[i] = y[i]; }
 
+    tracing = false;
+    if (n < 10) tracing = true;
+
  
     CDC8600::BLAS::zdrot(n, x, incx, y, incy, c, s);	// Implementation of ZDROT for the CDC8600
     zdrot_(&n, X, &incx, Y, &incy, &c, &s);		// Reference implementation of ZDROT
@@ -61,13 +64,19 @@ void test_zdrot(int count)
     delete [] Y;
     delete [] X;
 
-    cout << "zdrot [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
+    cout << "zdrot [" << setw(2) << count << "] ";
+    cout << ", n = " << setw(3) << n;
+    cout << ", incx = " << setw(3) << incx;
+    cout << ", incy = " << setw(3) << incy;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(trace);
+    if (n < 10) dump(PROC[0].trace);
 }
 
 int main()
