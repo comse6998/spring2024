@@ -134,8 +134,9 @@ namespace CDC8600
         private:
 
         public:
-            uint8_t     		_XA;            	// The address of the current exchange packet   
-            word&       		X(uint8_t i);   	// Xi register in current exchange packet
+            u08     			_XA;            	// The address of the current exchange package
+            word&       		X(u08);  		// X registers in current exchange package
+	    word&			P(u32);			// Physical register
             reg<4>      		mode();         	// mode field of current XPW
             reg<8>      		cond();         	// cond field of current XPW
             reg<12>     		RA();           	// RA field of current XPW
@@ -154,6 +155,11 @@ namespace CDC8600
      	    map<string, u32>   		label2line;     	// label -> line map
 	    vector<instruction*>	trace;			// instruction trace
 	    vector<u64>			REGready; 		// ready cycle for microarchitected registers
+	    vector<u64>			Pready;			// ready cycle for physical register
+	    vector<u64>			Pused;			// last used cycle for physical register
+	    u32				pnext;			// next physical register to use
+	    u32				pfind();		// find a physical register to use
+	    map<u32,u32>		mapper;			// logical -> physical register mapping
 	    u64 			op_count;		// operation count
 	    u64 			op_nextdispatch;	// next operation dispatch cycle
 	    u64			 	op_maxcycle;		// maximum observed completion cycle
@@ -162,7 +168,6 @@ namespace CDC8600
             u32  			instr_forcealign;	// Align this instruction at a word boundary
 	    bool			labeling;		// In instruction address labeling mode
 	    u32				runningaddr;		// Running instruction address during labeling
-
 	    void			reset(u32);		// Reset a particular processor number
     };
 } // namespace CDC8600

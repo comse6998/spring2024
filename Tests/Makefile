@@ -40,11 +40,17 @@ dtrans:	dtrans.cc ../Src/blas/dtrans.cc ../Src/blas/dcopy.cc ../Include/blas/dco
 dtrmv_unn:	dtrmv_unn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_unn.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_unn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
+dtrmv_ltn:	dtrmv_ltn.cc ../Src/blas/dtrmv_ltn.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_ltn.hh blasref
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_ltn.cc ../Src/blas/dtrmv_ltn.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+
 dtrmv_lnu:	dtrmv_lnu.cc ../Src/blas/dtrmv_lnu.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_lnu.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_lnu.cc ../Src/blas/dtrmv_lnu.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 dtrmv_unu:	dtrmv_unu.cc ../Src/blas/dtrmv_unu.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_unu.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_unu.cc ../Src/blas/dtrmv_unu.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+	
+dgemv_na:   dgemv_ta.cc ../Src/blas/dgemv_na.cc ../Src/blas/daxpy.cc ../Include/blas/daxpy.hh ../Include/blas/dgemv_na.hh blasref
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_na.cc ../Src/blas/dgemv_na.cc ../Src/blas/daxpy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 dgemv_ta:	dgemv_ta.cc ../Src/blas/dgemv_ta.cc ../Src/blas/daxpy.cc ../Src/blas/dscal.cc ../Include/blas/daxpy.hh ../Include/blas/dscal.hh ../Include/blas/dgemv_ta.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_ta.cc ../Src/blas/dgemv_ta.cc ../Src/blas/daxpy.cc ../Src/blas/dscal.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
