@@ -40,6 +40,8 @@ namespace CDC8600
 					//   21 : XA
 					//   22 : FL
 					//   23 : P
+
+	    const u32	pregs = 64;	// number of physical registers
 	}
 
 	namespace MEM

@@ -216,27 +216,41 @@ namespace CDC8600
     )
     {
 	REGready.resize(params::micro::nregs); for (u32 i = 0; i < params::micro::nregs; i++) REGready[i] = 0;	// Zero the ready time for all microarchitected registers
-	_XA = 4 + id;									// User context for PROC[0] is in frame 4
-	FL() = (u64)(29 * 8192 / 256);						// User data memory is 29 pages
-	RA() = (u64)( 3 * 8192 / 256);						// User data memory begins in page 3
-	instr_count = 0;								// Instruction count starts at 0
-	instr_target = true;							// First instruction is target of a branch
-	instr_forcealign = 0;							// Force instruction address to align to word boundary
-	op_count = 0;								// Operation count starts at 0
-	op_nextdispatch = 0;							// Start dispatching operations at cycle 0
-	op_maxcycle = 0;								// Maximum completion time observed
-	for (u32 i=0; i<trace.size(); i++) delete trace[i];			// Delete all previous instructions
-	trace.clear();								// Clear the trace
-	line2addr.clear();								// Clear line -> address map
-	line2encoding.clear();							// Clear line -> encoding map
-	line2len.clear();								// Clear line -> len map
-	BRUs.resize(params::micro::nBRUs); for (u32 i=0; i < params::micro::nBRUs; i++) BRUs[i].clear();		// Cluear usage of BRUs
-	FXUs.resize(params::micro::nFXUs); for (u32 i=0; i < params::micro::nFXUs; i++) FXUs[i].clear();		// Cluear usage of FXUs
-	FPUs.resize(params::micro::nFPUs); for (u32 i=0; i < params::micro::nFPUs; i++) FPUs[i].clear();		// Cluear usage of FPUs
-	LDUs.resize(params::micro::nLDUs); for (u32 i=0; i < params::micro::nLDUs; i++) LDUs[i].clear();		// Cluear usage of LDUs
-	STUs.resize(params::micro::nSTUs); for (u32 i=0; i < params::micro::nSTUs; i++) STUs[i].clear();		// Cluear usage of STUs
-	L1D.reset();								// Reset the L1 data cache (all entries invalid)
-	labeling = false;
+	_XA = 4 + id;												// User context for PROC[0] is in frame 4
+	FL() = (u64)(29 * 8192 / 256);										// User data memory is 29 pages
+	RA() = (u64)( 3 * 8192 / 256);										// User data memory begins in page 3
+	instr_count = 0;											// Instruction count starts at 0
+	instr_target = true;											// First instruction is target of a branch
+	instr_forcealign = 0;											// Force instruction address to align to word boundary
+	op_count = 0;												// Operation count starts at 0
+	op_nextdispatch = 0;											// Start dispatching operations at cycle 0
+	op_maxcycle = 0;											// Maximum completion time observed
+	for (u32 i=0; i<trace.size(); i++) delete trace[i];							// Delete all previous instructions
+	trace.clear();												// Clear the trace
+	line2addr.clear();											// Clear line -> address map
+	line2encoding.clear();											// Clear line -> encoding map
+	line2len.clear();											// Clear line -> len map
+	BRUs.resize(params::micro::nBRUs); for (u32 i=0; i < params::micro::nBRUs; i++) BRUs[i].clear();	// Cluear usage of BRUs
+	FXUs.resize(params::micro::nFXUs); for (u32 i=0; i < params::micro::nFXUs; i++) FXUs[i].clear();	// Cluear usage of FXUs
+	FPUs.resize(params::micro::nFPUs); for (u32 i=0; i < params::micro::nFPUs; i++) FPUs[i].clear();	// Cluear usage of FPUs
+	LDUs.resize(params::micro::nLDUs); for (u32 i=0; i < params::micro::nLDUs; i++) LDUs[i].clear();	// Cluear usage of LDUs
+	STUs.resize(params::micro::nSTUs); for (u32 i=0; i < params::micro::nSTUs; i++) STUs[i].clear();	// Cluear usage of STUs
+	L1D.reset();												// Reset the L1 data cache (all entries invalid)
+	labeling = false;											// Not in labeling mode
+	Pready.resize(params::micro::pregs); for (u32 i=0; i<params::micro::pregs; i++) Pready[i] = 0;		// Start with all physical registers ready at T=0
+	Pused.resize(params::micro::pregs);  for (u32 i=0; i<params::micro::pregs; i++) Pused[i] = 0;		// Start with all physical registers used at T=0
+	mapper.clear(); for (u32 i=0; i<params::micro::nregs; i++) mapper[i] = i;				// Star tiwth identity mapping
+	pnext = 0;												// Start with physical register 0
+    }
+
+    u32 Processor::pfind
+    (
+    )
+    {
+	u32 idx = 0;
+	for (u32 i=0; i < params::micro::pregs; i++)	// look for the earliest available physical register
+	    if (Pused[i] < Pused[idx]) idx = i;
+	return idx;
     }
 
     void *memalloc

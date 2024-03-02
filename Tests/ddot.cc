@@ -28,10 +28,9 @@ void test_ddot(int count)
 
     f64 ref_ = ddot_(&n, x, &incx, y, &incy);
     f64 new_ = CDC8600::BLAS::ddot(n, x, incx, y, incy);
-    double epsilon = 1e-6; // Example epsilon value, adjust as needed
+    double epsilon = 1e-6;
     bool pass = true;
 
-    // Compare the absolute difference between ref_ and new_
     if (abs(ref_ - new_) >
         ((abs(ref_) < abs(new_) ? abs(ref_) : abs(new_)) + epsilon) * epsilon)
     {
