@@ -1,7 +1,7 @@
 #include <CDC8600.hh>
 #include <ISA.hh>
 #include <blas/dgemv_na.hh>
-#include "daxpy.cc"
+#include <blas/daxpy.hh>
 namespace CDC8600
 {
     namespace BLAS
