@@ -16,7 +16,7 @@ namespace CDC8600
             if (n <= 0) return;
 
             if (incx == 1 && incy == 1) {
-                for (int i = 0; i < n; i++)
+                for (u32 i = 0; i < n; i++)
                     y[i] += a * x[i];
             } else {
                 i64 ix = 0;                // First element of x
