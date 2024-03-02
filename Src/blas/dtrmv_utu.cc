@@ -20,13 +20,12 @@ namespace CDC8600
         
         void dtrmv_utu_cpp(u64 n, f64* A, u64 lda, f64* x, i64 incx)
         {
-            // Input check
-            if (n <= 0 || incx == 0 || lda <= 0 || lda < n)
+            if (n < 0 || lda < n || lda < 1 || incx == 0)
                 return;
+
             i64 ix = (incx <= 0) ? (-n + 1) * incx : 0;
-            for (i64 i = n; i > 0; i--) {
-                x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1, (incx < 0) ? x : x + ix + incx, incx);
-                ix -= incx;
+            for (u64 i = 0; i < n; i++){
+            x[ix] = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), incx, a+(i+1)*lda+i, lda);
         }
     }
 
