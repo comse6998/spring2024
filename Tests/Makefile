@@ -1,5 +1,5 @@
 BLAS_1		= dcopy zcopy drot zdrot zaxpy dscal zdotu zswap ddot zdotc idamax dasum zscal daxpy dswap
-BLAS_2		= dtrans dtrmv_unn dgemv_ta dger dtrmv_ltu dtrmv_lnu dgemv_td
+BLAS_2		= dtrans dger dgemv_nd dgemv_na dgemv_td dgemv_ta dtrmv_unu dtrmv_utu dtrmv_lnu dtrmv_ltu dtrmv_unn dtrmv_utn dtrmv_lnn dtrmv_ltn
 BLAS		= ${BLAS_1} ${BLAS_2}
 TESTS 		= ${BLAS}
 CCC			= g++
