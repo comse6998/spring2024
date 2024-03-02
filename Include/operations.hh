@@ -14,6 +14,8 @@ namespace CDC8600
 	     protected:
 		 u64 _count;	// operation #
 		 u64 _ready;    // inputs ready
+		 u64 _tgtready;	// target ready
+		 u64 _tgtreg;	// target physical register
 		 u64 _dispatch;	// dispatch time
                  u64 _issue;    // issue time
                  u64 _complete; // completion time (output ready)
@@ -23,6 +25,7 @@ namespace CDC8600
 
 		 virtual    u64 complete() const { return _complete; }	// operation completion cycle
 		 virtual    u64 ready() const = 0; 			// time inputs are ready
+		 virtual    u64 tgtready() = 0;				// time the target physical register is ready
 		 virtual    void target(u64 cycle) = 0;			// update ready time of output
 		 virtual    u64 latency() const = 0; 			// operation latency
 		 virtual    u64 throughput() const = 0; 		// operation inverse throughput
@@ -78,6 +81,7 @@ namespace CDC8600
 		     _count = PROC[me()].op_count;				// current instruction count
 		     _dispatch = dispatch;                      // remember dispatch time
 		     _ready = ready();				// check ready time for inputs
+		     _ready = max(_ready, tgtready());		// target physical register available
 		     _issue = max(_ready, dispatch);		// account for operation dispatch
 		     units::unit* fu = firstavailable(_issue);	// find first unit avaialble starting at candidate issue cycle
 		     claim(fu, _issue, throughput());		// claim the unit starting at issue cycle for throughput cycles
@@ -93,30 +97,35 @@ namespace CDC8600
 	{
 	    public:
 		vector<units::unit>& units() { return PROC[me()].FXUs; }
+		u64 tgtready() { _tgtreg = PROC[me()].pfind(); return PROC[me()].Pready[_tgtreg]; }
 	};
 
 	class FPop : public operation
 	{
 	    public:
 		vector<units::unit>& units() { return PROC[me()].FPUs; }
+		u64 tgtready() { _tgtreg = PROC[me()].pfind(); return PROC[me()].Pready[_tgtreg]; }
 	};
 
 	class LDop : public operation
 	{
 	    public:
 		vector<units::unit>& units() { return PROC[me()].LDUs; }
+		u64 tgtready() { _tgtreg = PROC[me()].pfind(); return PROC[me()].Pready[_tgtreg]; }
 	};
 
 	class STop : public operation
 	{
 	    public:
 		vector<units::unit>& units() { return PROC[me()].STUs; }
+		u64 tgtready() { return 0; }
 	};
 
 	class BRop : public operation
 	{
 	    public:
 		vector<units::unit>& units() { return PROC[me()].BRUs; }
+		u64 tgtready() { return 0; }
 	};
 
 	class xkj : public FXop
