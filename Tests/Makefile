@@ -40,6 +40,9 @@ dtrmv_unn:	dtrmv_unn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Include/
 dtrmv_lnu:	dtrmv_lnu.cc ../Src/blas/dtrmv_lnu.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_lnu.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_lnu.cc ../Src/blas/dtrmv_lnu.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 	
+dgemv_na:   dgemv_ta.cc ../Src/blas/dgemv_na.cc ../Src/blas/daxpy.cc ../Include/blas/daxpy.hh ../Include/blas/dgemv_na.hh blasref
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_na.cc ../Src/blas/dgemv_na.cc ../Src/blas/daxpy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+
 dgemv_ta:	dgemv_ta.cc ../Src/blas/dgemv_ta.cc ../Src/blas/daxpy.cc ../Src/blas/dscal.cc ../Include/blas/daxpy.hh ../Include/blas/dscal.hh ../Include/blas/dgemv_ta.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_ta.cc ../Src/blas/dgemv_ta.cc ../Src/blas/daxpy.cc ../Src/blas/dscal.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
