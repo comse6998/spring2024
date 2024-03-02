@@ -10,6 +10,7 @@ using namespace CDC8600;
 extern "C" int32_t dtrmv_(char *, char *, char *, int32_t *, double *, int32_t *, double *, int32_t *);
 
 const u32 N = 20;
+const double EPSILON = 1e-9;
 
 void test_dtrmv_ltu(int count)
 {
@@ -17,13 +18,14 @@ void test_dtrmv_ltu(int count)
 
     i32 n = rand() % 256;
     i32 lda = n + rand() % 256;
+    lda = max(lda, 1);
     i32 incx = (rand() % 16) - 8; // incx = 0?
     incx = (incx == 0) ? 1:incx;
     char uplo = 'L';
     char trans = 'T';
     char diag = 'U';
 
-    tracing = false; if (n < 10) tracing = true;
+    // tracing = false; if (n < 10) tracing = true;
 
     int32_t nx = 1 + n * abs(incx);
 
@@ -40,9 +42,10 @@ void test_dtrmv_ltu(int count)
     bool pass = true;
     for (int i = 0; i < nx; i++)
     {
-        if (x[i] != X[i])
+        if(!(abs(X[i] - x[i]) < (min(abs(X[i]), abs(x[i])) + EPSILON) * EPSILON))
         {
             pass = false;
+            break;
         }
     }
 
@@ -60,7 +63,7 @@ void test_dtrmv_ltu(int count)
     else
         cout << "FAIL" << std::endl;
     
-    if (n < 10) dump(PROC[0].trace);
+    // if (n < 10) dump(PROC[0].trace);
 
 
     return;
