@@ -42,7 +42,7 @@ namespace CDC8600
                     //printf("BEFORE y[%ld] = %f\n", yIndex, y[yIndex]);
                     // goes from accessing y[MAX DIMENSION] using row MAX_ROW-1 to the baseline
                     // inverse of positive case
-                    //printf("accessing y[%ld], yIndex %d\n", yIndex, i);
+                    printf("accessing y[%ld], yIndex %d\n", yIndex, i);
                     y[yIndex] += alpha * ddot(n, a + i, lda, x, abs(incx));
                     //printf("AFTER y[%ld] = %f\n", yIndex, y[yIndex]);
                     yIndex -= abs(incy);
