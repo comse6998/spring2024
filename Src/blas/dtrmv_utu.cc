@@ -17,22 +17,7 @@ namespace CDC8600
         {
             Call(dtrmv_utu_cpp)(n, a, lda, x, incx);
         }
-        void dtrmv_unu_cpp(u64 n, f64* a, u64 lda, f64* x, i64 incx)
-        {
-            if (n < 0 || lda < n || lda < 1 || incx == 0)
-                return;
-
-            for (u64 i = 0; i < n; i++){
-                u64 ix = (incx > 0 ? i : (-n + 1 + i)) * incx;
-                //x[ix] = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), incx, a+(i+1)*lda+i, lda);
-                //x[ix] = x[ix] + ddot(n-i-1, a+(i+1)*lda+i, incx, x+(i+1)*(incx>0 ? incx:0), lda);
-                //x[ix] = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), incx, a+ lda * i + i + 1, lda);
-                //x[ix] = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), incx, a+(lda+1)*i+lda, lda); 
-                //x[ix] = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), lda, a+(i+1)*lda+i, incx);
-                x[ix] = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), incx, a+(i+1)*lda+i, lda);
-            }
-            return;
-        }
+        
         void dtrmv_utu_cpp(u64 n, f64* A, u64 lda, f64* x, i64 incx)
         {
             // Input check
