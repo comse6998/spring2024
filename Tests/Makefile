@@ -3,6 +3,8 @@ BLAS_2		= dtrans dger dgemv_nd dgemv_na dgemv_td dgemv_ta dtrmv_unu dtrmv_utu dt
 BLAS		= ${BLAS_1} ${BLAS_2}
 TESTS 		= ${BLAS}
 CCC			= g++
+CCFLAGS		= -g -O0 -I../Include
+OMPFLAGS	= -fopenmp
 BLAS_DEPS 	= ../Src/blas
 SRC_DEPS	= ../Src/CDC8600.cc ../Src/ISA.cc
 INC_DEPS	= ../Include/CDC8600.hh
@@ -17,6 +19,7 @@ FLIBS =
 OMPFLAGS	= -fopenmp
 CCFLAGS		= -Wall -g -O0 -I../Include
 endif
+
 
 all:	${TESTS}
 
@@ -42,6 +45,9 @@ dtrmv_ltn:	dtrmv_ltn.cc ../Src/blas/dtrmv_ltn.cc ../Src/blas/ddot.cc ../Include/
 
 dtrmv_lnu:	dtrmv_lnu.cc ../Src/blas/dtrmv_lnu.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_lnu.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_lnu.cc ../Src/blas/dtrmv_lnu.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+
+dtrmv_unu:	dtrmv_unu.cc ../Src/blas/dtrmv_unu.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_unu.hh blasref
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_unu.cc ../Src/blas/dtrmv_unu.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 	
 dgemv_na:   dgemv_ta.cc ../Src/blas/dgemv_na.cc ../Src/blas/daxpy.cc ../Include/blas/daxpy.hh ../Include/blas/dgemv_na.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_na.cc ../Src/blas/dgemv_na.cc ../Src/blas/daxpy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
