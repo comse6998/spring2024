@@ -3,9 +3,7 @@ BLAS_2		= dtrans dtrmv_unn dgemv_ta dger dtrmv_lnu dtrmv_unu
 BLAS		= ${BLAS_1} ${BLAS_2}
 TESTS 		= ${BLAS}
 CCC			= g++
-#PARAM		= 
 CCFLAGS		= -g -O0 -I../Include
-#${PARAM}
 OMPFLAGS	= -fopenmp
 BLAS_DEPS 	= ../Src/blas
 SRC_DEPS	= ../Src/CDC8600.cc ../Src/ISA.cc
