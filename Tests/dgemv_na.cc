@@ -14,7 +14,7 @@
  void test_dgemv(int count)
  {
     reset();
-    f64 eps = 0.00000001
+    f64 eps = 0.00000001;
     i32 m = rand() % 256;
     i32 n = rand() % 256;
     f64 alpha = (float)rand()/(float)(RAND_MAX/1);

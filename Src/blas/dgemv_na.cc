@@ -1,12 +1,9 @@
 #include <CDC8600.hh>
 #include <ISA.hh>
 #include <blas/dgemv_na.hh>
-#include <blas/daxpy.hh>
+#include "daxpy.cc"
 namespace CDC8600
 {
-extern "C" i32 daxpy_(int32_t *, double *, double *, int32_t *, double *, int32_t *);
-
-
     namespace BLAS
     {
         void dgemv_na(u64 m, u64 n, f64 alpha, f64* A, u64 lda, f64* x, i64 incx, f64 beta, f64* y, i64 incy)
@@ -52,7 +49,7 @@ void dgemv_na_cpp(u64 m, u64 n, f64 alpha, f64* A, u64 lda, f64* x, i64 incx, f6
         y[iy] = beta*y[iy];
         iy += incy;
     }
-    daxpy(&M, &alpha, temp1, &one, y, &INCY);
+    daxpy(M, alpha, temp1, one, y, INCY);
  }
      } // namespace BLAS
  } // namespace CDC8600
