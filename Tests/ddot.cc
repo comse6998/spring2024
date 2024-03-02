@@ -38,13 +38,13 @@ void test_ddot(int count)
         pass = false;
     }
 
-    std::cout << "ddot [" << std::setw(2) << count << "] (n = " << std::setw(3) << n << ", incx = " << std::setw(2) << incx << ", incy = " << std::setw(2) << incy << ", # of instr = " << std::setw(9) << instructions::count << ") : ";
+    std::cout << "ddot [" << std::setw(2) << count << "] (n = " << std::setw(3) << n << ", incx = " << std::setw(2) << incx << ", incy = " << std::setw(2) << incy << ", # of instr = " << std::setw(9) << PROC[0].instr_count << ") : ";
     if (pass)
         std::cout << "PASS" << std::endl;
     else
         std::cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(trace);
+    if (n < 10) dump(PROC[0].trace);
 }
 
 int main()
