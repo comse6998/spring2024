@@ -9,7 +9,7 @@ namespace CDC8600
     {
         void dtrmv_lnn    (u64 n, f64* a, u64 lda, f64* x, i64 incx);
         void dtrmv_lnn_cpp(u64 n, f64* a, u64 lda, f64* x, i64 incx);
-        // void dtrmv_lnn_asm();  /* reserved to be implemented */
+        // void dtrmv_lnn_asm();
     } // namespace BLAS
 }; // namespace CDC8600
 

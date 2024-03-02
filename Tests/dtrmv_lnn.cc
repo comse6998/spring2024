@@ -19,7 +19,7 @@ void test_dtrmv_lnn(int count)
 
     i32 n = rand() % 256;
     i32 lda = n + rand() % 256;
-    i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
+    i32 incx = (rand() % 16); if (incx == 0) incx = 1;
     char uplo = 'L', trans = 'N', diag = 'N';
     bool pass = true;
 
