@@ -17,8 +17,8 @@
     f64 eps = 0.5;
     i32 m = rand() % 256;
     i32 n = rand() % 256;
-    f64 alpha = 2.67;
-    f64 beta = 1.2;
+    f64 alpha = (float)rand()/(float)(RAND_MAX/1);
+    f64 beta = (float)rand()/(float)(RAND_MAX/1);
     i32 incx = (rand() % 16) -4;
     i32 incy = (rand() % 16 ) -4;
     if (incx == 0) incx = 1;
@@ -42,15 +42,18 @@
     dgemv_(&trans, &m, &n, &alpha, A,&lda,x, &incx, &beta, y_, &incy);
 
     CDC8600::BLAS::dgemv_na(m, n, alpha, A, lda, x, incx, beta, y, incy);
-    
+
+    i32 iy = 0;
+    if (incy <= 0) iy = (-m+1)*incy;
 
      bool pass = true;
      for (int i = 0; i < m; ++i) 
      {
-             if (abs(y[i*incy] - y_[i*incy]) > eps) 
+             if (abs(y[iy] - y_[iy]) > eps) 
              {
                  pass = false; // Values don't match
              }
+             iy += incy;
      }
 
      //delete [] A;
@@ -60,8 +63,6 @@
      cout << ", m = " << setw(3) << m;
      cout << ", incx = " << setw(2) << incx;
      cout << ", incy = " << setw(2) << incy;
-     cout << ", # of instr = " << setw(9) << instructions::count;
-     cout << ", # of cycles = " << setw(9) << operations::maxcycle;
      cout << ") : ";    if (pass)
          cout << "PASS" << std::endl;
      else
