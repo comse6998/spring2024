@@ -22,7 +22,11 @@ namespace CDC8600
         {
             if (n < 0 || lda < n || lda < 1 || incx == 0)
                 return;
-
+            if (incx == 1 ){
+                for (int j = n - 1 ; j >= 1 ; j--){
+                    x[j]= ddot(j+1 ,a + ((j)*lda), 1, x, 1);
+                }
+            }
             i64 ix = (incx <= 0) ? (-n + 1) * incx : 0;
             for (u64 i = 0; i < n; i++){
             x[ix] = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), incx, a+(i+1)*lda+i, lda);
