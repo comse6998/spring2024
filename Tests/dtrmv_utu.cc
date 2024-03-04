@@ -27,7 +27,7 @@ void test_dtrmv_utu(int count)
     i32 incx = (rand() % 16) - 8; 
     incx = (incx == 0) ? 1 : incx;
     i32 n = rand() % 256;
-    i32 lda = n ;
+    i32 lda = n + rand() % 256;
     char UPLO = 'U'; 
     char TRANS = 'T'; 
     char DIAG = 'U';
@@ -35,16 +35,19 @@ void test_dtrmv_utu(int count)
     f64 *a = (f64*)CDC8600::memalloc(n*lda);
     f64 *x = (f64*)CDC8600::memalloc(n*abs(incx));  
     f64 *y = new f64[n*abs(incx)];                
-
+    
     for (int i = 0; i < n*lda; i++) {
-         a[i] = drand48();
+         a[i] = i;
          }
-    for (int i = 0; i < lda*abs(incx); i++) {
-         x[i] = y[i] = drand48();
+    for (int i = 0; i < n*abs(incx); i++) {
+         x[i] = y[i] = i; 
          }
     dtrmv_(&UPLO, &TRANS, &DIAG, &n, a, &lda, y, &incx);     // Reference implementation of dtrmv_utu
     CDC8600::BLAS::dtrmv_utu(n, a, lda, x, incx);            // Implementation of dtrmv_utu for the CDC8600
-
+    for (int i = 0; i < n*abs(incx); i++) {
+         }
+    for (int i = 0; i < n*abs(incx); i++) {
+         }
     bool pass = true;
     for (int i = 0; i < n*abs(incx); i++)
     {
