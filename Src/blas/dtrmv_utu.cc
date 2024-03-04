@@ -19,32 +19,20 @@ namespace CDC8600
         }
         
         void dtrmv_utu_cpp(u64 n, f64* a, u64 lda, f64* x, i64 incx)
+        
         {
-            if (n <= 0 || incx == 0 || lda <= 0 || lda < n)
-                return;
-
-            if (incx == 1 ){
-                //cout << "here";
-                for (int j = lda - 1 ; j >= 1 ; j--){
-                    x[j]= x[j] + ddot(j ,a + (j*n), 1, x, 1);
+            if (n <= 0 || incx == 0 || lda < n)  return;
+            i64 ix; 
+            for (i32 i = n; i > 0; i--) {
+                if(incx > 0){
+                ix = i * incx;
+                x[ix-incx] = x[ix - incx] + ddot(i-1, x, incx, a + ((i-1) * (lda)), 1);
+                }
+                else{
+                ix = (-n+i) * (incx);
+                x[ix] = x[ix] + ddot(i-1, x + ((-n+i-1)*incx), incx, a + ((i-1) * (lda)), 1);
                 }
             }
-            else if (incx >0 ){
-                i64 ix = (n-1)*(incx);
-                for (int j = lda - 1 ; j >= 1 ; j--){
-                    x[ix]= x[ix] + ddot(j,a + (j* n), 1, x, incx);
-                    ix = ix - incx;
-                } 
-            }
-            else{
-                i64 ix = 0;
-                for (int j = lda - 1 ; j >= 1 ; j--){
-                    //cout << "ix => " << ix << endl;
-                    x[ix]= x[ix] + ddot(j,a + (j * n), 1, x + ((n-j-lda+1)*(abs(incx))), incx);
-                    ix = ix - incx; 
-            }}
-            
-
         }
     }
   // namespace BLAS
