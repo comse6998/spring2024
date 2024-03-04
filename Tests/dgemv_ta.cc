@@ -29,6 +29,8 @@ void test_dgemv_ta(int count)
     int32_t nx = m*abs(incx); if (0 == nx) nx = 1;
     int32_t ny = n*abs(incy); if (0 == ny) ny = 1;
 
+    tracing = false;
+
     f64 *A = (f64*)CDC8600::memalloc(LDA*n);
     f64 *x = (f64*)CDC8600::memalloc(nx);
     f64 *y = (f64*)CDC8600::memalloc(ny);
@@ -62,12 +64,14 @@ void test_dgemv_ta(int count)
     cout << "(m = " << setw(3) << m;
     cout << ", n = " << setw(3) << n;
     //cout << ", alpha = " << setw(2) << alpha;
-    cout << ", LDA = " << setw(2) << LDA;
+    //cout << ", LDA = " << setw(2) << LDA;
     //cout << ", incx = " << setw(2) << incx;
     //cout << ", beta = " << setw(2) << beta;
     //cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ", # of instr = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << ", # of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
 
     if (pass)
@@ -75,6 +79,7 @@ void test_dgemv_ta(int count)
     else
         cout << "FAIL" << std::endl;
 
+    if (n < 10 && tracing) dump(PROC[0].trace);
 }
 
 int main()
