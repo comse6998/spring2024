@@ -19,8 +19,8 @@ class jmpp : public FjK
 
 	bool ops()
 	{
-	    process(new operations::cmpz(_j));
-	    process(new operations::jmpp());
+	    operations::process<operations::cmpz>(params::micro::CMPFLAGS, _j, 0, 0);
+	    operations::process<operations::jmpp>(_K, params::micro::CMPFLAGS);
 	    return false;
 	}
 

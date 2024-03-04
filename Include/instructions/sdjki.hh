@@ -35,8 +35,8 @@ class sdjki : public Fijk
 
 	bool ops()
 	{
-	    process(new operations::agen(params::micro::Xs, _j, _k));
-	    process(new operations::stw(_i, params::micro::Xs, _addr));
+	    operations::process<operations::agen>(params::micro::Xs, _j, _k, 0);
+	    operations::process<operations::stw>(_i, params::micro::Xs, _addr);
 	    return false;
 	}
 };

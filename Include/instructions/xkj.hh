@@ -11,7 +11,7 @@ class xkj : public Fjk
 
 	bool ops()
 	{
-	    process(new operations::xkj(_j, _k));
+	    operations::process<operations::xKi>(_j, 0, 0, _k);
 	    return false;
 	}
 

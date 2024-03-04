@@ -19,8 +19,8 @@ class bb : public Fijk
 
 	bool ops()
 	{
-	    process(new operations::cmp(_j, _k));
-	    process(new operations::bb(_i));
+	    operations::process<operations::cmp>(params::micro::CMPFLAGS, _j, _k, 0);
+	    operations::process<operations::bb>(_i, params::micro::CMPFLAGS);
 	    return false;
 	}
 	

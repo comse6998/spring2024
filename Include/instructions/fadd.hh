@@ -18,7 +18,7 @@ class fadd : public Fijk
 
     bool ops()
     {
-        process(new operations::fadd(_i, _j, _k));
+	operations::process<operations::fadd>(_i, _j, _k, 0);
         return false;
     }
 };

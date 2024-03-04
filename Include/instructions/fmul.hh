@@ -18,7 +18,7 @@ class fmul : public Fijk
 
     bool ops()
     {
-        process(new operations::fmul(_i, _j, _k));
+	operations::process<operations::fmul>(_i, _j, _k, 0);
         return false;
     }
 };

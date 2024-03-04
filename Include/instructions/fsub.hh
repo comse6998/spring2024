@@ -18,7 +18,7 @@ class fsub : public Fijk
 
     bool ops()
     {
-        process(new operations::fsub(_i, _j, _k));
+	operations::process<operations::fsub>(_i, _j, _k, 0);
         return false;
     }
 };

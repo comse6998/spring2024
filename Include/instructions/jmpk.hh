@@ -15,7 +15,7 @@ class jmpk : public Fjk
 
 	bool ops()
 	{
-	    process(new operations::jmpk(_j, _k));
+	    operations::process<operations::jmpk>(_k, _j);
 	    return false;
 	}
 };

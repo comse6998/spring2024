@@ -159,6 +159,7 @@ namespace CDC8600
 	    vector<u64>			Pused;			// last used cycle for physical register
 	    u32				pnext;			// next physical register to use
 	    u32				pfind();		// find a physical register to use
+	    set<u32>			pfree;			// set of free physical registers
 	    map<u32,u32>		mapper;			// logical -> physical register mapping
 	    u64 			op_count;		// operation count
 	    u64 			op_nextdispatch;	// next operation dispatch cycle

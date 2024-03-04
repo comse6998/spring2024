@@ -23,7 +23,7 @@ class jmp : public FjK
 
 	bool ops()
 	{
-	    process(new operations::jmp());
+	    operations::process<operations::jmp>(_K, _j);
 	    return false;
 	}
 

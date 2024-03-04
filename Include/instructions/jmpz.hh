@@ -19,8 +19,8 @@ class jmpz : public FjK
 
 	bool ops()
 	{
-	    process(new operations::cmpz(_j));
-	    process(new operations::jmpz());
+	    operations::process<operations::cmpz>(params::micro::CMPFLAGS, _j, 0, 0);
+	    operations::process<operations::jmpz>(_K, params::micro::CMPFLAGS);
 	    return false;
 	}
 

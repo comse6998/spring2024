@@ -241,6 +241,8 @@ namespace CDC8600
 	Pused.resize(params::micro::pregs);  for (u32 i=0; i<params::micro::pregs; i++) Pused[i] = 0;		// Start with all physical registers used at T=0
 	mapper.clear(); for (u32 i=0; i<params::micro::nregs; i++) mapper[i] = i;				// Star tiwth identity mapping
 	pnext = 0;												// Start with physical register 0
+	pfree.clear(); for (u32 i=params::micro::nregs; i < params::micro::pregs; i++) pfree.insert(i);		// Initial set of free physical registers
+	assert(params::micro::pregs > params::micro::nregs);
     }
 
     u32 Processor::pfind
@@ -248,8 +250,10 @@ namespace CDC8600
     )
     {
 	u32 idx = 0;
-	for (u32 i=0; i < params::micro::pregs; i++)	// look for the earliest available physical register
-	    if (Pused[i] < Pused[idx]) idx = i;
+	u64 lrutime = UINT64_MAX;
+	for (u32 i : pfree)	// look for the earliest available physical register
+	    if (Pused[i] < lrutime) { idx = i; lrutime = Pused[i]; }
+	assert(lrutime < UINT64_MAX);
 	return idx;
     }
 
@@ -489,6 +493,32 @@ namespace CDC8600
 	    op->process(PROC[me()].op_nextdispatch);					// process this operation
 	    PROC[me()].op_count++;							// update operation count
 	    PROC[me()].op_maxcycle = max(PROC[me()].op_maxcycle, op->complete());	// update maximum observed completion time
+	}
+
+	template<>
+	void process<rdw>
+	(
+	    u08	j, 	// target register
+	    u08	k,	// address register
+	    u32	addr	// compute address
+	)
+	{
+	    u08 tgtreg = PROC[me()].pfind();								// find next target physical register
+	    PROC[me()].pfree.erase(tgtreg);								// target physical register comes out of the free set
+	    PROC[me()].pfree.insert(PROC[me()].mapper[j]);						// old physical register goes back to the free set
+	    PROC[me()].mapper[j] = tgtreg;								// new mapping of target logical register to target physical register
+	    process(new rdw(PROC[me()].mapper[j], PROC[me()].mapper[k], addr));				// process new operation
+	}
+
+	template<>
+	void process<stw>
+	(
+	    u08	j, 	// source register
+	    u08	k,	// address register
+	    u32	addr	// compute address
+	)
+	{
+	    process(new stw(PROC[me()].mapper[j], PROC[me()].mapper[k], addr));				// process new operation
 	}
     } // namespace operations
 } // namespace 8600
