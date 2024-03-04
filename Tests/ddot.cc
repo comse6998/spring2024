@@ -23,8 +23,8 @@ void test_ddot(int count)
     f64 *x = (f64*)CDC8600::memalloc(dx*2);
     f64 *y = (f64*)CDC8600::memalloc(dy*2);
 
-    for (int i = 0; i < dx; i++) { x[i] = double(drand48()); }
-    for (int i = 0; i < dy; i++) { y[i] = double(drand48()); }
+    for (u32 i = 0; i < dx; i++) { x[i] = double(drand48()); }
+    for (u32 i = 0; i < dy; i++) { y[i] = double(drand48()); }
 
     f64 ref_ = ddot_(&n, x, &incx, y, &incy);
     f64 new_ = CDC8600::BLAS::ddot(n, x, incx, y, incy);
