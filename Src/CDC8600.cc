@@ -264,6 +264,7 @@ namespace CDC8600
     {
 	void *addr = &(MEM[FreeMEM]);
 	FreeMEM += N;
+	assert(FreeMEM <= params::MEM::N);
 	return addr;
     }
 
