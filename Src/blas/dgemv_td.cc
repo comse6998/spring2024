@@ -20,7 +20,7 @@ namespace CDC8600
             if (m <= 0 || n <= 0 || lda < m || incx == 0 || incy == 0)
                 return;
 
-            dscal(n, beta, y, incy);
+            dscal(n, beta, y, abs(incy));
 
             i64 iy = 0;
             if (incy <= 0) iy = (-n + 1) * incy;

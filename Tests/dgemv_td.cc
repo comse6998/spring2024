@@ -11,7 +11,7 @@ extern "C" i32 dgemv_(char *, i32 *, i32 *, f64 *, f64 *, i32 *, f64 *, i32 *,
         f64 *, f64 *, i32 *);
 
 const int N = 20;
-const double epsilon = pow(1, -9);
+const double epsilon = 1e-9;
 
 void test_dgemv_td(int count)
 {
