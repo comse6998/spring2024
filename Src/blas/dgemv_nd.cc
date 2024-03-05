@@ -38,12 +38,12 @@ namespace CDC8600
                     y[yIndex * incy] += alpha * ddot(n, a + yIndex, lda, x, incx);
                 }
             } else {
-                for (i32 i = m -1; i >= 0; --i) {
+                for (i32 i = 0; i < m; ++i) {
                     //printf("BEFORE y[%ld] = %f\n", yIndex, y[yIndex]);
                     // goes from accessing y[MAX DIMENSION] using row MAX_ROW-1 to the baseline
                     // inverse of positive case
-                    printf("accessing y[%ld], yIndex %d\n", yIndex, i);
-                    y[yIndex] += alpha * ddot(n, a + i, lda, x, abs(incx));
+                    // printf("accessing y[%ld], yIndex %d\n", yIndex, i);
+                    y[yIndex] += alpha * ddot(n, x, incx, a + i, lda);
                     //printf("AFTER y[%ld] = %f\n", yIndex, y[yIndex]);
                     yIndex -= abs(incy);
                 }

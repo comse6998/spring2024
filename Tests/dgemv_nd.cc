@@ -46,8 +46,8 @@ void test_dgemv_nd(int count) {
     bool pass = true;
     for (u32 i = 0; i < ny; i++)
     {
-        if (abs(y[i] - y_[i]) > ((abs(y[i]) < abs(y_[i]) ? abs(y[i]) :
-                    abs(y_[i])) + 1)){
+        if (abs(y[i] - y_[i]) > (min(abs(y[i]), abs(y_[i])) + epsilon) * epsilon)
+	{
             pass = false;
             //std::cerr << "Mismatch at " << i << ": got " << y_[i] << ", expected " << y[i] << std::endl;
         }
