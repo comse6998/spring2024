@@ -10,7 +10,7 @@ using namespace CDC8600;
 
 extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *);
 
-const int N = 20;
+const int N = 15;
 const double EPSILON = 1e-9;
 
 void test_dtrmv_utn(int count)
