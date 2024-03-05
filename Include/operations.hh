@@ -116,7 +116,7 @@ namespace CDC8600
 	void process
 	(
 	    u32 K,	// immediate displacement
-	    u08 j	// condition register
+	    u08 j	// compare flags register
 	)
 	{
 	    process(new T(K, PROC[me()].mapper[j]));
