@@ -161,8 +161,11 @@ namespace CDC8600
 	    u32				pfind();		// find a physical register to use
 	    set<u32>			pfree;			// set of free physical registers
 	    map<u32,u32>		mapper;			// logical -> physical register mapping
+	    map<u32,u32>		niap;			// next instruction address predictor
 	    u64 			op_count;		// operation count
 	    u64 			op_nextdispatch;	// next operation dispatch cycle
+	    u64 			op_lastdispatch;	// last operation dispatch cycle
+	    u64				dispatched;		// count of dispatched operations in a cycle
 	    u64			 	op_maxcycle;		// maximum observed completion cycle
             u32  			instr_count;    	// Current instruction count
             bool 			instr_target;   	// Is the current instruction the target of a branch?

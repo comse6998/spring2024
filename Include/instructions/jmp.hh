@@ -2,13 +2,15 @@ class jmp : public FjK
 {
     private:
 	string	_label;
+	bool	_taken;
 
     public:
 	jmp(string L) : FjK(0x30, 0, 0) { _label = L; }
 
 	bool execute()
 	{
-	    return true;
+	    _taken = true;
+	    return _taken;
 	}
 
 	string mnemonic() const
@@ -23,7 +25,7 @@ class jmp : public FjK
 
 	bool ops()
 	{
-	    operations::process<operations::jmp>(_K, _j);
+	    operations::process<operations::jmp>(_K, _j, PROC[me()].line2addr[_line], _taken, _label);
 	    return false;
 	}
 

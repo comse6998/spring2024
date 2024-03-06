@@ -11,7 +11,7 @@ using namespace CDC8600;
 extern "C" c128 zdotu_(i32*, c128*, i32*, c128*, i32*);
 
 const int N = 20;
-const double epsilon = pow(1, -9);
+const double epsilon = 1e-9;
 
 void test_zdotu(int count)
 {
@@ -53,13 +53,17 @@ void test_zdotu(int count)
       pass = false;
     }
 
-    cout << "zdotu [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
+    cout << "zdotu [" << setw(2) << count << "] ";
+    cout << ", n = " << setw(3) << n;
+    cout << ", incx = " << setw(2) << incx;
+    cout << ", incy = " << setw(2) << incy;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
-
-    if (n < 10) dump(trace);
 }
     
 
