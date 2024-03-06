@@ -271,6 +271,19 @@ namespace CDC8600
 	return addr;
     }
 
+    void memfree
+    (
+        void* addr,
+	u64	N
+    )
+    {
+	if (((word*)addr + N) == &(MEM[FreeMEM]))
+	{
+	    FreeMEM -= N;
+	}
+	return;
+    }
+
     call0 Call(void (*f)())
     {
 	return call0(f);
@@ -544,23 +557,25 @@ namespace CDC8600
 	string	label	// brach label
     )
     {
-	bool	hit = false;	// Branch prediction hit?
+	bool	hit = false;					// Branch prediction hit flag
+
+	addr = addr / 8;					// byte address -> word address
 
 	if (taken) 						// branch taken
 	{
-	    if (PROC[me()].niap.count(addr))				// next instruction address predictor has a match
+	    if (PROC[me()].niap.count(addr))			// next instruction address predictor has a match
 	    {
 		if (PROC[me()].niap[addr] == PROC[me()].line2addr[PROC[me()].label2line[label]])	// do we have a match for the target?
 		{
 		    hit = true;					// count as a hit
 		}
-		else						// no match
+		else						// no match of target address
 		{
 		    hit = false;				// count as a miss
 		    PROC[me()].niap[addr] = PROC[me()].line2addr[PROC[me()].label2line[label]];	// update the entry in the next instruction address predictor
 		}
 	    }
-	    else						// no match
+	    else						// no match of branch address
 	    {
 		hit = false;					// count as a miss
 		PROC[me()].niap[addr] = PROC[me()].line2addr[PROC[me()].label2line[label]];	// create an entry in the next instruction address predictor
@@ -568,10 +583,10 @@ namespace CDC8600
 	}
 	else							// branch not taken
 	{
-	    if (PROC[me()].niap.count(addr))				// next instruction address predictor has a match
+	    if (PROC[me()].niap.count(addr))			// next instruction address predictor has a match
 	    {
 		hit = false;					// this counts as a miss
-		PROC[me()].niap.erase(addr);				// remove entry from next instruction address predictor
+		PROC[me()].niap.erase(addr);			// remove entry from next instruction address predictor
 	    }
 	    else						// no match in next instruction address predictor
 	    {
