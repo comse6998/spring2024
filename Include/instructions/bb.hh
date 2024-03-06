@@ -2,6 +2,7 @@ class bb : public Fijk
 {
 	private:
 	string	_label;
+	bool	_taken;
 
     public:
 	bb(u08 j, u08 k, string L) : Fijk(0xB, 0, j, k) { _label = L; }
@@ -20,7 +21,7 @@ class bb : public Fijk
 	bool ops()
 	{
 	    operations::process<operations::cmp>(params::micro::CMPFLAGS, _j, _k, 0);
-	    operations::process<operations::bb>(_i, params::micro::CMPFLAGS);
+	    operations::process<operations::bb>(_i, params::micro::CMPFLAGS, PROC[me()].line2addr[_line], _taken, _label);
 	    return false;
 	}
 	
