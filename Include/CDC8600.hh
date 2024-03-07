@@ -22,6 +22,7 @@ namespace CDC8600
     void reset();
 
     void *memalloc(u64);
+    void memfree(void*, u64);
 
     template<typename T> void label(T (*f)());
     void addlabel(string, u32);
