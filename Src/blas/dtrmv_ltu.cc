@@ -19,6 +19,7 @@ namespace CDC8600
             // Input check
             if (n <= 0 || incx == 0 || lda <= 0 || lda < n)
                 return;
+            // cout << FreeMEM << endl;
             f64 *tempx = (f64*)CDC8600::memalloc(n);
 
             // memcpy(tempx, x, nx * sizeof(f64)); // Not good, not tracked.
@@ -26,6 +27,8 @@ namespace CDC8600
             // dcopy(n, x, 1, tempx, 1);
             // dcopy(n, x, incx, tempx, 1);
             // dcopy(n, x, incx, tempx, (incx > 0) ? 1 : (-1));
+
+            //  cout << FreeMEM << endl;
             
             #pragma omp parallel
             {
@@ -42,10 +45,16 @@ namespace CDC8600
                 for  (i64 i = me(); i < n - 1; i += nump()) {
                     i64 ix;
                     ix = (incx <= 0) ? (-n + 1 + i) * incx : (i * incx);
-                    if (nump() > 1)
-                        x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1, (incx > 0) ? (tempx + i + 1) : tempx, (incx > 0) ? 1 : (-1));
+                    if (false) // (nump() > 1)
+                        x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
+                            (incx > 0) ? (tempx + i + 1) : tempx, (incx > 0) ? 1 : (-1));
                     else
-                        x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1, (incx < 0) ? x : x + ix + incx, incx);
+                    {
+                        double s = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
+                            (incx < 0) ? x : x + ix + incx, incx);
+                        #pragma omp barrier
+                        x[ix] = s;
+                    }
 
                 }
             }
