@@ -49,7 +49,6 @@ void test_dgemv_nd(int count) {
         if (abs(y[i] - y_[i]) > (min(abs(y[i]), abs(y_[i])) + epsilon) * epsilon)
 	{
             pass = false;
-            //std::cerr << "Mismatch at " << i << ": got " << y_[i] << ", expected " << y[i] << std::endl;
         }
 
     }
