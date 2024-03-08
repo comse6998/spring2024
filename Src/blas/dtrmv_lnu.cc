@@ -2,6 +2,7 @@
 #include <ISA.hh>
 #include <blas/dtrmv_lnu.hh>
 #include <blas/ddot.hh>
+#include <blas/dcopy.hh>
 
 namespace CDC8600
 {
@@ -19,16 +20,29 @@ namespace CDC8600
                 return;
             }
 
-            i64 ix = (n-1)*incx;
+            u32 nx = n*abs(incx); if (0 == nx) nx = 1;
+            f64 *Xtemp = (f64*)memalloc(nx);
+        #pragma omp parallel
+        {
+            i32 size = n/nump() + (me() == nump()-1 ? n%nump() : 0);
+            i32 offset = me() * (n/nump()) * incx;
             if(incx < 0)
             {
-                ix = 0;
+                if(me() == nump()-1) offset = 0;
+                else offset = (-n)*incx + (me() +1)*(n/nump())*incx;
             }
-            for(u32 i = n-1;i>0;i--)
+
+            dcopy(size,X + offset,incx,Xtemp + offset,incx);
+        }
+
+        #pragma omp parallel
+        {
+            for(i32 i = n-1-me();i>0;i-=nump())
             {
-                X[ix] = X[ix] +  ddot(i, X + (incx < 0 ? (i-n)*incx : 0), incx, A + i, lda);
-                ix -= incx;
+                i64 ix = incx < 0 ? (i-n+1) * incx: i*incx;
+                X[ix] = Xtemp[ix] +  ddot(i, Xtemp + (incx < 0 ? (i-n)*incx : 0), incx, A + i, lda);
             }
+        }
         }
     }
 }
