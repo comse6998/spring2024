@@ -3,7 +3,6 @@
 #include <blas/dtrmv_ltu.hh>
 #include <blas/ddot.hh>
 #include <blas/dcopy.hh>
-// #include <cstring>
 
 namespace CDC8600
 {
@@ -37,6 +36,7 @@ namespace CDC8600
             
             #pragma omp parallel
             {
+                // Cyclic partition
                 for  (i64 i = me(); i < n - 1; i += nump()) {
                     i64 ix;
                     ix = (incx <= 0) ? (-n + 1 + i) * incx : (i * incx);
@@ -47,8 +47,22 @@ namespace CDC8600
                         x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
                             (incx < 0) ? x : x + ix + incx, incx);
                     }
-
                 }
+                
+                // block-wise partition
+                /*
+                for  (i64 i = (n-1) / nump() * me() ; i < ((me() == nump() - 1) ? (n - 1) : ((n - 1) / nump() * (me() + 1))); i += 1) {
+                    i64 ix;
+                    ix = (incx <= 0) ? (-n + 1 + i) * incx : (i * incx);
+                    if (nump() > 1) {
+                        x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
+                            (incx > 0) ? (tempx + i + 1) : tempx, (incx > 0) ? 1 : (-1));
+                    } else {
+                        x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
+                            (incx < 0) ? x : x + ix + incx, incx);
+                    }
+                }
+                */
             }
 
             CDC8600::memfree(tempx, n);
