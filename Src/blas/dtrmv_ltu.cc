@@ -19,17 +19,12 @@ namespace CDC8600
             // Input check
             if (n <= 0 || incx == 0 || lda <= 0 || lda < n)
                 return;
-            // cout << FreeMEM << endl;
+
+            /* Method 1: Using a temp vector tempx */
+
             f64 *tempx = (f64*)CDC8600::memalloc(n);
 
-            // memcpy(tempx, x, nx * sizeof(f64)); // Not good, not tracked.
-            
-            // dcopy(n, x, 1, tempx, 1);
-            // dcopy(n, x, incx, tempx, 1);
-            // dcopy(n, x, incx, tempx, (incx > 0) ? 1 : (-1));
-
-            //  cout << FreeMEM << endl;
-            
+            // Copy x to tempx in parallel (only in the case of multi core)
             #pragma omp parallel
             {
                 if (nump() > 1)
@@ -45,21 +40,51 @@ namespace CDC8600
                 for  (i64 i = me(); i < n - 1; i += nump()) {
                     i64 ix;
                     ix = (incx <= 0) ? (-n + 1 + i) * incx : (i * incx);
-                    if (false) // (nump() > 1)
+                    if (nump() > 1) {
                         x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
                             (incx > 0) ? (tempx + i + 1) : tempx, (incx > 0) ? 1 : (-1));
-                    else
-                    {
-                        double s = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
+                    } else {
+                        x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
                             (incx < 0) ? x : x + ix + incx, incx);
-                        #pragma omp barrier
-                        x[ix] = s;
                     }
 
                 }
             }
 
-            // How to free memory?
+            CDC8600::memfree(tempx, n);
+
+
+            /* Method 2: Using omp barrier and a local variable s to */
+
+            /*
+            int num_p;
+
+            // Because we're using openmp barrier, all the cores should be distributed to 
+            // a same number of iteration, otherwise we'll be blocked waiting for some cpus
+            // to finish a task that does not exist.
+            #pragma omp parallel
+            {
+                num_p = nump();
+                for  (i64 i = me(); i <  ((n - 1) / nump()) * nump(); i += nump()) {
+                    i64 ix;
+                    ix = (incx <= 0) ? (-n + 1 + i) * incx : (i * incx);
+                    f64 s = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
+                        (incx < 0) ? x : x + ix + incx, incx);
+                    #pragma omp barrier
+                        x[ix] = s;
+
+                }
+            }
+
+            // Finish up the rest of the iterations that can't be parallelized.
+            // This should be no more than (nump() - 1) iterations.
+            for  (i64 i = ((n - 1) / num_p) * num_p; i < n - 1; i++) {
+                i64 ix;
+                ix = (incx <= 0) ? (-n + 1 + i) * incx : (i * incx);
+                x[ix] = x[ix] + ddot(n - i - 1,  A + lda * i + i + 1, 1,
+                            (incx < 0) ? x : x + ix + incx, incx);
+            }
+            */
         }
     } // namespace BLAS
 } // namespace CDC8600
