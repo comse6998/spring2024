@@ -29,7 +29,7 @@ void dgemv_na_cpp(u64 m, u64 n, f64 alpha, f64* A, u64 lda, f64* x, i64 incx, f6
     if (incy <= 0) iy = (-m+1)*incy;    // If incy <= 0, start with last element of y
 
 
-    for (int i = 0; i<n;i++ ){
+    for (int i = 0; i<m;i++ ){
     temp1[i] = 0;
     temp2[i] = 0;
     }
@@ -37,19 +37,16 @@ void dgemv_na_cpp(u64 m, u64 n, f64 alpha, f64* A, u64 lda, f64* x, i64 incx, f6
     if (m < 0 || n < 0 || (alpha == 0.0 && beta == 0.0) || incx == 0 || incy == 0)
     return;
     
-    for (int i = 0; i<m; i++){
-        ix = 0;
-        if (incx <= 0) ix = (-n+1)*incx;  
-        for (int j = 0; j < n; ++j) {
-            temp1[i] = temp1[i]+ A[j*m+i]*x[ix];
-            ix += incx;
-        }
+    for (int i = 0; i<n; i++){
+        daxpy(M, x[ix], &A[i*m], one,  temp2, one);
+        ix += incx;
     }
-    for (int i = 0; i< m; i++){
-        y[iy] = beta*y[iy];
+    daxpy(M, alpha, temp2, one,  temp1, one);
+    daxpy(M, beta, y, INCY,  temp1, one);
+    for (int i = 0; i<m; i++){
+        y[iy] = temp1[i];
         iy += incy;
     }
-    daxpy(M, alpha, temp1, one, y, INCY);
  }
      } // namespace BLAS
  } // namespace CDC8600
