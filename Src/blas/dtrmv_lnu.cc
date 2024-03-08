@@ -43,6 +43,8 @@ namespace CDC8600
                 X[ix] = Xtemp[ix] +  ddot(i, Xtemp + (incx < 0 ? (i-n)*incx : 0), incx, A + i, lda);
             }
         }
+
+        memfree(Xtemp,n);
         }
     }
 }
