@@ -59,7 +59,7 @@ namespace CDC8600
 
 	namespace L1
 	{
-	    const u32	linesize = 4;	// # of words in a cache line
+	    const u32	linesize = 3;	// # of words in a cache line
 	    const u32	nsets = 8;	// # of sets in the cache
 	    const u32	nways = 4;	// cache associativity
 	    const u32	latency = 4;	// L1 latency

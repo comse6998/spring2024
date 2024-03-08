@@ -15,8 +15,8 @@
  {
     reset();
     f64 eps = 0.00000001;
-    i32 m = 256;
-    i32 n = 128;
+    i32 m = 240;
+    i32 n = 240;
     f64 alpha = (float)rand()/(float)(RAND_MAX/1);
     f64 beta = (float)rand()/(float)(RAND_MAX/1);
     i32 incx = (rand() % 16) -4;
@@ -70,10 +70,6 @@
     else
         cout << "FAIL" << std::endl;
 
-     //cout << "completion:" << setw(8) << std::endl;
-
-     //if (n < 2000)
-      //dump(trace);
  }
 
  int main()
