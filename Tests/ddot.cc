@@ -23,29 +23,27 @@ void test_ddot(int count)
     f64 *x = (f64*)CDC8600::memalloc(dx*2);
     f64 *y = (f64*)CDC8600::memalloc(dy*2);
 
-    for (int i = 0; i < dx; i++) { x[i] = double(drand48()); }
-    for (int i = 0; i < dy; i++) { y[i] = double(drand48()); }
+    for (u32 i = 0; i < dx; i++) { x[i] = double(drand48()); }
+    for (u32 i = 0; i < dy; i++) { y[i] = double(drand48()); }
 
     f64 ref_ = ddot_(&n, x, &incx, y, &incy);
     f64 new_ = CDC8600::BLAS::ddot(n, x, incx, y, incy);
-    double epsilon = 1e-6; // Example epsilon value, adjust as needed
+    double epsilon = 1e-6;
     bool pass = true;
 
-    // Compare the absolute difference between ref_ and new_
     if (abs(ref_ - new_) >
         ((abs(ref_) < abs(new_) ? abs(ref_) : abs(new_)) + epsilon) * epsilon)
     {
         pass = false;
     }
-    /*
-    std::cout << "ddot [" << std::setw(2) << count << "] (n = " << std::setw(3) << n << ", incx = " << std::setw(2) << incx << ", incy = " << std::setw(2) << incy << ", # of instr = " << std::setw(9) << instructions::count << ") : ";
+
+    std::cout << "ddot [" << std::setw(2) << count << "] (n = " << std::setw(3) << n << ", incx = " << std::setw(2) << incx << ", incy = " << std::setw(2) << incy << ", # of instr = " << std::setw(9) << PROC[0].instr_count << ") : ";
     if (pass)
         std::cout << "PASS" << std::endl;
     else
         std::cout << "FAIL" << std::endl;
-    
-    if (n < 10) dump(trace);
-    */
+
+    if (n < 10) dump(PROC[0].trace);
 }
 
 int main()

@@ -16,7 +16,7 @@ class idjkj : public Fjk
 
 	bool ops()
 	{
-	    process(new operations::idjkj(_j, _k));
+	    operations::process<operations::idjkj>(_j, _j, 0, _k);
 	    return false;
 	}
 };

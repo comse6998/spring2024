@@ -216,27 +216,48 @@ namespace CDC8600
     )
     {
 	REGready.resize(params::micro::nregs); for (u32 i = 0; i < params::micro::nregs; i++) REGready[i] = 0;	// Zero the ready time for all microarchitected registers
-	_XA = 4 + id;									// User context for PROC[0] is in frame 4
-	FL() = (u64)(29 * 8192 / 256);						// User data memory is 29 pages
-	RA() = (u64)( 3 * 8192 / 256);						// User data memory begins in page 3
-	instr_count = 0;								// Instruction count starts at 0
-	instr_target = true;							// First instruction is target of a branch
-	instr_forcealign = 0;							// Force instruction address to align to word boundary
-	op_count = 0;								// Operation count starts at 0
-	op_nextdispatch = 0;							// Start dispatching operations at cycle 0
-	op_maxcycle = 0;								// Maximum completion time observed
-	for (u32 i=0; i<trace.size(); i++) delete trace[i];			// Delete all previous instructions
-	trace.clear();								// Clear the trace
-	line2addr.clear();								// Clear line -> address map
-	line2encoding.clear();							// Clear line -> encoding map
-	line2len.clear();								// Clear line -> len map
-	BRUs.resize(params::micro::nBRUs); for (u32 i=0; i < params::micro::nBRUs; i++) BRUs[i].clear();		// Cluear usage of BRUs
-	FXUs.resize(params::micro::nFXUs); for (u32 i=0; i < params::micro::nFXUs; i++) FXUs[i].clear();		// Cluear usage of FXUs
-	FPUs.resize(params::micro::nFPUs); for (u32 i=0; i < params::micro::nFPUs; i++) FPUs[i].clear();		// Cluear usage of FPUs
-	LDUs.resize(params::micro::nLDUs); for (u32 i=0; i < params::micro::nLDUs; i++) LDUs[i].clear();		// Cluear usage of LDUs
-	STUs.resize(params::micro::nSTUs); for (u32 i=0; i < params::micro::nSTUs; i++) STUs[i].clear();		// Cluear usage of STUs
-	L1D.reset();								// Reset the L1 data cache (all entries invalid)
-	labeling = false;
+	_XA = 4 + id;												// User context for PROC[0] is in frame 4
+	FL() = (u64)(29 * 8192 / 256);										// User data memory is 29 pages
+	RA() = (u64)( 3 * 8192 / 256);										// User data memory begins in page 3
+	instr_count = 0;											// Instruction count starts at 0
+	instr_target = true;											// First instruction is target of a branch
+	instr_forcealign = 0;											// Force instruction address to align to word boundary
+	op_count = 0;												// Operation count starts at 0
+	op_lastdispatch = 0;											// Cycle of last dispatch = 0
+	op_nextdispatch = 0;											// Start dispatching operations at cycle 0
+	dispatched = 0;												// Dispatched operations in cycle = 0
+	op_maxcycle = 0;											// Maximum completion time observed
+	for (u32 i=0; i<trace.size(); i++) delete trace[i];							// Delete all previous instructions
+	trace.clear();												// Clear the trace
+	line2addr.clear();											// Clear line -> address map
+	line2encoding.clear();											// Clear line -> encoding map
+	line2len.clear();											// Clear line -> len map
+	BRUs.resize(params::micro::nBRUs); for (u32 i=0; i < params::micro::nBRUs; i++) BRUs[i].clear();	// Clear usage of BRUs
+	FXUs.resize(params::micro::nFXUs); for (u32 i=0; i < params::micro::nFXUs; i++) FXUs[i].clear();	// Clear usage of FXUs
+	FPUs.resize(params::micro::nFPUs); for (u32 i=0; i < params::micro::nFPUs; i++) FPUs[i].clear();	// Clear usage of FPUs
+	LDUs.resize(params::micro::nLDUs); for (u32 i=0; i < params::micro::nLDUs; i++) LDUs[i].clear();	// Clear usage of LDUs
+	STUs.resize(params::micro::nSTUs); for (u32 i=0; i < params::micro::nSTUs; i++) STUs[i].clear();	// Clear usage of STUs
+	L1D.reset();												// Reset the L1 data cache (all entries invalid)
+	labeling = false;											// Not in labeling mode
+	Pready.resize(params::micro::pregs); for (u32 i=0; i<params::micro::pregs; i++) Pready[i] = 0;		// Start with all physical registers ready at T=0
+	Pused.resize(params::micro::pregs);  for (u32 i=0; i<params::micro::pregs; i++) Pused[i] = 0;		// Start with all physical registers used at T=0
+	mapper.clear(); for (u32 i=0; i<params::micro::nregs; i++) mapper[i] = i;				// Star tiwth identity mapping
+	pnext = 0;												// Start with physical register 0
+	pfree.clear(); for (u32 i=params::micro::nregs; i < params::micro::pregs; i++) pfree.insert(i);		// Initial set of free physical registers
+	assert(params::micro::pregs > params::micro::nregs);							// Make sure there are more physical regisers than architected registers
+	niap.clear();												// Clear next instruction address predictor
+    }
+
+    u32 Processor::pfind
+    (
+    )
+    {
+	u32 idx = 0;
+	u64 lrutime = UINT64_MAX;
+	for (u32 i : pfree)	// look for the earliest available physical register
+	    if (Pused[i] < lrutime) { idx = i; lrutime = Pused[i]; }
+	assert(lrutime < UINT64_MAX);
+	return idx;
     }
 
     void *memalloc
@@ -246,7 +267,21 @@ namespace CDC8600
     {
 	void *addr = &(MEM[FreeMEM]);
 	FreeMEM += N;
+	assert(FreeMEM <= params::MEM::N);
 	return addr;
+    }
+
+    void memfree
+    (
+        void* addr,
+	u64	N
+    )
+    {
+	if (((word*)addr + N) == &(MEM[FreeMEM]))
+	{
+	    FreeMEM -= N;
+	}
+	return;
     }
 
     call0 Call(void (*f)())
@@ -472,9 +507,93 @@ namespace CDC8600
 	    operation* op
 	)
 	{
+	    if (PROC[me()].op_nextdispatch > PROC[me()].op_lastdispatch)		// are we starting a new cycle for dispatch
+	    {
+		PROC[me()].dispatched = 0;						// reset counter of dispatched operations
+	    }
+	    if (PROC[me()].dispatched >= params::micro::maxdispatch)			// did we reach the dispatch per cycle limit?
+	    {
+		PROC[me()].op_nextdispatch += 1;					// Move to nxt dispatch cycle
+		PROC[me()].dispatched = 0;						// Reset counter
+	    }
+	    PROC[me()].dispatched += 1;							// update number of operations dispatched in this cycle
+	    PROC[me()].op_lastdispatch = PROC[me()].op_nextdispatch;			// remember cycle of last dispatch
 	    op->process(PROC[me()].op_nextdispatch);					// process this operation
 	    PROC[me()].op_count++;							// update operation count
 	    PROC[me()].op_maxcycle = max(PROC[me()].op_maxcycle, op->complete());	// update maximum observed completion time
 	}
+
+	template<>
+	void process<rdw>
+	(
+	    u08	j, 	// target register
+	    u08	k,	// address register
+	    u32	addr	// compute address
+	)
+	{
+	    u08 tgtreg = PROC[me()].pfind();								// find next target physical register
+	    PROC[me()].pfree.erase(tgtreg);								// target physical register comes out of the free set
+	    PROC[me()].pfree.insert(PROC[me()].mapper[j]);						// old physical register goes back to the free set
+	    PROC[me()].mapper[j] = tgtreg;								// new mapping of target logical register to target physical register
+	    process(new rdw(PROC[me()].mapper[j], PROC[me()].mapper[k], addr));				// process new operation
+	}
+
+	template<>
+	void process<stw>
+	(
+	    u08	j, 	// source register
+	    u08	k,	// address register
+	    u32	addr	// compute address
+	)
+	{
+	    process(new stw(PROC[me()].mapper[j], PROC[me()].mapper[k], addr));				// process new operation
+	}
     } // namespace operations
+
+    bool prediction
+    (
+        u32	addr,	// branch address
+	bool	taken,	// branch taken
+	string	label	// brach label
+    )
+    {
+	bool	hit = false;					// Branch prediction hit flag
+
+	addr = addr / 8;					// byte address -> word address
+
+	if (taken) 						// branch taken
+	{
+	    if (PROC[me()].niap.count(addr))			// next instruction address predictor has a match
+	    {
+		if (PROC[me()].niap[addr] == PROC[me()].line2addr[PROC[me()].label2line[label]])	// do we have a match for the target?
+		{
+		    hit = true;					// count as a hit
+		}
+		else						// no match of target address
+		{
+		    hit = false;				// count as a miss
+		    PROC[me()].niap[addr] = PROC[me()].line2addr[PROC[me()].label2line[label]];	// update the entry in the next instruction address predictor
+		}
+	    }
+	    else						// no match of branch address
+	    {
+		hit = false;					// count as a miss
+		PROC[me()].niap[addr] = PROC[me()].line2addr[PROC[me()].label2line[label]];	// create an entry in the next instruction address predictor
+	    }
+	}
+	else							// branch not taken
+	{
+	    if (PROC[me()].niap.count(addr))			// next instruction address predictor has a match
+	    {
+		hit = false;					// this counts as a miss
+		PROC[me()].niap.erase(addr);			// remove entry from next instruction address predictor
+	    }
+	    else						// no match in next instruction address predictor
+	    {
+		hit = true;					// this is a hit!
+	    }
+	}
+
+	return hit;
+    }
 } // namespace 8600

@@ -2,14 +2,16 @@ class jmpnz : public FjK
 {
     private:
 	string	_label;
+	bool	_taken;
     
     public:
 	jmpnz(u08 j, string L) : FjK(0x35, j, 0) { _label = L; }
 
 	bool execute()
 	{
-	    if (0 != PROC[me()].X(_j).u()) return true;
-            else return false;
+	    if (0 != PROC[me()].X(_j).u()) _taken = true;
+            else _taken = false;
+	    return _taken;
 	}
 
 	string mnemonic() const
@@ -19,8 +21,8 @@ class jmpnz : public FjK
 
         bool ops()
 	{
-	    process(new operations::cmpz(_j));
-	    process(new operations::jmpnz());
+	    operations::process<operations::cmpz>(params::micro::CMPFLAGS, _j, 0, 0);
+	    operations::process<operations::jmpnz>(_K, params::micro::CMPFLAGS, _addr, _taken, _label);
 	    return false;
 	}
 

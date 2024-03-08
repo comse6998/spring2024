@@ -17,17 +17,17 @@ namespace CDC8600
 
 			if(incx == 1)
 			{
-				i64 M = n % 5;
+				u64 M = n % 5;
 				if(M != 0)
 				{
-					for (i64 i = 0; i < M; i++)
+					for (u64 i = 0; i < M; i++)
 					{
 						x[i] = a * x[i];
 					}
 					if(n < 5) return;
 				}
-				i64 MP1 = M;
-				for(i64 i = MP1; i < n; i+= 5)
+				u64 MP1 = M;
+				for(u64 i = MP1; i < n; i+= 5)
 				{
 						x[i] = a * x[i];
 						x[i+1] = a * x[i+1];

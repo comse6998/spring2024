@@ -27,8 +27,8 @@ void test_zdotc(int count)
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
 
-    for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
-    for (int i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
+    for (u32 i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
+    for (u32 i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
     
     c128 Z = zdotc_(&n, x, &incx, y, &incy);		// Reference implementation of ZDOTC
     c128 z = CDC8600::BLAS::zdotc(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600

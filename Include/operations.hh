@@ -21,14 +21,16 @@ namespace CDC8600
 	     public:
 		 operation() { }
 
-		 virtual    u64 complete() const { return _complete; }	// operation completion cycle
-		 virtual    u64 ready() const = 0; 			// time inputs are ready
-		 virtual    void target(u64 cycle) = 0;			// update ready time of output
-		 virtual    u64 latency() const = 0; 			// operation latency
-		 virtual    u64 throughput() const = 0; 		// operation inverse throughput
-		 virtual string mnemonic() const = 0;			// operation mnemonic
-		 virtual string dasm() const  = 0;			// operation disassembly
-		 virtual vector<units::unit>& units() = 0;		// the units that can execute this operation
+		 virtual    u64 complete() const { return _complete; }		// operation completion cycle
+		 virtual    u64 ready() const = 0; 				// time physical input registers are ready
+		 virtual   void target(u64 cycle) = 0;				// update ready time of output physical register
+		 virtual   void used(u64 cycle) = 0;				// update used time of input physical register
+		 virtual    u64 latency() const = 0; 				// operation latency
+		 virtual    u64 throughput() const = 0; 			// operation inverse throughput
+		 virtual    u64 tgtused() const = 0;				// time target register was last used
+		 virtual string mnemonic() const = 0;				// operation mnemonic
+		 virtual string dasm() const = 0;				// operation disassembly with physical registers
+		 virtual vector<units::unit>& units() = 0;			// the units that can execute this operation
 
 		 virtual   void dump(ostream &out)			// operation trace
 		 {
@@ -73,9 +75,10 @@ namespace CDC8600
 		     return &(units()[minfu]);
 		 }
 
-		 virtual   void process(u64 dispatch)		// process this operation
+		 virtual   void process(u64 dispatch)		// process this operation, using physical registers
 		 {
-		     _count = PROC[me()].op_count;				// current instruction count
+		     _count = PROC[me()].op_count;		// current instruction count
+		     dispatch = max(dispatch, tgtused());	// adjust dispatch time to no earlier than target last used time
 		     _dispatch = dispatch;                      // remember dispatch time
 		     _ready = ready();				// check ready time for inputs
 		     _issue = max(_ready, dispatch);		// account for operation dispatch
@@ -83,101 +86,158 @@ namespace CDC8600
 		     claim(fu, _issue, throughput());		// claim the unit starting at issue cycle for throughput cycles
 		     _complete = _issue + latency();		// time operation completes
 		     target(_complete);				// update time output is ready
-		     if (tracing) dump(cout);			// generate operation trace
+		     used(_issue);				// update time inputs are used
+		     if (tracing) dump(cout);			// generate operation trace using physical registers
 		 }
 	};
 
 	void process(operation *op);
 
-	class FXop : public operation
+	template<typename T>		// For fixed- and floating-point operations
+	void process
+	(
+	    u08 i,	// target register
+	    u08 j,	// source register 
+	    u08 k,	// source register
+	    u32 K	// immediate field
+	)
+	{
+	    j = PROC[me()].mapper[j];									// physical register for X(j)
+	    k = PROC[me()].mapper[k];									// physical register for X(k)
+	    u08 tgtreg = PROC[me()].pfind();								// find next target physical register
+	    PROC[me()].pfree.erase(tgtreg);								// target physical register comes out of the free set
+	    PROC[me()].pfree.insert(PROC[me()].mapper[i]);						// old physical register goes back to the free set
+	    PROC[me()].mapper[i] = tgtreg;								// new mapping of target logical register to target physical register
+	    i = PROC[me()].mapper[i];									// physical register for X(i)
+	    process(new T(i, j, k, K));									// process new operation
+	}
+
+	template<typename T>		// For branches
+	void process
+	(
+	    u32 	K,	// immediate displacement
+	    u08 	j,	// compare flags register
+	    u32		addr,	// branch instruction address
+	    bool 	taken,	// was the branch taken?
+	    string 	label	// branch target
+	)
+	{
+	    process(new T(K, PROC[me()].mapper[j], addr, taken, label));
+	}
+
+	template<typename T>		// For loads and stores
+	void process
+	(
+	    u08		j,
+	    u08		k,
+	    u32		addr
+	);
+
+	class FXop : public operation 			// Fixed-point operation
 	{
 	    public:
+		u08	_i;
+		u08	_j;
+		u08	_k;
+		u32 	_K;
+		u64 tgtused() const { return PROC[me()].Pused[_i]; }
 		vector<units::unit>& units() { return PROC[me()].FXUs; }
+		FXop(u08 i, u08 j, u08 k, u32 K) { _i = i; _j = j; _k = k; _K = K; }
 	};
 
-	class FPop : public operation
+	class FPop : public operation			// Floating-point operation
 	{
 	    public:
+		u08	_i;
+		u08	_j;
+		u08	_k;
+		u32 	_K;
+		u64 tgtused() const { return PROC[me()].Pused[_i]; }
 		vector<units::unit>& units() { return PROC[me()].FPUs; }
+		FPop(u08 i, u08 j, u08 k, u32 K) { _i = i; _j = j; _k = k; _K = K; }
 	};
 
-	class LDop : public operation
+	class LDop : public operation			// Load operation
 	{
 	    public:
+		u08	_j;
+		u08	_k;
+		u32	_addr;
 		vector<units::unit>& units() { return PROC[me()].LDUs; }
+		LDop(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
+		u64 tgtused() const { return PROC[me()].Pused[_j]; }
 	};
 
-	class STop : public operation
+	class STop : public operation			// Store operation
 	{
 	    public:
+		u08	_j;
+		u08	_k;
+		u32	_addr;
 		vector<units::unit>& units() { return PROC[me()].STUs; }
+		STop(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
+		u64 tgtused() const { return 0; }
 	};
 
-	class BRop : public operation
+	class BRop : public operation			// Branch operation
 	{
 	    public:
+		u32	_addr;
+		u08	_j;
+		u32	_K;
+		bool	_taken;
+		string	_label;
 		vector<units::unit>& units() { return PROC[me()].BRUs; }
+		BRop(u32 K, u08 j, u32 addr, bool taken, string label) { _K = K; _j = j; _taken = taken; _addr = addr; _label = label; }
+		u64 tgtused() const { return 0; }
 	};
 
-	class xkj : public FXop
+	class xKi : public FXop
 	{
-	    private:
-	        u08 _j;
-	        u08 _k;
-
 	    public:
-		xkj(u08 j, u08 k) { _j = j; _k = k; }
+		xKi(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
 		u64 ready() const { return 0; }
-		void target(u64 cycle) { PROC[me()].REGready[_j] = cycle; }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }	// update ready cycle of target physical register
+		void used(u64 cycle) { }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 1; }
-		string mnemonic() const { return "xkj"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
+		string mnemonic() const { return "xKi"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_K) + ")"; }
 	};
 
 	class idzkj : public FXop
 	{
-	    private:
-		u08	_j;
-		u08	_k;
-
 	    public:
-		idzkj(u08 j, u08 k) { _j = j; _k = k; }
-		u64 ready() const { return PROC[me()].REGready[_k]; }
-		void target(u64 cycle) { PROC[me()].REGready[_j] = cycle; }
+		idzkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return PROC[me()].Pready[_k]; }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }	// update ready cycle of target physical register
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "idzkj"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_k) + ")"; }
 	};
 
 	class idjkj : public FXop
 	{
-	    private:
-		u08	_j;
-		u08	_k;
-
 	    public:
-		idjkj(u08 j, u08 k) { _j = j; _k = k; }
-		u64 ready() const { return PROC[me()].REGready[_j]; }
-		void target(u64 cycle) { PROC[me()].REGready[_j] = cycle; }
+		idjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "idjkj"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_K) + ")"; }
 	};
 
         class idjki : public FXop
 	{
-	    private:
-		u08	_i;
-		u08	_j;
-		u08	_k;
-
 	    public:
-		idjki(u08 i, u08 j, u08 k) { _i = i; _j = j; _k = k; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]); }
-		void target(u64 cycle) { PROC[me()].REGready[_i] = cycle; }
+		idjki(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "idjki"; }
@@ -186,31 +246,24 @@ namespace CDC8600
 
 	class isjkj : public FXop
 	{
-	    private:
-		u08	_j;
-		u08	_k;
-
 	    public:
-		isjkj(u08 j, u08 k) { _j = j; _k = k; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]); }
-		void target(u64 cycle) { PROC[me()].REGready[_j] = cycle; }
+		isjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]  ); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "isjkj"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 	};
 
 	class isjki : public FXop
 	{
-	    private:
-		u08	_i;
-		u08	_j;
-		u08	_k;
-
 	    public:
-		isjki(u08 i, u08 j, u08 k) { _i = i; _j = j; _k = k; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]); }
-		void target(u64 cycle) { PROC[me()].REGready[_i] = cycle; }
+		isjki(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "isjki"; }
@@ -219,15 +272,11 @@ namespace CDC8600
 
 	class agen : public FXop
 	{
-	    private:
-		u08	_i;
-		u08	_j;
-		u08	_k;
-
 	    public:
-		agen(u08 i, u08 j, u08 k) { _i = i; _j = j; _k = k; }
-		u64 ready() const { return max(max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]), max(PROC[me()].REGready[params::micro::RA], PROC[me()].REGready[params::micro::FL])); }
-		void target(u64 cycle) { PROC[me()].REGready[_i] = cycle; }
+		agen(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return max(max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]), max(PROC[me()].Pready[PROC[me()].mapper[params::micro::RA]], PROC[me()].Pready[PROC[me()].mapper[params::micro::FL]])); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "agen"; }
@@ -236,197 +285,171 @@ namespace CDC8600
 
 	class rdw : public LDop
 	{
-	    private:
-		u08	_j;
-		u08	_k;
-		u32	_addr;
-
 	    public:
-		rdw(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], MEMready[_addr]); }
-		void target(u64 cycle) { PROC[me()].REGready[_j] = cycle; }
+		rdw(u08 j, u08 k, u32 addr) : LDop(j, k, addr) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], MEMready[_addr]); }
+		void target(u64 cycle) { PROC[me()].Pready[_j] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); }
 		u64 latency() const { return PROC[me()].L1D.loadhit(_addr, _issue) ? params::L1::latency : params::MEM::latency; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "rdw"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_addr) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
 	};
 
+	template<> void process<rdw>(u08, u08, u32);
+	   
 	class stw : public STop
 	{
-	    private:
-		u08	_j;
-		u08	_k;
-		u32	_addr;
-
 	    public:
-		stw(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]); }
+		stw(u08 j, u08 k, u32 addr) : STop(j, k, addr) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
 		void target(u64 cycle) { MEMready[_addr] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return PROC[me()].L1D.storehit(_addr, _issue) ? params::L1::latency : params::MEM::latency; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "stw"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_addr) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
 	};
+
+	template<> void process<stw>(u08, u08, u32);
 
 	class ipjkj : public FXop
 	{
-	    private:
-		u08	_j;
-		u08	_k;
-
 	    public:
-		ipjkj(u08 j, u08 k) { _j = j; _k = k; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]); }
-		void target(u64 cycle) { PROC[me()].REGready[_j] = cycle; }
+		ipjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "ipjkj"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 	};
 
 	class cmpz : public FXop
 	{
-	    private:
-	        u08 _j;
-
 	    public:
-		cmpz(u08 j) { _j = j; }
-		u64 ready() const { return PROC[me()].REGready[_j]; }
-		void target(u64 cycle) { PROC[me()].REGready[params::micro::CMPFLAGS] = cycle; }
+		cmpz(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }	// update ready cycle of target physical register
+		void used(u64 cycle) { PROC[me()].Pused[_j] = cycle; }		// update used cycle of source physical register
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "cmpz"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ")"; }
 	};
 
 	class cmp : public FXop
 	{
-	    private:
-	        u08 _j;
-	        u08 _k;
-
 	    public:
-		cmp(u08 j, u08 k) { _j = j;  _k = k; }
-		u64 ready() const { return max(PROC[me()].REGready[_j], PROC[me()].REGready[_k]); }
-		void target(u64 cycle) { PROC[me()].REGready[params::micro::CMPFLAGS] = cycle; }
+		cmp(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		u64 ready() const { return max(PROC[me()].Pready[_j], PROC[me()].Pready[_k]); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "cmp"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 	};
 
 	class jmp : public BRop
 	{
-	    private:
-
 	    public:
-		jmp() { }
+		jmp(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
 		u64 ready() const { return 0; }
-		void target(u64 cycle) { PROC[me()].op_nextdispatch = cycle; }
+		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
+		void used(u64 cycle) { }
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmp"; }
-		string dasm() const { return mnemonic() + "(" + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_K) + ")"; }
 	};
 
 	class jmpk : public BRop
 	{
-	    private:
-		u08	_j;
-		u08	_k;
-
 	    public:
-		jmpk(u08 j, u08 k) { _j = j; _k = k; }
-		u64 ready() const { return PROC[me()].REGready[_j]; }
-		void target(u64 cycle) { PROC[me()].op_nextdispatch = cycle; }
+		jmpk(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmpk"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_K) + ")"; }
 	};
 
 	class jmpz : public BRop
 	{
-	    private:
-
 	    public:
-		jmpz() { }
-		u64 ready() const { return PROC[me()].REGready[params::micro::CMPFLAGS]; }
-		void target(u64 cycle) { PROC[me()].op_nextdispatch = cycle; }
+		jmpz(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmpz"; }
-		string dasm() const { return mnemonic() + "(" + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
 	};
 
         class jmpnz : public BRop
 	{
-	    private:
-
 	    public:
-		jmpnz() { }
-		u64 ready() const { return PROC[me()].REGready[params::micro::CMPFLAGS]; }
-		void target(u64 cycle) { PROC[me()].op_nextdispatch = cycle; }
+		jmpnz(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmpnz"; }
-		string dasm() const { return mnemonic() + "(" + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
 	};
 
 	class jmpp : public BRop
 	{
-	    private:
-
 	    public:
-		jmpp() { }
-		u64 ready() const { return PROC[me()].REGready[params::micro::CMPFLAGS]; }
-		void target(u64 cycle) { PROC[me()].op_nextdispatch = cycle; }
+		jmpp(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmpp"; }
-		string dasm() const { return mnemonic() + "(" + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
 	};
 
 	class jmpn : public BRop
 	{
-	    private:
-
 	    public:
-		jmpn() { }
-		u64 ready() const { return PROC[me()].REGready[params::micro::CMPFLAGS]; }
-		void target(u64 cycle) { PROC[me()].op_nextdispatch = cycle; }
+		jmpn(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmpn"; }
-		string dasm() const { return mnemonic() + "(" + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
 	};
 
 	class bb : public BRop
 	{
-	    private:
-		u08	_i;
-
 	    public:
-		bb(u08 i) { _i = i;}
-		u64 ready() const { return PROC[me()].REGready[params::micro::CMPFLAGS]; }
-		void target(u64 cycle) { PROC[me()].op_nextdispatch = cycle; }
+		bb(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 1; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "bb"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_i) + ")"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
 	};
 
         class fadd : public FPop
         {
-	    private:
-		u08	_i;
-		u08	_j;
-		u08	_k;
-
 	    public:
-		fadd(u08 i, u08 j, u08 k) { _i = i; _j = j; _k = k; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]); }
-		void target(u64 cycle) { PROC[me()].REGready[_i] = cycle; }
+		fadd(u08 i, u08 j, u08 k, u08 K) : FPop(i, j, k, K) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fadd"; }
@@ -435,15 +458,11 @@ namespace CDC8600
 
         class fmul : public FPop
         {
-	    private:
-		u08	_i;
-		u08	_j;
-		u08	_k;
-
 	    public:
-		fmul(u08 i, u08 j, u08 k) { _i = i; _j = j; _k = k; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]); }
-		void target(u64 cycle) { PROC[me()].REGready[_i] = cycle; }
+		fmul(u08 i, u08 j, u08 k, u08 K) : FPop(i, j, k, K) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fmul"; }
@@ -452,15 +471,11 @@ namespace CDC8600
 
         class fsub : public FPop
         {
-	    private:
-		u08	_i;
-		u08	_j;
-		u08	_k;
-
 	    public:
-		fsub(u08 i, u08 j, u08 k) { _i = i; _j = j; _k = k; }
-		u64 ready() const { return max(PROC[me()].REGready[_k], PROC[me()].REGready[_j]); }
-		void target(u64 cycle) { PROC[me()].REGready[_i] = cycle; }
+		fsub(u08 i, u08 j, u08 k, u08 K) : FPop(i, j, k, K) { }
+		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fsub"; }
