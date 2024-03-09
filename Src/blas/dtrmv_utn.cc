@@ -20,7 +20,34 @@ namespace CDC8600
             i64 ix;
             #pragma omp parallel private (ix)
             {
-                for(i64 i = n - me(); i > 0; i = i - nump())
+                // CYCLIC PARTITION
+                // for(i64 i = n - me(); i > 0; i = i - nump())
+                // {
+                //     if(incx > 0)
+                //     {
+                //         ix = i*incx;
+                //     }
+                //     else
+                //     {
+                //         ix = (-n+i) * (incx);
+                //     }
+                //     if(incx > 0)
+                //     {
+                //         tmpX[ix-incx] = ddot(i, x, incx, a + ((i-1) * (lda)), 1);
+                //     }
+                //     else
+                //     {
+                //         tmpX[ix] = ddot(i, x + ((-n+i)*incx), incx, a + ((i-1) * (lda)), 1);
+                //     }
+                // }
+
+                //BLOCKING PARTITION
+                i64 limit;
+                if (me() == nump() - 1)
+                    limit = 0;
+                else
+                    limit = n - ((me() + 1)*(n-1)/nump());
+                for(i64 i = n - me()*(n-1)/nump(); i > limit; i--)
                 {
                     if(incx > 0)
                     {
