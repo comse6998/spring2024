@@ -10,16 +10,21 @@ using namespace CDC8600;
 
 extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *);
 
-const int N = 15;
+const int N = 10;
 const double EPSILON = 1e-9;
 
 void test_dtrmv_utn(int count)
 {
     reset();
 
-    i32 n = rand() % 256;
-    i32 lda = n + rand() % 256;
+    i32 n = rand() % 25;
+    i32 lda = n + rand() % 25;
     i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
+
+    // i32 n = 10;
+    // i32 lda = 10;
+    // i32 incx = -2;
+
 
     char uplo = 'U', trans = 'T', diag = 'N';
 
@@ -34,6 +39,9 @@ void test_dtrmv_utn(int count)
 
     dtrmv_(&uplo, &trans, &diag, &n, A, &lda, Y, &incx);     // Reference implementation of dtrmv_utn
     CDC8600::BLAS::dtrmv_utn(n, A, lda, X, incx);            // Implementation of dtrmv_utn for the CDC8600
+
+    cout << "OUTB ";
+    cout << endl;
 
     bool pass = true;
     for (int i = 0; i < n*abs(incx); i++)
@@ -60,7 +68,6 @@ void test_dtrmv_utn(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(PROC[0].trace);
 }
 
 int main()

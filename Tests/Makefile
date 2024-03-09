@@ -10,12 +10,14 @@ SRC_DEPS	= ../Src/CDC8600.cc ../Src/ISA.cc
 INC_DEPS	= ../Include/CDC8600.hh
 DEPS		= ${INC_DEPS} ${SRC_DEPS}
 BLAS_REF	= ../Blas
-ifneq ($(wildcard /opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/.),)
-FLIBS = -L/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/
+# ifneq ($(wildcard /opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/.),)
+ifneq ($(wildcard /usr/bin/gcc/.),)
+# FLIBS = -L/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/
+FLIBS = -L/usr/bin/
 CCFLAGS		= -I/opt/homebrew/Cellar/libomp/17.0.6/include -g -O0 -I../Include
 OMPFLAGS	= -Xpreprocessor -fopenmp -L/opt/homebrew/Cellar/libomp/17.0.6/lib -lomp
 else
-FLIBS =
+FLIBS = -L/usr/bin/
 OMPFLAGS	= -fopenmp
 CCFLAGS		= -Wall -g -O0 -I../Include
 endif
@@ -40,8 +42,8 @@ dtrans:	dtrans.cc ../Src/blas/dtrans.cc ../Src/blas/dcopy.cc ../Include/blas/dco
 dtrmv_unn:	dtrmv_unn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_unn.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_unn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
-dtrmv_utn:	dtrmv_utn.cc ../Src/blas/dtrmv_utn.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_utn.hh blasref
-	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_utn.cc ../Src/blas/dtrmv_utn.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+dtrmv_utn:	dtrmv_utn.cc ../Src/blas/dtrmv_utn.cc ../Src/blas/ddot.cc  ../Src/blas/dcopy.cc ../Include/blas/ddot.hh ../Include/blas/dcopy.hh ../Include/blas/dtrmv_utn.hh blasref
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_utn.cc ../Src/blas/dtrmv_utn.cc ../Src/blas/ddot.cc ../Src/blas/dcopy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 dtrmv_lnn:	dtrmv_lnn.cc ../Src/blas/dtrmv_unn.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_lnn.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_lnn.cc ../Src/blas/dtrmv_lnn.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
