@@ -30,16 +30,17 @@ namespace CDC8600
                 yIndex = (m - 1) * abs(incy); // For negative incy, start at the end
             }
             if(incy > 0){
+                #pragma omp parallel for 
                 for (yIndex = 0; yIndex < m; ++yIndex) {
                     // y index goes through the rows, and saves at specific locations
                     y[yIndex * incy] += alpha * ddot(n, a + yIndex, lda, x, incx);
                 }
             } else {
+                u64 yStart = (m - 1) * abs(incy);
+                #pragma omp parallel for
                 for (u64 i = 0; i < m; ++i) {
-                    // goes from accessing y[MAX DIMENSION] using row MAX_ROW-1 to the baseline
-                    // inverse of positive case
-                    y[yIndex] += alpha * ddot(n, x, incx, a + i, lda);
-                    yIndex -= abs(incy);
+                    u64 yIndex = yStart - i * abs(incy);   
+                    y[yIndex] += alpha * ddot(n, a + i, lda, x, incx);
                 }
             }
         }
