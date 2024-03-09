@@ -68,7 +68,7 @@ dgemv_td:	dgemv_td.cc ../Src/blas/dgemv_td.cc ../Src/blas/ddot.cc ../Src/blas/ds
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_td.cc ../Src/blas/dgemv_td.cc ../Src/blas/ddot.cc ../Src/blas/dscal.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 dtrmv_utu:	dtrmv_utu.cc ../Src/blas/dtrmv_utu.cc ../Src/blas/ddot.cc ../Include/blas/ddot.hh ../Include/blas/dtrmv_unn.hh blasref
-	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_utu.cc ../Src/blas/dtrmv_utu.cc ../Src/blas/ddot.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrmv_utu.cc ../Src/blas/dtrmv_utu.cc ../Src/blas/ddot.cc ../Src/blas/dcopy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 dgemv_nd:	dgemv_nd.cc ../Src/blas/dgemv_nd.cc ../Src/blas/ddot.cc ../Src/blas/dscal.cc ../Include/blas/ddot.hh ../Include/blas/dscal.hh ../Include/blas/dgemv_nd.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_nd.cc ../Src/blas/dgemv_nd.cc ../Src/blas/ddot.cc ../Src/blas/dscal.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
