@@ -57,7 +57,9 @@ namespace CDC8600
                 X[ix] = ddot(n-i, X + (incx <0 ? 0 : i*incx), incx, A + i*lda + i, 1);
                 }
             }
+        
         }
+        
         CDC8600::memfree(Y, n);
         }
         

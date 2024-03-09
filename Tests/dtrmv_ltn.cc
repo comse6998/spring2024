@@ -10,7 +10,7 @@ using namespace CDC8600;
 extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *);
 
 // set the value of iteration and the error 
-const int N = 20;
+const int N = 5;
 const double Epsilon = 1e-9;
 
 // set the prameter
@@ -56,9 +56,16 @@ void test_dtrmv_ltn(int count)
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
     cout << ", LDA = " << setw(3) << LDA;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
-    cout << ") : ";
+    cout << ", # of processors = " << params::Proc::N << ")" << std::endl;
+    cout << "Cache Setting ( Line size = " << params::L1::linesize << ", nsets = "<< params::L1::nsets ;
+    cout << ", nways = "<< params::L1::nways << ", latency = " << params::L1::latency << ")" << std::endl;
+
+    cout << "# of instr  = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << '\n';
+    cout << "# of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+    cout << " : ";
     if (Pass)
         cout << "PASS" << std::endl;
     else
