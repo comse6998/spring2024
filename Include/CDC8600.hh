@@ -8,6 +8,7 @@
 #include<map>
 #include<set>
 #include<iostream>
+#include<sstream>
 #include<iomanip>
 #include<complex>
 #include<types.hh>
@@ -511,6 +512,8 @@ namespace CDC8600
     extern bool process(instruction*, u32);
 
     extern void dump(vector<instruction*>&);
+
+    extern void dump(vector<instruction*>&, const char* filename);
 } // namespace CDC8600
 
 #endif // _CDC8600_HH_

@@ -116,6 +116,7 @@ namespace CDC8600
         protected:
             u32 _line;                                  // line number of instruction in source file
             u32 _addr;                                  // byte (not word) address of instruction in memory
+	    string _trace;				// additional trace information
         public:
 	    virtual ~instruction() { }			// virtual destructor
             virtual bool execute() = 0;                 // every instruction must have a method "execute" that implements its semantics and returns "true" if branch is taken
@@ -125,8 +126,9 @@ namespace CDC8600
             virtual string dasm() const = 0;            // disassembly for the instruction
             virtual u32 encoding() const = 0;           // instruction encoding
             virtual void fixit() { }                    // used to fix displacements in branches
-            u32& line() { return _line; }
-            u32& addr() { return _addr; }
+            u32& line() { return _line; }		// line number of instruction
+            u32& addr() { return _addr; }		// address of instruction
+	    const string& trace() { return _trace; }	// additional trace content 
     };
 
     class Processor

@@ -1,5 +1,6 @@
 #include<iostream>
 #include<iomanip>
+#include<fstream>
 #include<CDC8600.hh>
 #include<ISA.hh>
 #ifdef _OPENMP
@@ -468,6 +469,27 @@ namespace CDC8600
 	{
 	    dump(i, T[i]);
 	}
+    }
+
+    void dump
+    (
+        vector<instruction*>& 	T,
+	const char*		filename
+    )
+    {
+	ofstream	file;
+	file.open(filename);
+
+	for (u32 i=0; i<T.size();i++)
+	{
+	    file << setfill('0') << setw( 8) << hex << PROC[me()].line2addr[T[i]->line()] << dec << setfill(' ');
+	    if (T[i]->len() == 4) file << " " << setfill('0') << setw(8) << hex << T[i]->encoding() << dec << setfill(' ');
+	    if (T[i]->len() == 2) file << " " << setfill('0') << setw(4) << hex << T[i]->encoding() << dec << setfill(' '); 
+	    if (T[i]->trace() != "") file << " " << T[i]->trace();
+	    file << endl;
+	}
+
+	file.close();
     }
 
     bool process

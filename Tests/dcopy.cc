@@ -60,6 +60,7 @@ void test_dcopy(int count)
         cout << "FAIL" << std::endl;
 
     if (n < 10) dump(PROC[0].trace);
+    if (n < 10) dump(PROC[0].trace, "dcopy.tr");
 }
 
 int main()

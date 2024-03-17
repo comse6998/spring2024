@@ -6,6 +6,7 @@ class idzkj : public Fjk
 	bool execute()
 	{
 	    PROC[me()].X(_j).i() = -PROC[me()].X(_k).i();
+	    stringstream ss; ss << setfill('0') << setw(16) << hex << PROC[me()].X(_k).i() << " " << PROC[me()].X(_j).i() << dec << setfill(' '); _trace = ss.str();
 	    return false;
 	}
 
