@@ -75,4 +75,5 @@ dgemv_nd:	dgemv_nd.cc ../Src/blas/dgemv_nd.cc ../Src/blas/ddot.cc ../Src/blas/ds
 
 clean:
 	/bin/rm -rf ${TESTS}
+	/bin/rm -rf *.tr
 	bash -c "pushd ${BLAS_REF} && make clean && popd > /dev/null"
