@@ -44,6 +44,8 @@ void test_dcopy(int count)
     }
 
     delete [] Y;
+    CDC8600::memfree(y, ny);
+    CDC8600::memfree(x, nx);
 
     cout << "dcopy [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
