@@ -31,23 +31,21 @@ void test_dtrmv_utu(int count)
     char UPLO = 'U'; 
     char TRANS = 'T'; 
     char DIAG = 'U';
-
     f64 *a = (f64*)CDC8600::memalloc(n*lda);
     f64 *x = (f64*)CDC8600::memalloc(n*abs(incx));  
     f64 *y = new f64[n*abs(incx)];                
     
     for (int i = 0; i < n*lda; i++) {
-         a[i] = i;
+        a[i] = drand48();
          }
     for (int i = 0; i < n*abs(incx); i++) {
-         x[i] = y[i] = i; 
+        x[i] = y[i] = drand48(); 
          }
     dtrmv_(&UPLO, &TRANS, &DIAG, &n, a, &lda, y, &incx);     // Reference implementation of dtrmv_utu
     CDC8600::BLAS::dtrmv_utu(n, a, lda, x, incx);            // Implementation of dtrmv_utu for the CDC8600
-    for (int i = 0; i < n*abs(incx); i++) {
-         }
-    for (int i = 0; i < n*abs(incx); i++) {
-         }
+
+
+    
     bool pass = true;
     for (int i = 0; i < n*abs(incx); i++)
     {
@@ -61,17 +59,13 @@ void test_dtrmv_utu(int count)
 
     cout << "dtrmv_utu [" << setw(2) << count << "] ";
     cout << "(lda = " << setw(3) << lda;
-    cout << "| n = " << setw(3) << n;
-    cout << "| incx = " << setw(3) << incx;
-    cout << "| # of instr = ";
-    for (u32 i = 0; i < params::Proc::N; i++){
-        cout << setw(9) << PROC[i].instr_count;
-    } 
+    cout << ", n = " << setw(3) << n;
+    cout << ", incx = " << setw(3) << incx;
+    cout << ", # of instr = ";
+    for (u32 i = 0; i < params::Proc::N; i++)cout << setw(9) << PROC[i].instr_count;
+    cout << ", # of cycles = ";
+    for (u32 i = 0; i < params::Proc::N; i++)cout << setw(9) << PROC[i].op_maxcycle;
     
-    cout << "| # of cycles = ";
-    for (u32 i = 0; i < params::Proc::N; i++){
-        cout << setw(9) << PROC[i].op_maxcycle;
-    } 
     cout << ") : ";
 
     if (pass)
