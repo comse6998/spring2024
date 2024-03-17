@@ -9,14 +9,14 @@
  using namespace CDC8600;
  extern "C" void dgemv_(char*, i32*, i32*, f64*, f64*, i32*, f64*, i32*, f64*, f64*, i32*);
 
- const int N = 50;
+ const int N = 1;
 
  void test_dgemv(int count)
  {
     reset();
     f64 eps = 0.00000001;
-    i32 m = rand() % 256;
-    i32 n = rand() % 256;
+    i32 m = 240;
+    i32 n = 240;
     f64 alpha = (float)rand()/(float)(RAND_MAX/1);
     f64 beta = (float)rand()/(float)(RAND_MAX/1);
     i32 incx = (rand() % 16) -4;
@@ -38,7 +38,6 @@
      //tracing = false; if (n < 10) tracing = true;
      //tracing = true;
 
-     // Call the dger function
     dgemv_(&trans, &m, &n, &alpha, A,&lda,x, &incx, &beta, y_, &incy);
 
     CDC8600::BLAS::dgemv_na(m, n, alpha, A, lda, x, incx, beta, y, incy);
@@ -58,20 +57,19 @@
 
      //delete [] A;
 
-     cout << "dgmev_na [" << setw(2) << count << "] ";
-     cout << "(n = " << setw(3) << n;
-     cout << ", m = " << setw(3) << m;
-     cout << ", incx = " << setw(2) << incx;
-     cout << ", incy = " << setw(2) << incy;
-     cout << ") : ";    if (pass)
-         cout << "PASS" << std::endl;
-     else
-         cout << "FAIL" << std::endl;
+    cout << "dtrans [" << setw(2) << count << "] ";
+    cout << "(m = " << setw(3) << m;
+    cout << ", n = " << setw(3) << n;
+    cout << ", # of instr = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << ", # of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+    cout << ") : ";
+    if (pass)
+        cout << "PASS" << std::endl;
+    else
+        cout << "FAIL" << std::endl;
 
-     //cout << "completion:" << setw(8) << std::endl;
-
-     //if (n < 2000)
-      //dump(trace);
  }
 
  int main()
