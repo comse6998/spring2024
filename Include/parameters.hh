@@ -43,7 +43,7 @@ namespace CDC8600
 
 	    const u32	pregs = 64;	// number of physical registers
 
-	    const u32	maxdispatch = 8;// maximum # of operations that can be dispatched per cycle
+	    const u32	maxdispatch = 4;// maximum # of operations that can be dispatched per cycle
 	}
 
 	namespace MEM
