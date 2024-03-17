@@ -20,10 +20,9 @@ namespace CDC8600
                 return;
             }
 
-            dscal(m, beta, y, abs(incy)); // only works with abs(incy), 
-            //I assume this accidentally scales as  y := alpha*A*x - beta*y instead of y := alpha*A*x + beta*y
+            dscal(m, beta, y, abs(incy)); 
+            // NOTE, due to the positive only nature of dscal, above only works with abs(incy), 
         
-            // Adjust starting point based on incy
             u64 yIndex;
             if (incy > 0) {
                 yIndex = 0; // For positive incy, start at the beginning
@@ -31,21 +30,17 @@ namespace CDC8600
                 yIndex = (m - 1) * abs(incy); // For negative incy, start at the end
             }
             if(incy > 0){
+                #pragma omp parallel for 
                 for (yIndex = 0; yIndex < m; ++yIndex) {
                     // y index goes through the rows, and saves at specific locations
-                    //printf("accessing y[%ld], yIndex %ld\n", yIndex * incy, yIndex);
-                    //beginning                           row 
                     y[yIndex * incy] += alpha * ddot(n, a + yIndex, lda, x, incx);
                 }
             } else {
-                for (i32 i = 0; i < m; ++i) {
-                    //printf("BEFORE y[%ld] = %f\n", yIndex, y[yIndex]);
-                    // goes from accessing y[MAX DIMENSION] using row MAX_ROW-1 to the baseline
-                    // inverse of positive case
-                    // printf("accessing y[%ld], yIndex %d\n", yIndex, i);
-                    y[yIndex] += alpha * ddot(n, x, incx, a + i, lda);
-                    //printf("AFTER y[%ld] = %f\n", yIndex, y[yIndex]);
-                    yIndex -= abs(incy);
+                u64 yStart = (m - 1) * abs(incy);
+                #pragma omp parallel for
+                for (u64 i = 0; i < m; ++i) {
+                    u64 yIndex = yStart - i * abs(incy);   
+                    y[yIndex] += alpha * ddot(n, a + i, lda, x, incx);
                 }
             }
         }
