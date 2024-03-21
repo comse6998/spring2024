@@ -10,16 +10,16 @@ using namespace CDC8600;
 
 extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *);
 
-const int N = 1;
+const int N = 20;
 const double EPSILON = 1e-9;
 
 void test_dtrmv_utn(int count)
 {
     reset();
 
-    i32 n = 5;
-    i32 lda = n;
-    i32 incx = 1;
+    i32 n = rand() % 256;
+    i32 lda = n + rand() % 256;
+    i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
 
     char uplo = 'U', trans = 'T', diag = 'N';
 

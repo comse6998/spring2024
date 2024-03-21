@@ -8,6 +8,7 @@
 #include<map>
 #include<set>
 #include<iostream>
+#include<sstream>
 #include<iomanip>
 #include<complex>
 #include<types.hh>
@@ -22,6 +23,7 @@ namespace CDC8600
     void reset();
 
     void *memalloc(u64);
+    void memfree(void*, u64);
 
     template<typename T> void label(T (*f)());
     void addlabel(string, u32);
@@ -510,6 +512,8 @@ namespace CDC8600
     extern bool process(instruction*, u32);
 
     extern void dump(vector<instruction*>&);
+
+    extern void dump(vector<instruction*>&, const char* filename);
 } // namespace CDC8600
 
 #endif // _CDC8600_HH_

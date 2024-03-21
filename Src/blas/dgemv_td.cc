@@ -20,14 +20,14 @@ namespace CDC8600
             if (m <= 0 || n <= 0 || lda < m || incx == 0 || incy == 0)
                 return;
 
-            dscal(n, beta, y, incy);
+            dscal(n, beta, y, abs(incy));
 
             i64 iy = 0;
             if (incy <= 0) iy = (-n + 1) * incy;
-            for (i32 i = 0; i < n; ++i) {
-                y[iy] += alpha * ddot(m, x, incx, a + i*lda, 1);
-                iy += incy;
-            }
+
+#pragma omp parallel
+            for (u64 i = me(); i < n; i += nump())
+                y[iy + incy*i] += alpha * ddot(m, x, incx, a + i*lda, 1);
         }
     } // namespace BLAS
 } // namespace CDC8600

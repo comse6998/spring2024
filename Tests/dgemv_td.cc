@@ -11,7 +11,7 @@ extern "C" i32 dgemv_(char *, i32 *, i32 *, f64 *, f64 *, i32 *, f64 *, i32 *,
         f64 *, f64 *, i32 *);
 
 const int N = 20;
-const double epsilon = pow(1, -9);
+const double epsilon = 1e-9;
 
 void test_dgemv_td(int count)
 {
@@ -53,16 +53,21 @@ void test_dgemv_td(int count)
             pass = false;
     }
 
+    cout << fixed;
+    cout.precision(5);
+
     cout << "dgemv_td [" << setw(2) << count << "] ";
     cout << "(m = " << setw(3) << m;
     cout << ", n = " << setw(3) << n;
-    cout << ", alpha = " << setw(5) << alpha;
-    cout << ", lda = " << setw(2) << lda;
+    cout << ", alpha = " << alpha;
+    cout << ", lda = " << setw(3) << lda;
     cout << ", incx = " << setw(2) << incx;
-    cout << ", beta = " << setw(5) << beta;
+    cout << ", beta = " << beta;
     cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ", # of instr = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << ", # of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
 
     if (pass)

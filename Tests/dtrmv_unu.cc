@@ -16,6 +16,8 @@ char UPLO = 'U';
 char TRANS = 'N';
 char DIAG = 'U';
 
+FILE *fp;
+
 void test_dtrmv_unu(int count)
 {
     reset();
@@ -38,8 +40,6 @@ void test_dtrmv_unu(int count)
     CDC8600::BLAS::dtrmv_unu(n, A, lda, X, incx);  
 
     bool pass = true;
-    
-    int tcnt = 0;
 
     for (int i = -n*abs(incx); i < n*abs(incx); i+=abs(incx))
     {   
@@ -47,36 +47,73 @@ void test_dtrmv_unu(int count)
         {
             pass = false;
         }
-        tcnt++;
     }
 
     Y = NULL;
     delete [] tmp;
     tmp = NULL;
 
-    cout << "dtrmv_unu [" << setw(2) << count << "] ";
+#ifdef FUNC
+    cout << "[" << setw(2) << count << "] ";
     cout << "(lda = " << setw(3) << lda;
-    cout << ", n = " << setw(3) << n;
-    cout << ", incx = " << setw(3) << incx;
+    cout << ", n = " << setw(2) << n;
+    cout << ", incx = " << setw(2) << incx;
     cout << ", # of instr = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(6) << PROC[p].instr_count;
-    cout << ", # of cycles = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(6) << PROC[p].op_maxcycle;
+    //for (u32 p = 0; p < params::Proc::N; p++) cout << setw(6) << PROC[p].instr_count;
+    //cout << ", # of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(5) << PROC[p].op_maxcycle;
+#ifndef PCNT
+#define PCNT 1
+#endif
+    if(PCNT == 1)
+    {
+        fprintf(fp, "%lu\n",PROC[0].op_maxcycle);
+    }
+    else
+    {
+        u64 max_single;
+        fscanf(fp,"%lu",&max_single);
+        f64 sp = (f64)max_single/(f64)PROC[0].op_maxcycle;  
+        cout << ", Sp = " << setw(5) << sp;
+        f64 ep = sp / PCNT*100;
+        cout << ", Ep = " << setw(5) << ep << setw(2) << "%";
+    }
     cout << ") : ";
     if (pass)
         cout << "PASS" << endl;
     else
         cout << "FAIL" << endl;
+    
+
+#endif
 
     //if (n < 10) dump(PROC[0].trace);
+
+#ifdef CACHE
+    cout << "Line =" << setw(3) << params::L1::linesize;
+    cout << ", Sets =" << setw(3) << params::L1::nsets;
+    cout << ", Ways =" << setw(3) << params::L1::nways;
+    cout << ", # of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(6) << PROC[p].op_maxcycle;
+    cout << endl;
+#endif
 }
 
 int main()
 {
+#ifdef FUNC
+    fp=fopen("single_proc.txt","a+");
     for (int i = 0; i < N; i++)
     {
         test_dtrmv_unu(i);
     }
+    fclose(fp);
+#endif
+
+#ifdef CACHE
+    test_dtrmv_unu(0);
+#endif
+
     return 0;
 }
 

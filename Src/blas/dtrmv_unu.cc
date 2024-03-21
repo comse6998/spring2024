@@ -14,12 +14,21 @@ namespace CDC8600
 
         void dtrmv_unu_cpp(u64 n, f64* a, u64 lda, f64* x, i64 incx)
         {
+
+            
             if (n < 0 || lda < n || lda < 1 || incx == 0)
                 return;
 
-            for (u64 i = 0; i < n; i++){
-                u64 ix = (incx > 0 ? i : (-n + 1 + i)) * incx;
-                x[ix] = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), incx, a+(i+1)*lda+i, lda);
+            u64 syn = 0;
+#pragma omp parallel
+            {
+                for (u64 i = me(); i < n; i+=nump()){
+                    u64 ix = (incx > 0 ? i : (-n + 1 + i)) * incx;
+                    f64 tmp = x[ix] + ddot(n-i-1, x+(i+1)*(incx>0 ? incx:0), incx, a+(i+1)*lda+i, lda);
+                    while(syn < i);
+                    x[ix] = tmp;
+                    syn++;
+                }
             }
             return;
         }

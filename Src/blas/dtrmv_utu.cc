@@ -2,6 +2,7 @@
 #include <ISA.hh>
 #include <blas/dtrmv_utu.hh>
 #include <blas/ddot.hh>
+#include <blas/dcopy.hh>
 
 
 // DTRMV_UTU (upper/transpose/unit)
@@ -18,33 +19,47 @@ namespace CDC8600
             Call(dtrmv_utu_cpp)(n, a, lda, x, incx);
         }
         
-        void dtrmv_utu_cpp(u64 n, f64* a, u64 lda, f64* x, i64 incx)
+        void dtrmv_utu_cpp(u64 n, f64* a, u64 lda, f64* x, i64 incx){
+        
+        
+        f64 *copyx = (f64*)CDC8600::memalloc(n);
+        u64 ix;	
+        #pragma omp parallel
         {
-            if (n <= 0 || incx == 0 || lda <= 0 || lda < n)
-                return;
-
-            if (incx == 1 ){
-                //cout << "here";
-                for (int j = lda - 1 ; j >= 1 ; j--){
-                    x[j]= x[j] + ddot(j ,a + (j*n), 1, x, 1);
+            for (u32 i = me(); i < n ; i += nump()){
+                dcopy(1, x + ((i)*abs(incx)) , 1, copyx + ((i)*abs(incx)) , 1);
+            }
+        }
+    //    #pragma omp parallel //Blocking
+    //     { 
+    //         for (u32 i = (n-1) / nump() * me(); i <= ((me() == nump() - 1) ? (n - 1)*abs(incx) : ((n - 1)*abs(incx) / nump() * (me() + 1))); i += 1){
+    //             dcopy(1, x + ((i)*abs(incx)) , 1, copyx + ((i)*abs(incx)) , 1);
+    //         }
+    //     } 
+        
+        #pragma omp parallel
+        {
+        for (i32 i = n - me(); i > 0; i = i - nump()){
+                if(incx > 0){
+                x[(i-1)*incx] = x[(i-1)*incx] + ddot(i-1, copyx, incx, a + ((i-1) * (lda)), 1);
+                }
+                else{
+                x[(-n+i) * (incx)] = x[(-n+i) * (incx)] + ddot(i-1, copyx + ((-n+i-1)*incx), incx, a + ((i-1) * (lda)), 1);
                 }
             }
-            else if (incx >0 ){
-                i64 ix = (n-1)*(incx);
-                for (int j = lda - 1 ; j >= 1 ; j--){
-                    x[ix]= x[ix] + ddot(j,a + (j* n), 1, x, incx);
-                    ix = ix - incx;
-                } 
-            }
-            else{
-                i64 ix = 0;
-                for (int j = lda - 1 ; j >= 1 ; j--){
-                    //cout << "ix => " << ix << endl;
-                    x[ix]= x[ix] + ddot(j,a + (j * n), 1, x + ((n-j-lda+1)*(abs(incx))), incx);
-                    ix = ix - incx; 
-            }}
-            
-
+        }
+        // #pragma omp parallel //Blocking
+        // {
+        // for (i32 i = (n - ((n-1) / nump() * me())); i > ((me() == nump() - 1) ? 0 : (n - ((n-1) / nump() * (me()+1)))); i = i - 1){
+        //         if(incx > 0){
+        //         x[(i-1)*incx] = x[(i-1)*incx] + ddot(i-1, copyx, incx, a + ((i-1) * (lda)), 1);
+        //         }
+        //         else{
+        //         x[(-n+i) * (incx)] = x[(-n+i) * (incx)] + ddot(i-1, copyx + ((-n+i-1)*incx), incx, a + ((i-1) * (lda)), 1);
+        //         }
+        //     }
+        // } 
+        
         }
     }
   // namespace BLAS
