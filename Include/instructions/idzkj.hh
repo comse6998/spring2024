@@ -2,6 +2,7 @@ class idzkj : public Fjk
 {
     public:
         idzkj(u08 j, u08 k) : Fjk(0x17, j, k) {}
+	idzkj() : Fjk(0x17, 0, 0) {}
 
         bool execute()
         {
@@ -37,4 +38,11 @@ class idzkj : public Fjk
             _k = code  & 0xf;           // extract the k field
             _j = (code >> 4) & 0xf;     // extract the j field
         }
+
+	vector<operations::operation*> crack()
+	{
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::idzkj(_j, _j, _k, 0));
+	    return ops;
+	}
 };

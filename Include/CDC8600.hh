@@ -514,6 +514,30 @@ namespace CDC8600
     extern void dump(vector<instruction*>&);
 
     extern void dump(vector<instruction*>&, const char* filename);
+
+    namespace instructions
+    {
+	class basemaker
+	{
+	    public:
+		basemaker() { }
+		virtual instruction* make() = 0;
+	};
+
+	template<typename T>
+	class maker : public basemaker
+	{
+	    public:
+		maker() : basemaker() { }
+		virtual instruction* make() { return new T; }
+	};
+
+	extern vector<basemaker*> makeinstr;
+
+	extern void initmakers();
+
+	extern vector<u64> decode(u32);
+    } // namespace instructions
 } // namespace CDC8600
 
 #endif // _CDC8600_HH_

@@ -111,6 +111,11 @@ namespace CDC8600
             reg<n>& operator=(u64);
     };
 
+    namespace operations
+    {
+	class operation;
+    } // namespace operations
+
     class instruction                                   // Generic instruction class
     {
         protected:
@@ -131,6 +136,7 @@ namespace CDC8600
             virtual const string& trace() { return _trace; }    // additional trace content 
             virtual bool match(u08 F) { return false; }         // match encoding to this instruction
             virtual void decode(u32 code) { assert(false); }    // decode the 16-/32-bit encoding
+	    virtual vector<operations::operation*> crack() { return vector<operations::operation*>(); }
     };
 
     class Processor
