@@ -64,6 +64,8 @@ void test_zdotu(int count)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
+
+    if (n < 10) dump(PROC[0].trace, "zdotu.tr");
 }
     
 
