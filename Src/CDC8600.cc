@@ -618,4 +618,65 @@ namespace CDC8600
 
 	return hit;
     }
+
+    namespace instructions
+    {
+	vector<basemaker*> makeinstr(256);
+
+	void initmakers()
+	{
+	    for (u32 i=0; i<256; i++) makeinstr[i] = new maker<pass>;
+	    makeinstr[0x10] = new maker<xkj>;
+	    makeinstr[0x17] = new maker<idzkj>;
+	}
+
+	vector<u64> decode
+	/*
+	 * Takes as input a 32-bit halfword containing either one 32-bit instruction or two 16-bit instruction.
+	 * Produces a vector of operations that implement those instructions.
+	 * Each operation is encoded as a 64-bit value
+	 * 		F :	 8-bit function identifier
+	 * 		i :	12-bit physical register number (output)
+	 * 		j : 	12-bit physical register number (input)
+	 * 		k : 	12-bit physical register number (input)
+	 * 		K :	20-bit immedidate field
+	 */
+	(
+	    u32 code
+	)
+	{
+	    vector<u64> ops;
+
+	    u08 F = code >> 24;				// extract first byte
+	    instruction* instr = makeinstr[F]->make();	// make corresponding instruction
+	    vector<operations::operation*> cracked;	// operations from an instruction
+	    switch (instr->len())
+	    {
+		case 2:			// two 16-bit instructions
+		    // decode first instruction
+		    instr->decode(code >> 16);
+		    cracked = instr->crack();
+		    for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+		    // decode second instruction
+		    code = code & 0xffff;
+		    F = code >> 8;
+		    instr = makeinstr[F]->make();
+		    assert(2 == instr->len());
+		    instr->decode(code);
+		    cracked = instr->crack();
+		    for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+		    break;
+		case 4:			// one 32-bit instruction
+		    // decode single instruction
+		    instr->decode(code);
+		    cracked = instr->crack();
+		    for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+		    break;
+		default:		// should not happen
+		    assert(false);
+	    }
+
+	    return ops;
+	}
+    } // namespace instructions
 } // namespace 8600

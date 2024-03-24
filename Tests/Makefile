@@ -26,13 +26,15 @@ all:	${TESTS}
 blasref:
 	bash -c "pushd ${BLAS_REF} && make && popd > /dev/null"
 
+decode:	decode.cc
+	${CCC} ${CCFLAGS} ${SRC_DEPS} $< -o $@
+
 # Rule for building BLAS test cases
 %::	%.cc ../Src/blas/%.cc ../Include/blas/%.hh blasref
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< ../Src/blas/$< ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 dger: dger.cc ../Src/blas/dger.cc ../Src/blas/daxpy.cc ../Include/blas/daxpy.hh ../Include/blas/dger.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dger.cc ../Src/blas/dger.cc ../Src/blas/daxpy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
-
 
 dtrans:	dtrans.cc ../Src/blas/dtrans.cc ../Src/blas/dcopy.cc ../Include/blas/dcopy.hh ../Include/blas/dtrans.hh blasref
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dtrans.cc ../Src/blas/dtrans.cc ../Src/blas/dcopy.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
@@ -74,6 +76,7 @@ dgemv_nd:	dgemv_nd.cc ../Src/blas/dgemv_nd.cc ../Src/blas/ddot.cc ../Src/blas/ds
 	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} dgemv_nd.cc ../Src/blas/dgemv_nd.cc ../Src/blas/ddot.cc ../Src/blas/dscal.cc ../Blas/*.o ${FLIBS} -lgfortran -o $@
 
 clean:
+	/bin/rm -rf decode
 	/bin/rm -rf ${TESTS}
 	/bin/rm -rf *.tr
 	bash -c "pushd ${BLAS_REF} && make clean && popd > /dev/null"

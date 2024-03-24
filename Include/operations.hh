@@ -31,6 +31,7 @@ namespace CDC8600
 		 virtual string mnemonic() const = 0;				// operation mnemonic
 		 virtual string dasm() const = 0;				// operation disassembly with physical registers
 		 virtual vector<units::unit>& units() = 0;			// the units that can execute this operation
+		 virtual    u64 encode() const { return 0; }			// 64-bit encoding of the operation
 
 		 virtual   void dump(ostream &out)			// operation trace
 		 {
@@ -203,6 +204,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "xKi"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_K) + ")"; }
+		u64 encode() const { return ((u64)0x10 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 	};
 
 	class idzkj : public FXop
@@ -216,6 +218,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "idzkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x17 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 	};
 
 	class idjkj : public FXop
