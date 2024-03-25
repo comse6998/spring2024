@@ -8,7 +8,7 @@ class idzkj : public Fjk
         {
             stringstream ss; ss << setfill('0') << setw(16) << hex << PROC[me()].X(_k).i();
             PROC[me()].X(_j).i() = -PROC[me()].X(_k).i();
-	    ss << " " << PROC[me()].X(_j).i() << dec << setfill(' '); _trace = ss.str();
+	    ss << " " << setfill('0') << setw(16) << PROC[me()].X(_j).i() << dec << setfill(' '); _trace = ss.str();
             return false;
         }
 

@@ -11,7 +11,7 @@ class fadd : public Fijk
         ss << " ";
         ss << setfill('0') << setw(16) << hex << PROC[me()].X(_k).i();
         PROC[me()].X(_i).f() = PROC[me()].X(_j).f() + PROC[me()].X(_k).f();
-        ss << " " << PROC[me()].X(_i).i() << dec << setfill(' '); _trace = ss.str();
+        ss << " " << setfill('0') << setw(16) << PROC[me()].X(_i).i() << dec << setfill(' '); _trace = ss.str();
 
         return false;
     }
@@ -23,7 +23,7 @@ class fadd : public Fijk
 
     bool ops()
     {
-	operations::process<operations::fadd>(_i, _j, _k, 0);
+        operations::process<operations::fadd>(_i, _j, _k, 0);
         return false;
     }
 
@@ -34,11 +34,11 @@ class fadd : public Fijk
     }   
     
     void decode(u32 code)
-	{
-		assert(code < 65536);       // 16-bit instruction
-		assert(match(code >> 4));   // we are in the right instruction
-		_k = code  & 0xf;           // extract the k field
-		_j = (code >> 4) & 0xf;     // extract the j field
+    {
+        assert(code < 65536);       // 16-bit instruction
+        assert(match(code >> 12));  // we are in the right instruction
+        _k = code  & 0xf;           // extract the k field
+        _j = (code >> 4) & 0xf;     // extract the j field
         _i = (code >> 8) & 0xf;     // extract the j field
-	}
+    }
 };
