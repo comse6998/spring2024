@@ -618,4 +618,330 @@ namespace CDC8600
 
 	return hit;
     }
+
+    namespace instructions
+    {
+	vector<basemaker*> makeinstr(256);
+
+	void initmakers()
+	{
+	    for (u32 i=0; i<256; i++) makeinstr[i] = new maker<pass>;
+	    makeinstr[0x10] = new maker<xkj>;
+	    makeinstr[0x17] = new maker<idzkj>;
+	}
+
+	vector<u64> decode
+	/*
+	 * Takes as input a 32-bit halfword containing either one 32-bit instruction or two 16-bit instruction.
+	 * Produces a vector of operations that implement those instructions.
+	 * Each operation is encoded as a 64-bit value
+	 * 		F :	 8-bit function identifier
+	 * 		i :	12-bit physical register number (output)
+	 * 		j : 	12-bit physical register number (input)
+	 * 		k : 	12-bit physical register number (input)
+	 * 		K :	20-bit immedidate field
+	 */
+	(
+	    u32 code
+	)
+	{
+	    vector<u64> ops;
+
+	    u08 F = code >> 24;				// extract first byte
+	    instruction* instr = makeinstr[F]->make();	// make corresponding instruction
+	    vector<operations::operation*> cracked;	// operations from an instruction
+	    switch (instr->len())
+	    {
+		case 2:			// two 16-bit instructions
+		    // decode first instruction
+		    instr->decode(code >> 16);
+		    cracked = instr->crack();
+		    for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+		    // decode second instruction
+		    code = code & 0xffff;
+		    F = code >> 8;
+		    instr = makeinstr[F]->make();
+		    assert(2 == instr->len());
+		    instr->decode(code);
+		    cracked = instr->crack();
+		    for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+		    break;
+		case 4:			// one 32-bit instruction
+		    // decode single instruction
+		    instr->decode(code);
+		    cracked = instr->crack();
+		    for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+		    break;
+		default:		// should not happen
+		    assert(false);
+	    }
+
+	    return ops;
+	}
+    } // namespace instructions
+
+    namespace pipeline
+    {
+	IFstage	IF;
+	ICstage	IC[2];
+	RMstage	RM;
+	ODstage OD[2];
+	IQstage	IQ[2];
+	OIstage	OI[2];
+	BRstage	BR[2];
+	FXstage FX[2];
+	FPstage FP[2];
+	LDstage	LD[2];
+	STstage	ST[2];
+	CQstage CQ[2];
+	COstage	CO;
+
+	void reset()
+	{
+	    IF.reset();
+	    IC[0].reset(); IC[1].reset();
+	    RM.reset();
+	    OD[0].reset(); OD[1].reset();
+	    IQ[0].reset(); IQ[1].reset();
+	    OI[0].reset(); OI[1].reset();
+	    BR[0].reset(); BR[1].reset();
+	    FX[0].reset(); FX[1].reset();
+	    FP[0].reset(); FP[1].reset();
+	    LD[0].reset(); LD[1].reset();
+	    ST[0].reset(); ST[1].reset();
+	    CQ[0].reset(); CQ[1].reset();
+	    CO.reset();
+	}
+
+	void IFstage::init
+	(
+	    const char* filename
+	)
+	{
+	    fetchgroups.clear();
+	    fstream ifs;
+	    ifs.open(filename, ios::in);
+
+	    u32 addr;			// instruction address
+	    u32 instr;			// instruction encoding
+	    u64 instrword = 0;		// instruction word (fetch group)
+	    u32 lastaddr = 0;		// address of last instruction (detect a new group)
+	    u32 hihalf = 0;		// high half of instruction word
+	    u32 lohalf = 0;		// low half of instruction word
+	    bool firstword = true;	// first fetch word
+	    while (ifs >> hex >> addr)
+	    {
+		// addr is the instruction address
+		// instr is the instruction encoding
+		ifs >> hex >> instr;
+		if ((addr/8) != (lastaddr/8))
+		{
+		    // new instruction word
+		    instrword = hihalf;
+		    instrword = (instrword << 32) | lohalf;
+		    if (!firstword) { fetchgroups.push_back(instrword); }
+		    instrword = 0; hihalf = 0; lohalf = 0; firstword = false;
+		}
+		lastaddr = addr;
+		switch (addr % 8)
+		{
+		    case 0: hihalf = instr; 			break;
+		    case 2: hihalf = (hihalf << 16) | instr; 	break;
+		    case 4: lohalf = instr; 			break;
+		    case 6: lohalf = (lohalf << 16) | instr;	break;
+		    default: assert(false);
+		}
+		string line; getline(ifs, line);
+	    }
+	    // include the last instruction word
+	    instrword = hihalf;
+	    instrword = (instrword << 32) | lohalf;
+	    if (!firstword) { fetchgroups.push_back(instrword); }
+
+	    ifs.close();
+
+	    // dump the fetch history
+	    for (u32 i=0; i<fetchgroups.size(); i++)
+	    {
+	        cout << setfill('0') << setw(16) << hex << fetchgroups[i] << dec << setfill(' ') << endl;
+	    }
+
+	    // initialize fetch count
+	    fetchcount = 0;
+	}
+
+	void copy(u32 N, u64 u, bitvector& v, u32 first)
+	{
+	    assert(first + N <= v.size());
+	    for (u32 i=0; i<N; i++)
+	    {
+		v[first + i] = u & 0x1;
+		u = u >> 1;
+	    }
+	}
+
+	void IFstage::tick()
+	{
+	    if (txdone)
+	    {
+		copy(32, fetchgroups[fetchcount] >> 32, out, 0);
+		copy(16, fetchcount, out, 32);
+		copy(32, fetchgroups[fetchcount] & 0xffffffff, out, 48);
+		copy(16, fetchcount, out, 80);
+		txdone = false;
+		txready = true;
+		fetchcount++;
+	    }
+	}
+
+	void RMstage::tick() 	
+	{
+	   if (txdone && rxdone)
+	   {
+	      for (u32 i=0; i<192; i++) out[i] = false;
+	      for (u32 i=0; i<80; i++) out[i+ 0] = in[i+ 0];
+	      for (u32 i=0; i<80; i++) out[i+96] = in[i+80];
+	      rxdone = false; rxready = true;
+	      txready = true; txdone = false;
+	   }
+	}
+
+	void COstage::tick()
+	{
+	    if (rxdone)
+	    {
+		rxready = true;
+		rxdone = false;
+		txready = false;
+		txdone = true;
+	    }
+	}
+
+	bool IFstage::busy()
+	{
+	    return (fetchcount < fetchgroups.size());
+	}
+
+	bool busy()
+	{
+	    if (IF.busy())    return true;
+	    if (IC[0].busy()) return true; 
+	    if (IC[1].busy()) return true;
+	    if (RM.busy())    return true;
+	    if (OD[0].busy()) return true; 
+	    if (OD[1].busy()) return true;
+	    if (IQ[0].busy()) return true; 
+	    if (IQ[1].busy()) return true;
+	    if (OI[0].busy()) return true; 
+	    if (OI[1].busy()) return true;
+	    if (BR[0].busy()) return true; 
+	    if (BR[1].busy()) return true;
+	    if (FX[0].busy()) return true; 
+	    if (FX[1].busy()) return true;
+	    if (FP[0].busy()) return true; 
+	    if (FP[1].busy()) return true;
+	    if (LD[0].busy()) return true; 
+	    if (LD[1].busy()) return true;
+	    if (ST[0].busy()) return true; 
+	    if (ST[1].busy()) return true;
+	    if (CQ[0].busy()) return true; 
+	    if (CQ[1].busy()) return true;
+	    if (CO.busy())    return true;
+	    return false;
+	}
+
+	void tick()
+	{
+	    IF.tick();
+	    IC[0].tick(); IC[1].tick();
+	    RM.tick();
+	    OD[0].tick(); OD[1].tick();
+	    IQ[0].tick(); IQ[1].tick();
+	    OI[0].tick(); OI[1].tick();
+	    BR[0].tick(); BR[1].tick();
+	    FX[0].tick(); FX[1].tick();
+	    FP[0].tick(); FP[1].tick();
+	    LD[0].tick(); LD[1].tick();
+	    ST[0].tick(); ST[1].tick();
+	    CQ[0].tick(); CQ[1].tick();
+	    CO.tick();
+	}
+
+	stage<96,96>& OIstage::target()
+	{
+	    return FX[_ix];
+	}
+
+	void transfer()
+	{
+	    transfer(96, CQ[0],  0, CO   ,  0);
+	    transfer(96, CQ[1],  0, CO   , 96);
+	    transfer(96, FX[0],  0, CQ[0],  0);
+	    transfer(96, FX[1],  0, CQ[1],  0);
+	    transfer(96, OI[0],  0, OI[0].target(), 0);
+	    transfer(96, OI[1],  0, OI[1].target(), 0);
+	    transfer(96, IQ[0],  0, OI[0],  0);
+	    transfer(96, IQ[1],  0, OI[1],  0);
+	    transfer(96, OD[0],  0, IQ[0],  0);
+	    transfer(96, OD[1],  0, IQ[1],  0);
+	    transfer(96, RM   ,  0, OD[0],  0);
+	    transfer(96, RM   , 96, OD[1],  0);
+	    transfer(80, IC[0],  0, RM   ,  0);
+	    transfer(80, IC[1],  0, RM   , 80);
+	    transfer(48, IF   ,  0, IC[0],  0);
+	    transfer(48, IF   , 48, IC[1],  0);
+	}
+
+	void dump
+	(
+	    const bitvector& v
+	)
+	{
+	    u32 acc = 0;
+	    for (i32 i=v.size() - 1; i >= 0; i--)
+	    {
+		acc = (acc << 1) | ((u08)v[i] & 0x1);
+		if (0 == (i % 8))
+		{
+		    cout << setfill('0') << setw(2) << hex << acc << dec << setfill(' ');
+		    acc = 0;
+		}
+	    }
+	}
+
+	void run
+	(
+	    const char* filename
+	)
+	{
+	    IF.init(filename);
+	    OI[0].init(0); OI[1].init(1);
+
+	    cout << "   cycle | "
+		 << "                      IF | "
+		 << "                                              RM | "
+		 << "                   FX[0] | "
+		 << "                   CQ[0]"
+		 << endl;
+
+	    cout << "---------+-"
+		 << "-------------------------+-"
+		 << "-------------------------------------------------+-"
+		 << "-------------------------+-"
+		 << "------------------------"
+		 << endl;
+
+	    for (u32 cycle = 0; busy(); cycle++)
+	    {
+		tick();
+		transfer();
+		cout << setw(8) << cycle << " | ";
+		dump(IF.out); cout << " | ";
+		dump(RM.out); cout << " | ";
+		dump(FX[0].out); cout << " | ";
+		dump(CQ[0].out);
+		cout << endl;
+	    }
+	}
+    } // namespace pipeline
 } // namespace 8600
