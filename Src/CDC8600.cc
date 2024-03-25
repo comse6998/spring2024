@@ -886,6 +886,23 @@ namespace CDC8600
 	    transfer(48, IF   , 48, IC[1],  0);
 	}
 
+	void dump
+	(
+	    const bitvector& v
+	)
+	{
+	    u32 acc = 0;
+	    for (i32 i=v.size() - 1; i >= 0; i--)
+	    {
+		acc = (acc << 1) | ((u08)v[i] & 0x1);
+		if (0 == (i % 8))
+		{
+		    cout << setfill('0') << setw(2) << hex << acc << dec << setfill(' ');
+		    acc = 0;
+		}
+	    }
+	}
+
 	void run
 	(
 	    const char* filename
@@ -894,10 +911,30 @@ namespace CDC8600
 	    IF.init(filename);
 	    OI[0].init(0); OI[1].init(1);
 
-	    while (busy())
+	    cout << "   cycle | "
+		 << "                      IF | "
+		 << "                                              RM | "
+		 << "                   FX[0] | "
+		 << "                                              CO"
+		 << endl;
+
+	    cout << "---------+-"
+		 << "-------------------------+-"
+		 << "-------------------------------------------------+-"
+		 << "-------------------------+-"
+		 << "------------------------------------------------"
+		 << endl;
+
+	    for (u32 cycle = 0; busy(); cycle++)
 	    {
 		tick();
 		transfer();
+		cout << setw(8) << cycle << " | ";
+		dump(IF.out); cout << " | ";
+		dump(RM.out); cout << " | ";
+		dump(FX[0].out); cout << " | ";
+		dump(CO.in);
+		cout << endl;
 	    }
 	}
     } // namespace pipeline
