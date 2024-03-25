@@ -6,7 +6,11 @@ class xkj : public Fjk
 
 	bool execute()
 	{
+	    stringstream ss;
+	    ss << setfill('0') << setw(2) << hex << _k;
 	    PROC[me()].X(_j).u() = _k;
+	    ss << " " << setw(16) << PROC[me()].X(_j).u() << dec << setfill(' ');
+	    _trace = ss.str();
 	    return false;
 	}
 
@@ -23,17 +27,17 @@ class xkj : public Fjk
 
         bool match(u08 F)
         {
-            if (0x10 == F) return true;
-            return false;
+	    return _F == F;
         }
 
         void decode(u32 code)
         {
-            assert(code < 65536);       // 16-bit instruction
-            assert(match(code >> 8));   // we are in the right instruction
-            _k = code  & 0xf;           // extract the k field
-            _j = (code >> 4) & 0xf;     // extract the j field
+	    assert(code < 65536);       // 16-bit instruction
+	    assert(match(code >> 8));  // we are in the right instruction
+	    _j = (code >> 4) & 0xf;     // extract j
+	    _k = code  & 0xf;           // extract k
         }
+
 
 	vector<operations::operation*> crack()
 	{

@@ -10,6 +10,13 @@ class jmp : public FjK
 	bool execute()
 	{
 	    _taken = true;
+            stringstream ss;
+            u32 targetline = PROC[me()].label2line[_label];
+            u32 targetaddr = PROC[me()].line2addr[targetline];
+
+            ss << setfill('0') << setw(8) << hex << targetaddr << " "
+                << dec << setfill(' ');
+	    _trace = ss.str();
 	    return _taken;
 	}
 

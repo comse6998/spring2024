@@ -9,8 +9,18 @@ class jmpp : public FjK
 
 	bool execute()
 	{
-	    if (0 < PROC[me()].X(_j).i()) _taken = true;
+            stringstream ss;
+	    if (0 < PROC[me()].X(_j).i()) {
+                _taken = true;
+                u32 targetline = PROC[me()].label2line[_label];
+                u32 targetaddr = PROC[me()].line2addr[targetline];
+
+                ss << setfill('0') << setw(8) << hex << targetaddr << " "
+                    << dec << setfill(' ');
+            }
             else _taken = false;
+
+            _trace = ss.str();
 	    return _taken;
 	}
 
@@ -36,4 +46,16 @@ class jmpp : public FjK
 	    u32 sourceaddr = PROC[me()].line2addr[_line];
 	    _K = ((targetaddr/8) - (sourceaddr/8)) & 0xfffff;
 	}
+
+        bool match(u08 F)
+        {
+	    return _F == F;
+        }
+
+        void decode(u32 code)
+        {
+	    assert(match(code >> 24));    // we are in the right instruction
+	    _j = (code >> 20) & 0xf;      // extract j
+	    _K = code & 0xfffff;          // extract K
+        }
 };

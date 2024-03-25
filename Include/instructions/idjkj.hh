@@ -5,7 +5,13 @@ class idjkj : public Fjk
 
 	bool execute()
 	{
+	    stringstream ss;
+	    ss << setfill('0') << setw(16) << hex << PROC[me()].X(_j).i() <<
+                " " << setw(2) << _k;
 	    PROC[me()].X(_j).i() = PROC[me()].X(_j).i() - _k;
+            ss << " " << setw(16) << PROC[me()].X(_j).i() << dec <<
+                setfill(' ');
+	    _trace = ss.str();
 	    return false;
 	}
 
