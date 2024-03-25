@@ -29,6 +29,9 @@ blasref:
 decode:	decode.cc
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< -o $@
 
+run:	run.cc
+	${CCC} ${CCFLAGS} ${SRC_DEPS} $< -o $@
+
 # Rule for building BLAS test cases
 %::	%.cc ../Src/blas/%.cc ../Include/blas/%.hh blasref
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< ../Src/blas/$< ../Blas/*.o ${FLIBS} -lgfortran -o $@
@@ -77,6 +80,7 @@ dgemv_nd:	dgemv_nd.cc ../Src/blas/dgemv_nd.cc ../Src/blas/ddot.cc ../Src/blas/ds
 
 clean:
 	/bin/rm -rf decode
+	/bin/rm -rf run
 	/bin/rm -rf ${TESTS}
 	/bin/rm -rf *.tr
 	bash -c "pushd ${BLAS_REF} && make clean && popd > /dev/null"

@@ -538,6 +538,169 @@ namespace CDC8600
 
 	extern vector<u64> decode(u32);
     } // namespace instructions
+
+    namespace pipeline
+    {
+	typedef vector<bool> bitvector;
+
+	template<u32 m, u32 n>
+	class stage
+	{
+	    public:
+		bitvector in;		// stage inputs  (m bits)
+		bitvector out;		// stage outputs (n bits)
+		bool txready;		// stage outputs are ready
+		bool txdone;		// outputs have been sent to next stage
+		bool rxready;		// stage ready for new inputs
+		bool rxdone;		// inputs have been received from previous stage
+
+		stage() : in(m), out(n) { }
+		virtual void tick() 	
+		{
+		   if (txdone && rxdone)
+		   {
+		      for (u32 i=0; i<n; i++) out[i] = false;
+		      for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
+		      rxdone = false; rxready = true;
+		      txready = true; txdone = false;
+		   }
+		}
+		virtual void tock() 	{ assert(false); }
+		virtual bool busy()	{ return false; }
+		virtual void reset()	{ rxready = true; rxdone = true; txready = true; txdone = true; }
+	};
+
+	void copy(u32 N, u64 u, bitvector& v, u32 first);
+
+	template<u32 m, u32 n, u32 p, u32 q>
+	void transfer(u32 N, stage<m,n>& src, u32 srcfirst, stage<p,q>& dst, u32 dstfirst)
+	{
+	    assert(srcfirst < n); assert((srcfirst + N) <= n);
+	    assert(dstfirst < p); assert((dstfirst + N) <= p);
+
+	    if (!dst.rxready) 		// destination ready?
+	    {
+		// destination not ready
+		dst.rxdone = false;
+		src.txdone = false;
+		return;
+	    }
+	    if (!src.txready)		// source ready?
+	    {
+		// source not ready
+		src.txdone = false;
+		dst.rxdone = false;
+		return;
+	    }
+
+	    // both source and destination are ready
+	    for (u32 i=0; i<N; i++) dst.in[dstfirst + i] = src.out[srcfirst + i];
+	    dst.rxdone = true;
+	    src.txdone = true;
+	}
+
+	class IFstage : public stage<0,96>
+	{
+	    private:
+		vector<u64> fetchgroups;
+		u32	    fetchcount;
+	    public:
+		void init(const char* filename);
+		void tick();
+		bool busy();
+	};
+
+	extern IFstage IF;
+
+	class ICstage : public stage<48,80>
+	{
+	};
+
+	extern ICstage IC[2];
+
+	class RMstage : public stage<160,192>
+	{
+	    public:
+		void tick();
+	};
+
+	extern RMstage RM;
+
+	class ODstage : public stage<96, 96>
+	{
+	};
+
+	extern ODstage OD[2];
+
+	class IQstage : public stage<96,96>
+	{
+	};
+	
+	extern IQstage IQ[2];
+
+	class OIstage : public stage<96,96>
+	{
+	    private:
+		u32	_ix;			// operation issue index (0/1)
+	    public:
+		void init(u32 ix) { _ix = ix; }	// initialize this operation issue stage to a particular index (0/1)
+		stage<96,96>& target();		// target unit for next issue
+	};
+
+	extern OIstage OI[2];
+
+	class BRstage : public stage<96,96>
+	{
+	};
+
+	extern BRstage BR[2];
+
+	class FXstage : public stage<96,96>
+	{
+	};
+
+	extern FXstage FX[2];
+
+	class FPstage : public stage<96,96>
+	{
+	};
+
+	extern FPstage FP[2];
+
+	class LDstage : public stage<96,96>
+	{
+	};
+
+	extern LDstage LD[2];
+
+	class STstage : public stage<96,96>
+	{
+	};
+
+	extern STstage ST[2];
+
+	class CQstage : public stage<96,96>
+	{
+	};
+
+	extern CQstage CQ[2];
+
+	class COstage : public stage<192,0>
+	{
+	    public:
+		void tick();
+	};
+
+	extern COstage CO;
+
+	void reset();
+	void tick();
+	void tock();
+	bool busy();
+	void transfer();
+	void run(const char* filename);
+    } // namespace pipeline
+
 } // namespace CDC8600
 
 #endif // _CDC8600_HH_
