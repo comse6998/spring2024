@@ -5,7 +5,9 @@ class xkj : public Fjk
 
 	bool execute()
 	{
+		stringstream ss; ss << setfill('0') << setw(16) << hex << PROC[me()].X(_k).i();
 	    PROC[me()].X(_j).u() = _k;
+		ss << " " << setfill('0') << setw(16) << PROC[me()].X(_j).i() << dec << setfill(' '); _trace = ss.str();
 	    return false;
 	}
 
@@ -18,5 +20,20 @@ class xkj : public Fjk
 	string mnemonic() const
 	{
 	    return "xkj";
+	}
+
+
+	bool match(u08 F)
+	{
+		if (0x10 == F) return true;
+		return false;
+	}
+
+	void decode(u32 code)
+	{
+		assert(code < 65536);       // 16-bit instruction
+		assert(match(code >> 8));   // we are in the right instruction
+		_k = code  & 0xf;           // extract the k field
+		_j = (code >> 4) & 0xf;     // extract the j field
 	}
 };

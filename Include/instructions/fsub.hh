@@ -11,7 +11,7 @@ class fsub : public Fijk
         ss << " ";
         ss << setfill('0') << setw(16) << hex << PROC[me()].X(_k).i();      
         PROC[me()].X(_i).f() = PROC[me()].X(_j).f() - PROC[me()].X(_k).f();
-        ss << " " << PROC[me()].X(_i).i() << dec << setfill(' '); _trace = ss.str();
+        ss << " " << setfill('0') << setw(16) << PROC[me()].X(_i).i() << dec << setfill(' '); _trace = ss.str();
 
         return false;
     }
