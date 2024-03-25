@@ -919,6 +919,7 @@ namespace CDC8600
 
 	    cout << "   cycle | "
 		 << "                      IF | "
+		 << "               IC[0] | "
 		 << "                                              RM | "
 		 << "                   FX[0] | "
 		 << "                   CQ[0]"
@@ -926,6 +927,7 @@ namespace CDC8600
 
 	    cout << "---------+-"
 		 << "-------------------------+-"
+		 << "---------------------+-"
 		 << "-------------------------------------------------+-"
 		 << "-------------------------+-"
 		 << "------------------------"
@@ -936,8 +938,9 @@ namespace CDC8600
 		tick();
 		transfer();
 		cout << setw(8) << cycle << " | ";
-		dump(IF.out); cout << " | ";
-		dump(RM.out); cout << " | ";
+		dump(IF.out)   ; cout << " | ";
+		dump(IC[0].out); cout << " | ";
+		dump(RM.out)   ; cout << " | ";
 		dump(FX[0].out); cout << " | ";
 		dump(CQ[0].out);
 		cout << endl;
