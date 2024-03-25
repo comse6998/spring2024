@@ -785,11 +785,25 @@ namespace CDC8600
 	    if (txdone)
 	    {
 		copy(32, fetchgroups[fetchcount] >> 32, out, 0);
+		copy(16, fetchcount, out, 32);
 		copy(32, fetchgroups[fetchcount] & 0xffffffff, out, 48);
+		copy(16, fetchcount, out, 80);
 		txdone = false;
 		txready = true;
-	    }
 		fetchcount++;
+	    }
+	}
+
+	void RMstage::tick() 	
+	{
+	   if (txdone && rxdone)
+	   {
+	      for (u32 i=0; i<192; i++) out[i] = false;
+	      for (u32 i=0; i<80; i++) out[i+ 0] = in[i+ 0];
+	      for (u32 i=0; i<80; i++) out[i+96] = in[i+80];
+	      rxdone = false; rxready = true;
+	      txready = true; txdone = false;
+	   }
 	}
 
 	void COstage::tick()
@@ -862,16 +876,8 @@ namespace CDC8600
 	{
 	    transfer(96, CQ[0],  0, CO   ,  0);
 	    transfer(96, CQ[1],  0, CO   , 96);
-	    transfer(96, BR[0],  0, CQ[0],  0);
 	    transfer(96, FX[0],  0, CQ[0],  0);
-	    transfer(96, FP[0],  0, CQ[0],  0);
-	    transfer(96, LD[0],  0, CQ[0],  0);
-	    transfer(96, ST[0],  0, CQ[0],  0);
-	    transfer(96, BR[1],  0, CQ[1],  0);
 	    transfer(96, FX[1],  0, CQ[1],  0);
-	    transfer(96, FP[1],  0, CQ[1],  0);
-	    transfer(96, LD[1],  0, CQ[1],  0);
-	    transfer(96, ST[1],  0, CQ[1],  0);
 	    transfer(96, OI[0],  0, OI[0].target(), 0);
 	    transfer(96, OI[1],  0, OI[1].target(), 0);
 	    transfer(96, IQ[0],  0, OI[0],  0);
@@ -915,14 +921,14 @@ namespace CDC8600
 		 << "                      IF | "
 		 << "                                              RM | "
 		 << "                   FX[0] | "
-		 << "                                              CO"
+		 << "                   CQ[0]"
 		 << endl;
 
 	    cout << "---------+-"
 		 << "-------------------------+-"
 		 << "-------------------------------------------------+-"
 		 << "-------------------------+-"
-		 << "------------------------------------------------"
+		 << "------------------------"
 		 << endl;
 
 	    for (u32 cycle = 0; busy(); cycle++)
@@ -933,7 +939,7 @@ namespace CDC8600
 		dump(IF.out); cout << " | ";
 		dump(RM.out); cout << " | ";
 		dump(FX[0].out); cout << " | ";
-		dump(CO.in);
+		dump(CQ[0].out);
 		cout << endl;
 	    }
 	}

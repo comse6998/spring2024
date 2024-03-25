@@ -619,6 +619,8 @@ namespace CDC8600
 
 	class RMstage : public stage<160,192>
 	{
+	    public:
+		void tick();
 	};
 
 	extern RMstage RM;
