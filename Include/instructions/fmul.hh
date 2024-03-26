@@ -32,12 +32,12 @@ class fmul : public Fijk
             return _F == F;
         }
 
-        void decode(u32 code)
-        {
-            assert(code < 65536);       // 16-bit instruction
-            assert(match(code >> 12));  // we are in the right instruction
-            _i = (code >> 8) & 0xf;     // extract i
-            _j = (code >> 4) & 0xf;     // extract j
-            _k = code  & 0xf;           // extract k
-        }
+    void decode(u32 code)
+	{
+		assert(code < 65536);       // 16-bit instruction
+		assert(match(code >> 12));   // we are in the right instruction
+		_k = code  & 0xf;           // extract the k field
+		_j = (code >> 4) & 0xf;     // extract the j field
+        _i = (code >> 8) & 0xf;     // extract the j field
+	}
 };
