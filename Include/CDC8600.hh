@@ -567,7 +567,7 @@ namespace CDC8600
 		}
 		virtual void tock() 	{ assert(false); }
 		virtual bool busy()	{ return false; }
-		virtual void reset()	{ rxready = true; rxdone = false; txready = false; txdone = true; }
+		virtual void reset()	{ rxready = true; rxdone = true; txready = true; txdone = true; }
 	};
 
 	void copy(u32 N, u64 u, bitvector& v, u32 first);
@@ -590,6 +590,7 @@ namespace CDC8600
 		// source not ready
 		src.txdone = false;
 		dst.rxdone = false;
+		return;
 	    }
 
 	    // both source and destination are ready
