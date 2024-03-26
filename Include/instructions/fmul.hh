@@ -35,7 +35,7 @@ class fmul : public Fijk
     void decode(u32 code)
 	{
 		assert(code < 65536);       // 16-bit instruction
-		assert(match(code >> 4));   // we are in the right instruction
+		assert(match(code >> 12));   // we are in the right instruction
 		_k = code  & 0xf;           // extract the k field
 		_j = (code >> 4) & 0xf;     // extract the j field
         _i = (code >> 8) & 0xf;     // extract the j field
