@@ -258,6 +258,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "isjkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x12 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 	};
 
 	class isjki : public FXop

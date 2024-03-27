@@ -627,6 +627,7 @@ namespace CDC8600
 	{
 	    for (u32 i=0; i<256; i++) makeinstr[i] = new maker<pass>;
 	    makeinstr[0x10] = new maker<xkj>;
+	    makeinstr[0x12] = new maker<isjkj>;
 	    makeinstr[0x17] = new maker<idzkj>;
 	}
 
@@ -780,6 +781,26 @@ namespace CDC8600
 	    }
 	}
 
+	void copy(u32 N, const bitvector& u, u32 ufirst, bitvector& v, u32 vfirst)
+	{
+	    assert(ufirst + N <= u.size());
+	    assert(vfirst + N <= v.size());
+	    for (u32 i=0; i<N; i++)
+	    {
+		v[vfirst + i] = u[ufirst + i];
+	    }
+	}
+
+	void copy(u32 N, const bitvector& u, u32 first, u32& v)
+	{
+	    assert(first + N <= u.size());
+	    v = 0;
+	    for (u32 i=0; i<N; i++)
+	    {
+		v = v + ((u[first + i] & 0x1) << i);
+	    }
+	}
+
 	void IFstage::tick()
 	{
 	    if (txdone)
@@ -791,6 +812,35 @@ namespace CDC8600
 		txdone = false;
 		txready = true;
 		fetchcount++;
+	    }
+	}
+
+	void ICstage::tick()
+	{
+	    if (rxdone)
+	    {
+		u32 code; copy(32, in, 0, code);
+		vector<u64> ops = instructions::decode(code);
+		for (u32 i=0; i<ops.size(); i++)
+		{
+		    bitvector	op = out; for (u32 i=0; i < op.size(); i++) op[i] = false;
+		    copy(16, in, 32, op, 64);
+		    copy(64, ops[i], op, 0);
+		    opsq.push_back(op);
+		}
+	        rxdone = false; rxready = true;
+	    }
+
+	    if (opsq.size())
+	    {
+		copy(80, opsq[0], 0, out, 0);
+		opsq.erase(opsq.begin());
+		txready = true; txdone = false;
+	    }
+	    else
+	    {
+		for (u32 i=0; i < out.size(); i++) out[i] = false;
+		txready = true; txdone = false;
 	    }
 	}
 
