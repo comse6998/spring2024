@@ -68,7 +68,13 @@ void test_dtrmv_lnu(int count)
     else
         cout << "FAIL" << std::endl;
     
-    if (n < 10) dump(PROC[0].trace);
+    if (n < 10)
+    {
+        dump(PROC[0].trace, "dtrmv_lnu.tr.0");
+        dump(PROC[1].trace, "dtrmv_lnu.tr.1");
+        dump(PROC[2].trace, "dtrmv_lnu.tr.2");
+        dump(PROC[3].trace, "dtrmv_lnu.tr.3");
+    } 
 
 }
 
