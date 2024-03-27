@@ -18,7 +18,7 @@ namespace CDC8600
 	    c128 temp = 0;
             if (incx == 1 && incy ==1)
             {
-                for (int i=0; i<n; i++)
+                for (long unsigned i=0; i<n; i++)
                 {
                     temp = x[i];
                     x[i] = y[i];
