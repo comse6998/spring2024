@@ -571,6 +571,9 @@ namespace CDC8600
 	};
 
 	void copy(u32 N, u64 u, bitvector& v, u32 first);
+	void copy(u32 N, const bitvector& u, u32 first, u64& v);
+	void copy(u32 N, const bitvector& u, u32 first, u32& v);
+	void copy(u32 N, const bitvector& u, u32 ufirst, bitvector& v, u32 vfirst);
 
 	template<u32 m, u32 n, u32 p, u32 q>
 	void transfer(u32 N, stage<m,n>& src, u32 srcfirst, stage<p,q>& dst, u32 dstfirst)
@@ -614,6 +617,11 @@ namespace CDC8600
 
 	class ICstage : public stage<48,80>
 	{
+	    public:
+		vector<bitvector>	opsq;
+
+	    public:
+		void tick();
 	};
 
 	extern ICstage IC[2];
@@ -621,7 +629,9 @@ namespace CDC8600
 	class RMstage : public stage<160,192>
 	{
 	    public:
+		u32  opcount;
 		void tick();
+		void init() { opcount = 0; }
 	};
 
 	extern RMstage RM;

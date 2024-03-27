@@ -9,6 +9,8 @@ namespace CDC8600
     {
 	extern vector<u64>	MEMready;	// ready cycles for memory locations
 
+	extern void initmappers();
+
 	class operation
 	{
 	     protected:
@@ -93,6 +95,45 @@ namespace CDC8600
 	};
 
 	void process(operation *op);
+
+	class basemapper
+	{
+	    public:
+		virtual void map
+		(
+		    u32& i,	// target register
+		    u32& j,	// source register 
+		    u32& k	// source register
+		)
+		{
+		    j = 0;
+		    k = 0;
+		    i = 0;
+		}
+	};
+
+	template<typename T>		// For fixed- and floating-point operations;
+					// branches, loads, and stores will have the same signature
+					// but need to be specialized
+	class mapper	: public basemapper
+	{
+	    public:
+		void map
+		(
+		    u32& i,	// target register
+		    u32& j,	// source register 
+		    u32& k	// source register
+		)
+		{
+		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		    k = PROC[me()].mapper[k];				// physical register for X(k)
+		    u08 tgtreg = PROC[me()].pfind();			// find next target physical register
+		    PROC[me()].pfree.erase(tgtreg);			// target physical register comes out of the free set
+		    PROC[me()].pfree.insert(PROC[me()].mapper[i]);	// old physical register goes back to the free set
+		    PROC[me()].mapper[i] = tgtreg;			// new mapping of target logical register to target physical register
+		    i = PROC[me()].mapper[i];				// physical register for X(i)
+		}
+	};
 
 	template<typename T>		// For fixed- and floating-point operations
 	void process
@@ -258,6 +299,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "isjkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x12 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 	};
 
 	class isjki : public FXop

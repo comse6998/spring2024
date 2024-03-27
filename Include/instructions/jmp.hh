@@ -46,4 +46,16 @@ class jmp : public FjK
 	    u32 sourceaddr = PROC[me()].line2addr[_line];
 	    _K = ((targetaddr/8) - (sourceaddr/8)) & 0xfffff;
 	}
+
+	bool match(u08 F)
+	{
+	return _F == F;
+	}
+
+	void decode(u32 code)
+	{
+	assert(match(code >> 24));    // we are in the right instruction
+	_j = (code >> 20) & 0xf;      // extract j
+	_K = code & 0xfffff;          // extract K
+	}
 };
