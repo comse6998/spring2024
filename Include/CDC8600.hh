@@ -629,7 +629,9 @@ namespace CDC8600
 	class RMstage : public stage<160,192>
 	{
 	    public:
+		u32  opcount;
 		void tick();
+		void init() { opcount = 0; }
 	};
 
 	extern RMstage RM;

@@ -20,9 +20,11 @@ int main
 	return -1;
     }
 
-    instructions::initmakers();
-    pipeline::reset();
-    pipeline::run(argv[1]);
+    reset();				// reset the entire computer
+    instructions::initmakers();		// initialize the instruction makers
+    operations::initmappers();		// initialize the register mappers
+    pipeline::reset();			// reset the simulated pipeline
+    pipeline::run(argv[1]);		// run the trace through the pipeline
 
     return 0;
 }

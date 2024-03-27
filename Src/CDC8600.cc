@@ -570,6 +570,16 @@ namespace CDC8600
 	{
 	    process(new stw(PROC[me()].mapper[j], PROC[me()].mapper[k], addr));				// process new operation
 	}
+
+	vector<basemapper*> mappers(256);
+
+	void initmappers()
+	{
+	    for (u32 i=0; i<256; i++) mappers[i] = new basemapper;
+	    mappers[0x10] = new mapper<xKi>;
+	    mappers[0x12] = new mapper<isjkj>;
+	    mappers[0x17] = new mapper<idzkj>;
+	}
     } // namespace operations
 
     bool prediction
@@ -851,9 +861,52 @@ namespace CDC8600
 	      for (u32 i=0; i<192; i++) out[i] = false;
 	      for (u32 i=0; i<80; i++) out[i+ 0] = in[i+ 0];
 	      for (u32 i=0; i<80; i++) out[i+96] = in[i+80];
-	      rxdone = false; rxready = true;
-	      txready = true; txdone = false;
 	   }
+
+	   for (u32 i=0; i<192; i++) out[i] = false;
+	   if (txdone && rxdone)
+	   {
+	       copy(16, in, 64, out, 80);	// pass through the fetch group from IC[0]
+	       copy(16, in,144, out,176);	// pass through the fetch group from IC[1]
+	       copy(20, in,  0, out,  0);	// pass through K field from IC[0]
+	       copy(20, in, 80, out, 96);	// pass through K field from IC[1]
+	       copy( 8, in, 56, out, 56);	// pass through F field from IC[0]
+	       copy( 8, in,136, out,152);	// pass through F field from IC[1]
+
+	       u32 fg[2];
+	       u32 F[2];
+	       u32 ireg[2];
+	       u32 jreg[2];
+	       u32 kreg[2];
+
+	       copy(16, in, 64, fg[0]);
+	       copy(16, in,144, fg[1]);
+	       copy( 8, in, 56, F[0]);
+	       copy( 8, in,136, F[1]);
+	       copy(12, in, 44, ireg[0]);
+	       copy(12, in,124, ireg[1]);
+	       copy(12, in, 32, jreg[0]);
+	       copy(12, in,112, jreg[1]);
+	       copy(12, in, 20, kreg[0]);
+	       copy(12, in,100, kreg[1]);
+
+	       operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0]);	// architected -> physical register mapping
+	       copy(12, ireg[0], out, 44);	// pass physical i register from IC[0]
+	       copy(12, jreg[0], out, 32);	// pass physical j register from IC[0]
+	       copy(12, kreg[0], out, 20);	// pass physical k register from IC[0]
+
+	       copy(16, opcount, out, 64);	// pass operation count from IC[0]
+	       opcount++;
+
+	       copy(12, ireg[1], out,140);	// pass physical i register from IC[1] 
+	       copy(12, jreg[1], out,128);	// pass physical j register from IC[1] 
+	       copy(12, kreg[1], out,116);	// pass physical k register from IC[1] 
+
+	       copy(16, opcount, out,160);	// pass operation count from IC[1]
+	       opcount++;
+	   }
+	   rxdone = false; rxready = true;
+	   txready = true; txdone = false;
 	}
 
 	void COstage::tick()
@@ -965,6 +1018,7 @@ namespace CDC8600
 	)
 	{
 	    IF.init(filename);
+	    RM.init();
 	    OI[0].init(0); OI[1].init(1);
 
 	    cout << "   cycle | "
