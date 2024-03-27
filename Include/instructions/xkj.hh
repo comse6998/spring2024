@@ -7,9 +7,9 @@ class xkj : public Fjk
 	bool execute()
 	{
 	    stringstream ss;
-	    ss << setfill('0') << setw(2) << hex << _k;
+	    ss << setfill('0') << setw(1) << hex << u32(_k);
 	    PROC[me()].X(_j).u() = _k;
-	    ss << " " << setw(16) << PROC[me()].X(_j).u() << dec << setfill(' ');
+	    ss << " " << setfill('0') << setw(16) << PROC[me()].X(_j).u() << dec << setfill(' ');
 	    _trace = ss.str();
 	    return false;
 	}
