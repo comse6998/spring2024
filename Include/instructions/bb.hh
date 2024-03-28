@@ -9,8 +9,21 @@ class bb : public Fijk
 
 	bool execute()
 	{
-	    if (PROC[me()].X(_j).i() - PROC[me()].X(_k).i() < 0) return true;
-        else return false;
+	    stringstream ss;
+
+	    if (PROC[me()].X(_j).i() - PROC[me()].X(_k).i() < 0)
+	    {
+	        _taken = true;
+
+	        u32 targetline = PROC[me()].label2line[_label];
+	        u32 targetaddr = PROC[me()].line2addr[targetline];
+
+	        ss << setfill('0') << setw(8) << hex << targetaddr << " " << dec << setfill(' ');
+	    }
+	    else _taken = false;
+
+	    _trace = ss.str();
+	    return _taken;
 	}
 
 	string mnemonic() const
