@@ -44,6 +44,8 @@ void test_dtrmv_unn(int count)
     }
 
     delete [] Y;
+    CDC8600::memfree(X, n*abs(incx));
+    CDC8600::memfree(A, n*lda);
 
     cout << "dtrmv_unn [" << setw(2) << count << "] ";
     cout << "(lda = " << setw(3) << lda;
@@ -59,7 +61,13 @@ void test_dtrmv_unn(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(PROC[0].trace);
+    if (n < 10) {
+        for (u32 p = 0; p < params::Proc::N; p++) {
+            cout << "PROC[" << p << "], # of instr = " << PROC[p].instr_count << endl;
+            dump(PROC[p].trace);
+            dump(PROC[p].trace, ("dtrmv_unn.tr." + to_string(p)).c_str());
+        }
+    }
 }
 
 int main()

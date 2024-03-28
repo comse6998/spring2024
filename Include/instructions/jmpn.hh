@@ -9,8 +9,20 @@ class jmpn : public FjK
 
 	bool execute()
 	{
-	    if (0 > PROC[me()].X(_j).i()) _taken = true;
-            else _taken = false;
+	    stringstream ss;
+	    
+	    if (0 > PROC[me()].X(_j).i())
+	    {
+	        _taken = true;
+	        
+	        u32 targetline = PROC[me()].label2line[_label];
+	        u32 targetaddr = PROC[me()].line2addr[targetline];
+	        
+	        ss << setfill('0') << setw(8) << hex << targetaddr << " " << dec << setfill(' ');
+	    } 
+	    else _taken = false;
+	    
+	    _trace = ss.str();
 	    return _taken;
 	}
 

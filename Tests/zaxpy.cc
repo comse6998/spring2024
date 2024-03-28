@@ -47,6 +47,8 @@ void test_zaxpy(int count)
     }
 
     delete [] Y;
+    CDC8600::memfree(y, ny*2);
+    CDC8600::memfree(x, nx*2);
 
     cout << "zaxpy [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
@@ -61,7 +63,10 @@ void test_zaxpy(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(PROC[0].trace);
+    if (n < 10) {
+        dump(PROC[0].trace);
+        dump(PROC[0].trace, "zaxpy.tr");
+    }
 }
 
 int main()
