@@ -6,6 +6,7 @@ class bb : public Fijk
 
     public:
 	bb(u08 j, u08 k, string L) : Fijk(0xB, 0, j, k) { _label = L; }
+	bb() : Fijk(0xB, 0, 0, 0) {}
 
 	bool execute()
 	{

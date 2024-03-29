@@ -1,7 +1,8 @@
 class lpjkj : public Fjk
 {
     public:
-	lpjkj(u08 j, u08 k) : Fjk(0x1, j, k) {}
+	lpjkj(u08 j, u08 k) : Fjk(0x01, j, k) {}
+	lpjkj() : Fjk(0x01, 0, 0) {}
 
 	bool execute()
 	{

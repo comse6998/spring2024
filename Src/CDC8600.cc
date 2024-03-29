@@ -636,9 +636,38 @@ namespace CDC8600
 	void initmakers()
 	{
 	    for (u32 i=0; i<256; i++) makeinstr[i] = new maker<pass>;
-	    makeinstr[0x10] = new maker<xkj>;
 	    makeinstr[0x12] = new maker<isjkj>;
 	    makeinstr[0x17] = new maker<idzkj>;
+	    makeinstr[0x13] = new maker<idjkj>;
+	    makeinstr[0x0D] = new maker<ipjkj>;
+	    makeinstr[0x06] = new maker<isjki>;
+	    makeinstr[0x30] = new maker<jmp>;
+	    makeinstr[0x37] = new maker<jmpn>;
+	    makeinstr[0x35] = new maker<jmpnz>;
+	    makeinstr[0x36] = new maker<jmpp>;
+	    makeinstr[0x34] = new maker<jmpz>;
+	    makeinstr[0x0F] = new maker<pass>; // Be explicit
+	    makeinstr[0x24] = new maker<rdjK>;
+	    makeinstr[0x10] = new maker<xkj>;
+	    makeinstr[0x01] = new maker<lpjkj>;
+
+            /* Deal with instructions with 4-bit codes */
+            makeinstr[0xB0] = new maker<bb>;
+            makeinstr[0x70] = new maker<idjki>;
+            makeinstr[0x80] = new maker<fadd>;
+            makeinstr[0xA0] = new maker<fmul>;
+            makeinstr[0x90] = new maker<fsub>;
+            makeinstr[0xD0] = new maker<rdjki>;
+            makeinstr[0xF0] = new maker<sdjki>;
+            for (u32 i = 0x01; i < 0x10; ++i) {
+                makeinstr[0xB0 + i] = makeinstr[0xB0];
+                makeinstr[0x70 + i] = makeinstr[0x70];
+                makeinstr[0x80 + i] = makeinstr[0x80];
+                makeinstr[0xA0 + i] = makeinstr[0xA0];
+                makeinstr[0x90 + i] = makeinstr[0x90];
+                makeinstr[0xD0 + i] = makeinstr[0xD0];
+                makeinstr[0xF0 + i] = makeinstr[0xF0];
+            }
 	}
 
 	vector<u64> decode

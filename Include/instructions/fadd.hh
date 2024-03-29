@@ -1,9 +1,8 @@
 class fadd : public Fijk
 {
     public:
-        fadd(u08 i, u08 j, u08 k) : Fijk(0x8, i, j, k)
-    {
-    }
+        fadd(u08 i, u08 j, u08 k) : Fijk(0x8, i, j, k) {}
+        fadd() : Fijk(0x8, 0, 0, 0) {}
 
         bool execute()
         {

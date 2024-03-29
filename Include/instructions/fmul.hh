@@ -1,9 +1,8 @@
 class fmul : public Fijk
 {
     public:
-        fmul(u08 i, u08 j, u08 k) : Fijk(0xA, i, j, k)
-        {
-        }
+        fmul(u08 i, u08 j, u08 k) : Fijk(0xA, i, j, k) {}
+        fmul() : Fijk(0xA, 0, 0, 0) {}
 
         bool execute()
         {
