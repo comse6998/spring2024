@@ -273,6 +273,8 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "idjkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_K) + ")"; }
+		u64 encode() const { return ((u64)0x13 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+
 	};
 
         class idjki : public FXop
@@ -286,6 +288,8 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "idjki"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x07 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+
 	};
 
 	class isjkj : public FXop
@@ -313,6 +317,8 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "isjki"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x06 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+
 	};
 
 	class agen : public FXop

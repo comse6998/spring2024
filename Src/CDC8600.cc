@@ -639,6 +639,17 @@ namespace CDC8600
 	    makeinstr[0x10] = new maker<xkj>;
 	    makeinstr[0x12] = new maker<isjkj>;
 	    makeinstr[0x17] = new maker<idzkj>;
+		makeinstr[0xD] = new maker<rdjki>;
+		makeinstr[0x6] = new maker<isjki>;
+		makeinstr[0x34] = new maker<jmpp>;
+		makeinstr[0x7] = new maker<idjki>;
+		makeinstr[0x13] = new maker<idjkj>;
+		makeinstr[0x0f] = new maker<pass>;
+		makeinstr[0x12] = new maker<isjkj>;
+		makeinstr[0x6] = new maker<isjki>;
+		makeinstr[0x30] = new maker<jmp>;
+		makeinstr[0x9] = new maker<fsub>;
+		makeinstr[0x3c] = new maker<jmpk0>;
 	}
 
 	vector<u64> decode
@@ -657,7 +668,7 @@ namespace CDC8600
 	)
 	{
 	    vector<u64> ops;
-
+		
 	    u08 F = code >> 24;				// extract first byte
 	    instruction* instr = makeinstr[F]->make();	// make corresponding instruction
 	    vector<operations::operation*> cracked;	// operations from an instruction
