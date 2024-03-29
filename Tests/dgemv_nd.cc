@@ -13,7 +13,7 @@ extern "C" i32 dgemv_(char *, i32 *, i32 *, f64 *, f64 *, i32 *, f64 *, i32 *, f
 const int N = 20;
 const double epsilon = std::pow(10, -6);
 const int NUM_THREADS = 4;
-bool PRETTY_PRINT_CORES = false;
+bool PRETTY_PRINT_CORES = true;
 
 // Global variables to store total instructions and cycles
 uint64_t totalInstructions = 0;
@@ -89,22 +89,16 @@ void test_dgemv_nd(int count) {
         //cout << ", incx = " << setw(2) << incx;
         //cout << ", beta = " << setw(2) << beta;
         //cout << ", incy = " << setw(2) << incy;
-        //cout << ", # of instr = ";
-        //for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
-        //cout << ", # of cycles = ";
-        //for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
-        //cout << ") : ";
-        if (n < 10) {
-            for (u32 p = 0; p < params::Proc::N; p++) {
-                cout << "PROC[" << p << "], # of instr = " << PROC[p].instr_count << endl;
-                dump(PROC[p].trace);
-                dump(PROC[p].trace, ("dgemv_nd.tr." + to_string(p)).c_str());
-            }
-        }
+        cout << ", # of instr = ";
+        for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+        cout << ", # of cycles = ";
+        for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+        cout << ") : ";
+
         if (pass)
-            cout << ") PASS" << std::endl;
+            cout << "PASS" << std::endl;
         else
-            cout << ") FAIL" << std::endl;
+            cout << "FAIL" << std::endl;
     }
 
     // Update global total instructions and cycles
@@ -120,10 +114,6 @@ void test_dgemv_nd(int count) {
             maxCycles = PROC[p].op_maxcycle;
         }
     }
-    CDC8600::memfree(a, lda*n);
-    CDC8600::memfree(x, nx);
-    CDC8600::memfree(y, ny);
-    CDC8600::memfree(y_, ny);
 }
 
 int main() {

@@ -43,13 +43,7 @@ void test_ddot(int count)
     else
         std::cout << "FAIL" << std::endl;
 
-    if (n < 10){
-        dump(PROC[0].trace);
-        dump(PROC[0].trace, "ddot.tr");
-    }
-
-    CDC8600::memfree(y, dx*2);
-    CDC8600::memfree(x, dy*2);
+    if (n < 10) dump(PROC[0].trace);
 }
 
 int main()
