@@ -57,7 +57,7 @@
 
      //delete [] A;
 
-    cout << "dtrans [" << setw(2) << count << "] ";
+    cout << "dgemv_na [" << setw(2) << count << "] ";
     cout << "(m = " << setw(3) << m;
     cout << ", n = " << setw(3) << n;
     cout << ", # of instr = ";
@@ -69,10 +69,10 @@
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
-    dump(PROC[0].trace, "dtrmv_lnu.tr.0");
-    dump(PROC[1].trace, "dtrmv_lnu.tr.1");
-    dump(PROC[2].trace, "dtrmv_lnu.tr.2");
-    dump(PROC[3].trace, "dtrmv_lnu.tr.3");
+    dump(PROC[0].trace, "dgemv_na.tr.0");
+    dump(PROC[1].trace, "dgemv_na.tr.1");
+    dump(PROC[2].trace, "dgemv_na.tr.2");
+    dump(PROC[3].trace, "dgemv_na.tr.3");
 
 }
 
