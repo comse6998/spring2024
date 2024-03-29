@@ -43,6 +43,8 @@ void test_dtrmv_ltn(int count)
         }
     }
     delete [] x;
+    CDC8600::memfree(A, nA);
+    CDC8600::memfree(X, DX);
     cout << "dtrmv_ltn [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
@@ -52,11 +54,19 @@ void test_dtrmv_ltn(int count)
     cout << ", nways = "<< params::L1::nways << ", latency = " << params::L1::latency << ")" << std::endl;
 
     cout << "# of instr  = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
-    cout << '\n';
-    cout << "# of cycles = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
-    cout << " : ";
+    if (n<100)
+    {
+       for (u32 p = 0; p < params::Proc::N; p++) {
+        cout << "PROC[" << p << "], # of instruction = " << setw(9) << PROC[p].instr_count << endl;
+        //dump(PROC[p].trace);
+        dump(PROC[p].trace, ("dtrmv_ltn.tr." + to_string(p)).c_str());
+        cout << '\n';
+        cout << "# of cycles = ";
+        cout << setw(9) << PROC[p].op_maxcycle << endl;
+       }
+    }
+    
+    
     if (Pass)
         cout << "PASS" << std::endl;
     else
