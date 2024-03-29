@@ -42,7 +42,7 @@ class isjki : public Fijk
 	vector<operations::operation*> crack()
 	{
 	    vector<operations::operation*>	ops;
-	    ops.push_back(new operations::process<operations::isjki>(_i, _j, _k, 0));
+	    ops.push_back(new operations::isjki(_i, _j, _k, 0));
 	    return ops;
 	}
 	
