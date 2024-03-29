@@ -35,15 +35,19 @@ void test_idamax(int count)
     cout << "dcopy [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ", # of instr = ";
+    for (u32 i = 0; i < params::Proc::N; i++)cout << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = ";
+    for (u32 i = 0; i < params::Proc::N; i++)cout << setw(9) << PROC[0].op_maxcycle;
+    
     cout << ") : ";
+
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(PROC[0].trace, "idamax.tr");
+    if (n < 10) dump(PROC[0].trace);
 
 }
 
