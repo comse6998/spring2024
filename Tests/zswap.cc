@@ -36,14 +36,14 @@ void test_zswap(int count, bool inc_one)
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
     c128 *Y = new c128[ny];
 
-    for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); X[i] = x[i]; }
-    for (int i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); Y[i] = y[i]; }
+    for (unsigned i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); X[i] = x[i]; }
+    for (unsigned i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); Y[i] = y[i]; }
     
     zswap_(&n, X, &incx, Y, &incy);		// Reference implementation of ZSWAP
     CDC8600::BLAS::zswap(n, x, incx, y, incy);	// Implementation of ZSWAP for the CDC8600
 
     bool pass = true;
-    for (int i = 0; i < nx; i++)
+    for (unsigned i = 0; i < nx; i++)
     {
         if (X[i] != x[i])
         {
@@ -51,7 +51,7 @@ void test_zswap(int count, bool inc_one)
         }
     }
 
-    for (int i = 0; i < ny; i++)
+    for (unsigned i = 0; i < ny; i++)
     {
         if (Y[i] != y[i])
         {
@@ -59,28 +59,30 @@ void test_zswap(int count, bool inc_one)
         }
     }
 
-    delete [] X, Y;
+    delete [] X;
+    delete [] Y;
 
     cout << "zswap [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
     cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << instructions::count;
-    cout << ", # of cycles = " << setw(9) << operations::maxcycle;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(trace);
+    if (n < 10) dump(PROC[0].trace);
+    if (n < 10) dump(PROC[0].trace, "zswap.tr");
 
 }
 
 int main()
 {
     
-    for (int i = 0; i < N; i++)
+    for (unsigned i = 0; i < N; i++)
     {
         test_zswap(i, false);
     }
