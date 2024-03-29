@@ -10,9 +10,9 @@ using namespace CDC8600;
 
 extern "C" int32_t dgemv_(char *trans, int32_t *m, int32_t *n, double *alpha, double *A, int32_t *LDA, double *x, int32_t *incx, double *beta, double *y, int32_t *incy);
 
-const int N = 20;
+const int N = 4;
 
-void test_dgemv_ta(int count)
+void test_dgemv_ta(int count, bool tracing)
 {
     reset();
 
@@ -26,10 +26,17 @@ void test_dgemv_ta(int count)
     int32_t incy = (rand() % 16) - 8; if (0 == incy) incy = 1;
     //int32_t incx = 1;
     //int32_t incy = 1;
+    
+    if (tracing) {
+      m = 3;
+      n = 3;
+      LDA = 8;
+      incx = 1;
+      incy = 1;
+    }
+
     int32_t nx = m*abs(incx); if (0 == nx) nx = 1;
     int32_t ny = n*abs(incy); if (0 == ny) ny = 1;
-
-    tracing = false;
 
     f64 *A = (f64*)CDC8600::memalloc(LDA*n);
     f64 *x = (f64*)CDC8600::memalloc(nx);
@@ -79,14 +86,34 @@ void test_dgemv_ta(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10 && tracing) dump(PROC[0].trace);
+    if (tracing) {
+      cout << "\n\n PROC[0] trace ========================== \n\n";
+      dump(PROC[0].trace);
+      cout << "\n\n PROC[1] trace ========================== \n\n";
+      dump(PROC[1].trace);
+      cout << "\n\n PROC[2] trace ========================== \n\n";
+      dump(PROC[2].trace);
+      cout << "\n\n PROC[3] trace ========================== \n\n";
+      dump(PROC[3].trace);
+      cout << "\n\n ========================== \n\n";
+      dump(PROC[0].trace, "dgemv_ta.tr.0");
+      cout << "\n\n ++++++++++++++++++++++++++ \n\n";
+      dump(PROC[1].trace, "dgemv_ta.tr.1");
+      cout << "\n\n ++++++++++++++++++++++++++ \n\n";
+      dump(PROC[2].trace, "dgemv_ta.tr.2");
+      cout << "\n\n ++++++++++++++++++++++++++ \n\n";
+      dump(PROC[3].trace, "dgemv_ta.tr.3");
+      cout << "\n\n ++++++++++++++++++++++++++ \n\n";
+    }
 }
 
 int main()
 {
     for (int i = 0; i < N; i++)
     {
-        test_dgemv_ta(i);
+        test_dgemv_ta(i, false);
     }
+
+    test_dgemv_ta(0, true);
     return 0;
 }

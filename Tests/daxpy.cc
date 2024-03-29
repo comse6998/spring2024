@@ -51,6 +51,9 @@ void test_daxpy(int count, i32 incx, i32 incy)
 
     delete [] Y;
 
+    CDC8600::memfree(x, nx);
+    CDC8600::memfree(y, ny);
+
     cout << "(n = " << setw(3) << n;
     cout << ", a = " << setw(20) << a;
     cout << ", incx = " << setw(2) << incx;
@@ -64,7 +67,10 @@ void test_daxpy(int count, i32 incx, i32 incy)
     else
         cout << "FAIL" << std::endl;
     
-    if (n < 10) dump(PROC[0].trace);
+    if (n < 10) {
+        dump(PROC[0].trace);
+        dump(PROC[0].trace, "daxpy.tr");
+    }
 
 }
 
