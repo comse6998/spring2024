@@ -6,6 +6,7 @@ class jmp : public FjK
 
     public:
 	jmp(string L) : FjK(0x30, 0, 0) { _label = L; }
+	jmp() : FjK(0x30, 0, 0) {}
 
 	bool execute()
 	{
