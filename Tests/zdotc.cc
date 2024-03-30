@@ -56,7 +56,7 @@ void test_zdotc(int count)
     else
         cout << "FAIL" << std::endl;
     
-    if (n < 10) dump(PROC[0].trace);
+    if (n < 10) dump(PROC[0].trace, "zdotc.tr");
 }
 
 int main()

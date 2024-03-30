@@ -19,7 +19,6 @@ char DIAG = 'U';
 void test_dtrmv_lnu(int count)
 {
     reset();
-    tracing = false;
 
     i32 n = rand() % 256;
     i32 incx = (rand() % 16) - 8;
@@ -29,6 +28,8 @@ void test_dtrmv_lnu(int count)
     
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 na = n*lda;
+    tracing = false; 
+    if (n < 10) tracing = true;
 
     f64 *A = (f64*)CDC8600::memalloc(na);
     f64 *X = (f64*)CDC8600::memalloc(nx);
@@ -57,15 +58,23 @@ void test_dtrmv_lnu(int count)
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
     cout << ", lda = " << setw(3) << lda;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ", # of instr = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << ", # of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
     
-    if (n < 10) dump(PROC[0].trace);
+    if (n < 10)
+    {
+        dump(PROC[0].trace, "dtrmv_lnu.tr.0");
+        dump(PROC[1].trace, "dtrmv_lnu.tr.1");
+        dump(PROC[2].trace, "dtrmv_lnu.tr.2");
+        dump(PROC[3].trace, "dtrmv_lnu.tr.3");
+    } 
 
 }
 

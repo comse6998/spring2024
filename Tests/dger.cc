@@ -65,6 +65,10 @@ void test_dger(int count)
     cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
     cout << ", # of instr = " << setw(9) << PROC[1].instr_count;
     cout << ", # of cycles = " << setw(9) << PROC[1].op_maxcycle;
+    cout << ", # of instr = " << setw(9) << PROC[2].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[2].op_maxcycle;
+    cout << ", # of instr = " << setw(9) << PROC[3].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[3].op_maxcycle;
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;

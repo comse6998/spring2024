@@ -24,6 +24,9 @@ void test_dtrmv_ltu(int count)
     char uplo = 'L';
     char trans = 'T';
     char diag = 'U';
+    u64 total_cycles = 0;
+    u64 max_cycles = 0;
+    u64 num_procs = 0;
 
     // tracing = false; if (n < 10) tracing = true;
 
@@ -55,18 +58,29 @@ void test_dtrmv_ltu(int count)
     cout << "(n = " << setw(3) << n;
     cout << ", lda = " << setw(3) << lda;
     cout << ", incx = " << setw(2) << incx;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
-    cout <<  ") : ";
+    cout << ", # of instr = " << setw(9);
+    for (u32 p = 0; p < params::Proc::N; p++) {
+        cout << setw(9) << PROC[p].instr_count;
+    }
+    cout << ", # of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) {
+        cout << setw(9) << PROC[p].op_maxcycle;
+        if (PROC[p].op_maxcycle > 0) {
+            num_procs++;
+            max_cycles = max(max_cycles, PROC[p].op_maxcycle);
+            total_cycles += PROC[p].op_maxcycle;
+        }
+    }
+    cout << ", max cycles = " << setw(9) << max_cycles  << ", total cycles = " << setw(9) << total_cycles << ", avg cycles = " <<  setw(9) << total_cycles / (1.0 * num_procs);
+    cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
     
     // if (n < 10) dump(PROC[0].trace);
-
-
-    return;
+    CDC8600::memfree(x, nx);
+    CDC8600::memfree(A, n*lda);
 }
 
 int main()
