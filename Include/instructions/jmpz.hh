@@ -6,6 +6,7 @@ class jmpz : public FjK
 
     public:
 	jmpz(u08 j, string L) : FjK(0x34, j, 0) { _label = L; }
+	jmpz() : FjK(0x34, 0, 0) {}
 
 	bool execute()
 	{
