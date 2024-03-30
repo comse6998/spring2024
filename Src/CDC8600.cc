@@ -639,6 +639,15 @@ namespace CDC8600
 	    makeinstr[0x10] = new maker<xkj>;
 	    makeinstr[0x12] = new maker<isjkj>;
 	    makeinstr[0x17] = new maker<idzkj>;
+		makeinstr[0x0F] = new maker<pass>;
+		makeinstr[0x34] = new maker<jmpp>;
+	    makeinstr[0x6] = new maker<isjki>;
+	    makeinstr[0x13] = new maker<idjkj>;
+	    makeinstr[0x30] = new maker<jmp>;
+	    makeinstr[0x0D] = new maker<ipjkj>;
+	    makeinstr[0xD] = new maker<rdjki>;
+	    makeinstr[0xF] = new maker<sdjki>;
+	    makeinstr[0x3] = new maker<jmpk>;
 	}
 
 	vector<u64> decode

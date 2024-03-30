@@ -12,8 +12,8 @@ DEPS		= ${INC_DEPS} ${SRC_DEPS}
 BLAS_REF	= ../Blas
 ifneq ($(wildcard /opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/.),)
 FLIBS = -L/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/
-CCFLAGS		= -I/opt/homebrew/Cellar/libomp/17.0.6/include -g -O0 -I../Include
-OMPFLAGS	= -Xpreprocessor -fopenmp -L/opt/homebrew/Cellar/libomp/17.0.6/lib -lomp
+CCFLAGS		= -I/opt/homebrew/opt/libomp/include -g -O0 -I../Include
+OMPFLAGS	= -Xpreprocessor -fopenmp -L/opt/homebrew/opt/libomp/lib -lomp
 else
 FLIBS =
 OMPFLAGS	= -fopenmp
