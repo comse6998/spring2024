@@ -2,6 +2,7 @@ class idjkj : public Fjk
 {
     public:
 	idjkj(u08 j, u08 k) : Fjk(0x13, j, k) {}
+	idjkj() : Fjk(0x13, 0, 0) {}
 
 	bool execute()
 	{

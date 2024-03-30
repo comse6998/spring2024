@@ -5,6 +5,7 @@ class sdjki : public Fijk
 
     public:
 	sdjki(u08 i, u08 j, u08 k) : Fijk(0xF, i, j, k) {}
+	sdjki() : Fijk(0xF, 0, 0, 0) {}
 
 	bool execute()
 	{

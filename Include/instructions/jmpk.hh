@@ -6,6 +6,7 @@ class jmpk : public Fjk
 
     public:
 	jmpk(u08 j, u08 k) : Fjk(0x3C, j, k) {}
+	jmpk() : Fjk(0x3C, 0, 0) {}
 
 	bool execute()
 	{

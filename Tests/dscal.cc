@@ -58,7 +58,8 @@ void test_dscal(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 45) dump(PROC[0].trace);
+    if (n < 15) dump(PROC[0].trace);
+    if (n < 15) dump(PROC[0].trace, "dscal.tr");
 }
 
 int main()
