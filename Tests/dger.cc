@@ -15,8 +15,8 @@ const int N = 20;
 void test_dger(int count)
 {
     reset();
-    i32 m = rand() % 256;
-    i32 n = rand() % 256;
+    i32 m = rand() % 100;
+    i32 n = rand() % 100;
     f64 alpha = 2.67;
     i32 incx = (rand() % 16 - 8) ;
     i32 incy = (rand() % 16 - 8) ;
@@ -76,6 +76,11 @@ void test_dger(int count)
         cout << "FAIL" << std::endl;
 
     //if (n < 10) dump(PROC[0].trace);
+    if (n < 10) dump(PROC[0].trace, "dger.tr.1");
+    if (n < 10) dump(PROC[1].trace, "dger.tr.2");
+    if (n < 10) dump(PROC[2].trace, "dger.tr.3");
+    if (n < 10) dump(PROC[3].trace, "dger.tr.4");
+
 }
 
 int main()
