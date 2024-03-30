@@ -37,7 +37,7 @@ void test_zscal(int count)
 
     tracing = false; 
 #ifdef TRACING
-    if (n < 10 && incx >=1) tracing = true;
+    if (n < 10 && incx >=1) {tracing = true; }
 #endif
 
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
@@ -69,8 +69,18 @@ void test_zscal(int count)
 
     //delete [] X;
 
+#ifdef DUMP_TR
+    if(n < 10 && incx >=1)
+    dump(PROC[0].trace, "zscal.tr");
+#endif
+
 #ifdef FUNC_TEST
-    cout << "zscal [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", # of instr = " << setw(9) << instructions::count << ") : ";
+    cout << "zscal [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx;
+    cout << ", # of instr = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << ", # of cycles = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+    cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
@@ -100,9 +110,6 @@ void test_zscal(int count)
 #ifdef INCX_TEST
     cout << "incx = " << setw(2) << incx << " , ";
 #endif
-    
-    cout << "maxcycle = " << setw (2) << operations::maxcycle << std::endl;
-
 
         //if (n < 50 && incx >=1) dump(trace);
     }
