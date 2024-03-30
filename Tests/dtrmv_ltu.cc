@@ -78,7 +78,12 @@ void test_dtrmv_ltu(int count)
     else
         cout << "FAIL" << std::endl;
     
-    // if (n < 10) dump(PROC[0].trace);
+    if (n < 10) {
+        for (u32 i = 0; i < params::Proc::N; i++) {
+            dump(PROC[i].trace);
+            dump(PROC[i].trace, ("dtrmv_ltu.tr" + std::to_string(i)).c_str());
+        }
+    }
     CDC8600::memfree(x, nx);
     CDC8600::memfree(A, n*lda);
 }
