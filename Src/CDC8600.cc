@@ -636,6 +636,7 @@ namespace CDC8600
 	void initmakers()
 	{
 	    for (u32 i=0; i<256; i++) makeinstr[i] = new maker<pass>;
+	    makeinstr[0x10] = new maker<xkj>;
 	    makeinstr[0x12] = new maker<isjkj>;
 	    makeinstr[0x17] = new maker<idzkj>;
 	    makeinstr[0x13] = new maker<idjkj>;
@@ -659,7 +660,8 @@ namespace CDC8600
             makeinstr[0x90] = new maker<fsub>;
             makeinstr[0xD0] = new maker<rdjki>;
             makeinstr[0xF0] = new maker<sdjki>;
-            for (u32 i = 0x01; i < 0x10; ++i) {
+            for (u32 i = 0x01; i < 0x10; ++i) 
+	    {
                 makeinstr[0xB0 + i] = makeinstr[0xB0];
                 makeinstr[0x70 + i] = makeinstr[0x70];
                 makeinstr[0x80 + i] = makeinstr[0x80];
@@ -885,13 +887,6 @@ namespace CDC8600
 
 	void RMstage::tick() 	
 	{
-	   if (txdone && rxdone)
-	   {
-	      for (u32 i=0; i<192; i++) out[i] = false;
-	      for (u32 i=0; i<80; i++) out[i+ 0] = in[i+ 0];
-	      for (u32 i=0; i<80; i++) out[i+96] = in[i+80];
-	   }
-
 	   for (u32 i=0; i<192; i++) out[i] = false;
 	   if (txdone && rxdone)
 	   {
