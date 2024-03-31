@@ -68,6 +68,11 @@ void test_dtrmv_utu(int count)
     
     cout << ") : ";
 
+    if(n < 13) dump(PROC[0].trace, "dtrmv_utu.tr.0");
+    if(n < 13) dump(PROC[1].trace, "dtrmv_utu.tr.1");
+    if(n < 13) dump(PROC[2].trace, "dtrmv_utu.tr.2");
+    if(n < 13) dump(PROC[3].trace, "dtrmv_utu.tr.3");
+
     if (pass)
         cout << "PASS" << std::endl;
     else
