@@ -226,11 +226,13 @@ namespace CDC8600
 	    public:
 		u32	_addr;
 		u08	_j;
+		u08	_i;
+		u08	_k;
 		u32	_K;
 		bool	_taken;
 		string	_label;
 		vector<units::unit>& units() { return PROC[me()].BRUs; }
-		BRop(u32 K, u08 j, u32 addr, bool taken, string label) { _K = K; _j = j; _taken = taken; _addr = addr; _label = label; }
+		BRop(u32 K, u08 j, u32 addr, bool taken, string label) { _K = K; _j = j; _taken = taken; _addr = addr; _label = label; _i = 0; _k = 0; }
 		u64 tgtused() const { return 0; }
 	};
 
@@ -382,6 +384,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "cmpz"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ")"; }
+		u64 encode() const { return ((u64)0xb1 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 	};
 
 	class cmp : public FXop
@@ -453,6 +456,7 @@ namespace CDC8600
 	{
 	    public:
 		jmpp(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
+		jmpp(u32 K, u08 j) : BRop(K, j, 0, 0, "") { }
 		u64 ready() const { return PROC[me()].Pready[_j]; }
 		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -460,6 +464,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmpp"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
+		u64 encode() const { return ((u64)0x36 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 	};
 
 	class jmpn : public BRop

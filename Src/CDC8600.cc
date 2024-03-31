@@ -649,7 +649,6 @@ namespace CDC8600
 	    makeinstr[0x34] = new maker<jmpz>;
 	    makeinstr[0x0F] = new maker<pass>; // Be explicit
 	    makeinstr[0x24] = new maker<rdjK>;
-	    makeinstr[0x10] = new maker<xkj>;
 	    makeinstr[0x01] = new maker<lpjkj>;
 
             /* Deal with instructions with 4-bit codes */
@@ -1048,6 +1047,7 @@ namespace CDC8600
 	    cout << "   cycle | "
 		 << "                      IF | "
 		 << "               IC[0] | "
+		 << "               IC[1] | "
 		 << "                                              RM | "
 		 << "                   FX[0] | "
 		 << "                   CQ[0]"
@@ -1055,6 +1055,7 @@ namespace CDC8600
 
 	    cout << "---------+-"
 		 << "-------------------------+-"
+		 << "---------------------+-"
 		 << "---------------------+-"
 		 << "-------------------------------------------------+-"
 		 << "-------------------------+-"
@@ -1068,6 +1069,7 @@ namespace CDC8600
 		cout << setw(8) << cycle << " | ";
 		dump(IF.out)   ; cout << " | ";
 		dump(IC[0].out); cout << " | ";
+		dump(IC[1].out); cout << " | ";
 		dump(RM.out)   ; cout << " | ";
 		dump(FX[0].out); cout << " | ";
 		dump(CQ[0].out);

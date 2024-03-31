@@ -59,4 +59,12 @@ class jmpp : public FjK
 	    _j = (code >> 20) & 0xf;      // extract j
 	    _K = code & 0xfffff;          // extract K
         }
+
+	vector<operations::operation*> crack()
+	{
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::cmpz(params::micro::CMPFLAGS, _j, 0, 0));
+	    ops.push_back(new operations::jmpp(_K, params::micro::CMPFLAGS));
+	    return ops;
+	}
 };
