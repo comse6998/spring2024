@@ -467,6 +467,21 @@ namespace CDC8600
 		u64 encode() const { return ((u64)0x36 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 	};
 
+	template<>
+	class mapper<jmpp>	: public basemapper
+	{
+	    public:
+		void map
+		(
+		    u32& i,	// target register
+		    u32& j,	// source register
+		    u32& k	// source register
+		)
+		{
+		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		}
+	};
+
 	class jmpn : public BRop
 	{
 	    public:

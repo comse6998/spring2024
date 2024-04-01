@@ -579,6 +579,8 @@ namespace CDC8600
 	    mappers[0x10] = new mapper<xKi>;
 	    mappers[0x12] = new mapper<isjkj>;
 	    mappers[0x17] = new mapper<idzkj>;
+	    mappers[0x36] = new mapper<jmpp>;
+	    mappers[0xb1] = new mapper<cmpz>;
 	}
     } // namespace operations
 
@@ -887,14 +889,19 @@ namespace CDC8600
 	void RMstage::tick() 	
 	{
 	   for (u32 i=0; i<192; i++) out[i] = false;
+	   if (rxdone)
+	   {
+	       bitvector op(80);
+	       for (u32 i=0; i < 80; i++) op[i] = in[ 0 + i];
+	       opsq[0].push_back(op);
+	       for (u32 i=0; i < 80; i++) op[i] = in[80 + i];
+	       opsq[1].push_back(op);
+	   }
+
 	   if (txdone && rxdone)
 	   {
-	       copy(16, in, 64, out, 80);	// pass through the fetch group from IC[0]
-	       copy(16, in,144, out,176);	// pass through the fetch group from IC[1]
-	       copy(20, in,  0, out,  0);	// pass through K field from IC[0]
-	       copy(20, in, 80, out, 96);	// pass through K field from IC[1]
-	       copy( 8, in, 56, out, 56);	// pass through F field from IC[0]
-	       copy( 8, in,136, out,152);	// pass through F field from IC[1]
+	       assert(opsq[0].size());
+	       assert(opsq[1].size());
 
 	       u32 fg[2];
 	       u32 F[2];
@@ -902,32 +909,59 @@ namespace CDC8600
 	       u32 jreg[2];
 	       u32 kreg[2];
 
-	       copy(16, in, 64, fg[0]);
-	       copy(16, in,144, fg[1]);
-	       copy( 8, in, 56, F[0]);
-	       copy( 8, in,136, F[1]);
-	       copy(12, in, 44, ireg[0]);
-	       copy(12, in,124, ireg[1]);
-	       copy(12, in, 32, jreg[0]);
-	       copy(12, in,112, jreg[1]);
-	       copy(12, in, 20, kreg[0]);
-	       copy(12, in,100, kreg[1]);
+	       copy(16, opsq[0][0], 64, fg[0]);
+	       copy(16, opsq[1][0], 64, fg[1]);
 
-	       operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0]);	// architected -> physical register mapping
-	       copy(12, ireg[0], out, 44);	// pass physical i register from IC[0]
-	       copy(12, jreg[0], out, 32);	// pass physical j register from IC[0]
-	       copy(12, kreg[0], out, 20);	// pass physical k register from IC[0]
+	       if (fg[1] < fg[0])
+	       {
+		   // operations from IC[1] are behind those in IC[0], process operations from IC[1]
 
-	       copy(16, opcount, out, 64);	// pass operation count from IC[0]
-	       opcount++;
+		   copy(16, opsq[1][0], 64, out,176);	// pass through the fetch group from IC[1]
+		   copy(20, opsq[1][0],  0, out, 96);	// pass through K field from IC[1]
+		   copy( 8, opsq[1][0], 56, out,152);	// pass through F field from IC[1]
 
-	       copy(12, ireg[1], out,140);	// pass physical i register from IC[1] 
-	       copy(12, jreg[1], out,128);	// pass physical j register from IC[1] 
-	       copy(12, kreg[1], out,116);	// pass physical k register from IC[1] 
+		   copy( 8, opsq[1][0], 56, F[1]);	// extract F field from IC[1]
+		   copy(12, opsq[1][0], 44, ireg[1]);	// extract i field from IC[1]
+		   copy(12, opsq[1][0], 32, jreg[1]);	// extract j field from IC[1]
+		   copy(12, opsq[1][0], 20, kreg[1]);	// extract k field from IC[1]
 
-	       copy(16, opcount, out,160);	// pass operation count from IC[1]
-	       opcount++;
+		   operations::mappers[F[1]]->map(ireg[1], jreg[1], kreg[1]);	// architected -> physical register mapping
+
+		   copy(12, ireg[1], out,140);		// pass physical i register from IC[1]
+		   copy(12, jreg[1], out,128);		// pass physical j register from IC[1]
+		   copy(12, kreg[1], out,116);		// pass physical k register from IC[1]
+
+		   copy(16, opcount, out,160);		// pass operation count from IC[1]
+		   opcount++;
+
+		   opsq[1].erase(opsq[1].begin());	// pop this operation from the queue
+	       }
+	       else
+	       {
+		   // operations from IC[0] are behind those in IC[1], process operations from IC[0]
+
+		   copy(16, opsq[0][0], 64, out, 80);	// pass through the fetch group from IC[0]
+		   copy(20, opsq[0][0],  0, out,  0);	// pass through K field from IC[0]
+		   copy( 8, opsq[0][0], 56, out, 56);	// pass through F field from IC[0]
+
+		   copy( 8, opsq[0][0], 56, F[0]);	// extract F field from IC[0]
+		   copy(12, opsq[0][0], 44, ireg[0]); 	// extract i field from IC[0]
+		   copy(12, opsq[0][0], 32, jreg[0]);	// extract j field from IC[0]
+		   copy(12, opsq[0][0], 20, kreg[0]);	// extract k field from IC[0]
+
+		   operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0]);	// architected -> physical register mapping
+
+		   copy(12, ireg[0], out, 44);		// pass physical i register from IC[0]
+		   copy(12, jreg[0], out, 32);		// pass physical j register from IC[0]
+		   copy(12, kreg[0], out, 20);		// pass physical k register from IC[0]
+
+		   copy(16, opcount, out, 64);		// pass operation count from IC[0]
+		   opcount++;
+
+		   opsq[0].erase(opsq[0].begin());	// pop this operation from the queue
+	       }
 	   }
+
 	   rxdone = false; rxready = true;
 	   txready = true; txdone = false;
 	}

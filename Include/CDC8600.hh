@@ -619,8 +619,6 @@ namespace CDC8600
 	{
 	    public:
 		vector<bitvector>	opsq;
-
-	    public:
 		void tick();
 	};
 
@@ -629,9 +627,10 @@ namespace CDC8600
 	class RMstage : public stage<160,192>
 	{
 	    public:
+		vector<bitvector>	opsq[2];
 		u32  opcount;
 		void tick();
-		void init() { opcount = 0; }
+		void init() { opcount = 0; opsq[0].clear(); opsq[1].clear(); }
 	};
 
 	extern RMstage RM;
