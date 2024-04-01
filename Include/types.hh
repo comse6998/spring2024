@@ -167,9 +167,11 @@ namespace CDC8600
             vector<u64>                 REGready;               // ready cycle for microarchitected registers
             vector<u64>                 Pready;                 // ready cycle for physical register
             vector<u64>                 Pused;                  // last used cycle for physical register
+	    vector<u64>			Plastop;		// last operation before physical register can be recycled
             u32                         pnext;                  // next physical register to use
             u32                         pfind();                // find a physical register to use
             set<u32>                    pfree;                  // set of free physical registers
+	    set<u32>			precycle;		// set of physical registers that can be recycled
             map<u32,u32>                mapper;                 // logical -> physical register mapping
             map<u32,u32>                niap;                   // next instruction address predictor
             u64                         op_count;               // operation count

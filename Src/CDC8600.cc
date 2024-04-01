@@ -245,6 +245,8 @@ namespace CDC8600
 	mapper.clear(); for (u32 i=0; i<params::micro::nregs; i++) mapper[i] = i;				// Star tiwth identity mapping
 	pnext = 0;												// Start with physical register 0
 	pfree.clear(); for (u32 i=params::micro::nregs; i < params::micro::pregs; i++) pfree.insert(i);		// Initial set of free physical registers
+	precycle.clear();											// Set of recyclable registers starts empty
+	Plastop.resize(params::micro::pregs); for (u32 i=0; i<params::micro::pregs; i++) Plastop[i] = 0;	// Start with all physical registers with last operation = 0
 	assert(params::micro::pregs > params::micro::nregs);							// Make sure there are more physical regisers than architected registers
 	niap.clear();												// Clear next instruction address predictor
     }
@@ -909,10 +911,15 @@ namespace CDC8600
 	       u32 jreg[2];
 	       u32 kreg[2];
 
-	       copy(16, opsq[0][0], 64, fg[0]);
-	       copy(16, opsq[1][0], 64, fg[1]);
+	       copy(16, opsq[0][0], 64, fg[0]);		// extract fg field from IC[0]
+	       copy(16, opsq[1][0], 64, fg[1]);		// extract fg field from IC[1]
+	       copy( 8, opsq[0][0], 56, F[0]);		// extract F field from IC[0]
+	       copy( 8, opsq[1][0], 56, F[1]);		// extract F field from IC[1]
 
-	       if (fg[1] < fg[0])
+	       if (!F[0]) opsq[0].erase(opsq[0].begin());	// skip if function code from IC[0] == 0
+	       if (!F[1]) opsq[1].erase(opsq[1].begin());	// skip if function code from IC[1] == 0
+
+	       if (F[1] && (fg[1] < fg[0]))
 	       {
 		   // operations from IC[1] are behind those in IC[0], process operations from IC[1]
 
@@ -920,12 +927,11 @@ namespace CDC8600
 		   copy(20, opsq[1][0],  0, out, 96);	// pass through K field from IC[1]
 		   copy( 8, opsq[1][0], 56, out,152);	// pass through F field from IC[1]
 
-		   copy( 8, opsq[1][0], 56, F[1]);	// extract F field from IC[1]
 		   copy(12, opsq[1][0], 44, ireg[1]);	// extract i field from IC[1]
 		   copy(12, opsq[1][0], 32, jreg[1]);	// extract j field from IC[1]
 		   copy(12, opsq[1][0], 20, kreg[1]);	// extract k field from IC[1]
 
-		   operations::mappers[F[1]]->map(ireg[1], jreg[1], kreg[1]);	// architected -> physical register mapping
+		   operations::mappers[F[1]]->map(ireg[1], jreg[1], kreg[1], opcount);	// architected -> physical register mapping
 
 		   copy(12, ireg[1], out,140);		// pass physical i register from IC[1]
 		   copy(12, jreg[1], out,128);		// pass physical j register from IC[1]
@@ -936,7 +942,7 @@ namespace CDC8600
 
 		   opsq[1].erase(opsq[1].begin());	// pop this operation from the queue
 	       }
-	       else
+	       else if (F[0])
 	       {
 		   // operations from IC[0] are behind those in IC[1], process operations from IC[0]
 
@@ -944,12 +950,11 @@ namespace CDC8600
 		   copy(20, opsq[0][0],  0, out,  0);	// pass through K field from IC[0]
 		   copy( 8, opsq[0][0], 56, out, 56);	// pass through F field from IC[0]
 
-		   copy( 8, opsq[0][0], 56, F[0]);	// extract F field from IC[0]
 		   copy(12, opsq[0][0], 44, ireg[0]); 	// extract i field from IC[0]
 		   copy(12, opsq[0][0], 32, jreg[0]);	// extract j field from IC[0]
 		   copy(12, opsq[0][0], 20, kreg[0]);	// extract k field from IC[0]
 
-		   operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0]);	// architected -> physical register mapping
+		   operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0], opcount);	// architected -> physical register mapping
 
 		   copy(12, ireg[0], out, 44);		// pass physical i register from IC[0]
 		   copy(12, jreg[0], out, 32);		// pass physical j register from IC[0]
@@ -970,6 +975,31 @@ namespace CDC8600
 	{
 	    if (rxdone)
 	    {
+
+		u32 op[2];
+		u32 F[2];
+
+		copy( 8, in, 56, F[0]);
+		copy(16, in, 64, op[0]);
+
+		copy( 8, in,152, F[1]);
+		copy(16, in,160, op[1]);
+
+		for (u32 j = 0; j < 2; j++)
+		{
+		    if (F[j])
+		    {
+			for (u32 i : PROC[me()].precycle)		// for all recyclable physical registers
+			    if (PROC[me()].Plastop[i] == op[0])		// is this the last op for that registers?
+			    {
+				// cout << "recycling physical register " << i << endl;
+				PROC[me()].pfree.insert(i);		// return register to free list
+				PROC[me()].precycle.erase(i);		// register has been recycled
+				break;
+			    }
+		    }
+		}
+
 		rxready = true;
 		rxdone = false;
 		txready = false;

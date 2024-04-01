@@ -103,7 +103,8 @@ namespace CDC8600
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register 
-		    u32& k	// source register
+		    u32& k,	// source register
+		    u32  op	// operation #
 		)
 		{
 		    j = 0;
@@ -122,14 +123,16 @@ namespace CDC8600
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register 
-		    u32& k	// source register
+		    u32& k,	// source register
+		    u32  op	// operation #
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
 		    k = PROC[me()].mapper[k];				// physical register for X(k)
 		    u08 tgtreg = PROC[me()].pfind();			// find next target physical register
 		    PROC[me()].pfree.erase(tgtreg);			// target physical register comes out of the free set
-		    PROC[me()].pfree.insert(PROC[me()].mapper[i]);	// old physical register goes back to the free set
+		    PROC[me()].precycle.insert(PROC[me()].mapper[i]);	// old physical register goes back to the recyclable set
+		    PROC[me()].Plastop[PROC[me()].mapper[i]] = op;	// old physical register will be recycled with this operation finishes
 		    PROC[me()].mapper[i] = tgtreg;			// new mapping of target logical register to target physical register
 		    i = PROC[me()].mapper[i];				// physical register for X(i)
 		}
@@ -475,7 +478,8 @@ namespace CDC8600
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register
-		    u32& k	// source register
+		    u32& k,	// source register
+		    u32  op	// operation #
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
