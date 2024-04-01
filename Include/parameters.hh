@@ -11,7 +11,6 @@ namespace CDC8600
     {
 	namespace micro
 	{
-
 	    enum
 	    {
 		Xs	  = 16,

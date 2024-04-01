@@ -186,6 +186,22 @@ namespace CDC8600
             u32                         runningaddr;            // Running instruction address during labeling
             void                        reset(u32);             // Reset a particular processor number
     };
+
+    namespace pipes
+    {
+	typedef enum
+	{
+	    BR,
+	    ST,
+	    LD,
+	    FXArith,
+	    FXMul,
+	    FXLogic,
+	    FPAdd,
+	    FPMul,
+	    FPDiv
+	} pipe_t;
+    } // namespace pipes
 } // namespace CDC8600
 
 #endif // _TYPES_HH

@@ -34,6 +34,7 @@ namespace CDC8600
 		 virtual string dasm() const = 0;				// operation disassembly with physical registers
 		 virtual vector<units::unit>& units() = 0;			// the units that can execute this operation
 		 virtual    u64 encode() const { return 0; }			// 64-bit encoding of the operation
+		 virtual pipes::pipe_t pipe() const { return pipes::FXArith; }	// execution pipe for this operation
 
 		 virtual   void dump(ostream &out)			// operation trace
 		 {
@@ -111,6 +112,13 @@ namespace CDC8600
 		    k = 0;
 		    i = 0;
 		}
+
+		virtual pipes::pipe_t pipe
+		(
+		)
+		{
+		    return pipes::FXArith;
+		}
 	};
 
 	template<typename T>		// For fixed- and floating-point operations;
@@ -118,6 +126,8 @@ namespace CDC8600
 					// but need to be specialized
 	class mapper	: public basemapper
 	{
+	    private:
+		T	_op;
 	    public:
 		void map
 		(
@@ -135,6 +145,11 @@ namespace CDC8600
 		    PROC[me()].Plastop[PROC[me()].mapper[i]] = op;	// old physical register will be recycled with this operation finishes
 		    PROC[me()].mapper[i] = tgtreg;			// new mapping of target logical register to target physical register
 		    i = PROC[me()].mapper[i];				// physical register for X(i)
+		}
+
+		pipes::pipe_t pipe()
+		{
+		    return _op.pipe();
 		}
 	};
 
@@ -243,6 +258,7 @@ namespace CDC8600
 	{
 	    public:
 		xKi(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		xKi() : FXop(0, 0, 0, 0) { }
 		u64 ready() const { return 0; }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }	// update ready cycle of target physical register
 		void used(u64 cycle) { }
@@ -257,6 +273,7 @@ namespace CDC8600
 	{
 	    public:
 		idzkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		idzkj() : FXop(0, 0, 0, 0) { }
 		u64 ready() const { return PROC[me()].Pready[_k]; }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }	// update ready cycle of target physical register
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); }
@@ -297,6 +314,7 @@ namespace CDC8600
 	{
 	    public:
 		isjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		isjkj() : FXop(0, 0, 0, 0) { }
 		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]  ); }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -367,6 +385,7 @@ namespace CDC8600
 	{
 	    public:
 		ipjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		ipjkj() : FXop(0, 0, 0, 0) { }
 		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -374,12 +393,14 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "ipjkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x0d << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 	};
 
 	class cmpz : public FXop
 	{
 	    public:
 		cmpz(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		cmpz() : FXop(0, 0, 0, 0) { }
 		u64 ready() const { return PROC[me()].Pready[_j]; }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }	// update ready cycle of target physical register
 		void used(u64 cycle) { PROC[me()].Pused[_j] = cycle; }		// update used cycle of source physical register
@@ -460,6 +481,7 @@ namespace CDC8600
 	    public:
 		jmpp(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
 		jmpp(u32 K, u08 j) : BRop(K, j, 0, 0, "") { }
+		jmpp() : BRop(0, 0, 0, 0, "") { }
 		u64 ready() const { return PROC[me()].Pready[_j]; }
 		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -473,6 +495,8 @@ namespace CDC8600
 	template<>
 	class mapper<jmpp>	: public basemapper
 	{
+	    private:
+		jmpp	_op;
 	    public:
 		void map
 		(
@@ -483,6 +507,11 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		}
+
+		pipes::pipe_t pipe()
+		{
+		    return _op.pipe();
 		}
 	};
 
