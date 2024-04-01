@@ -631,6 +631,7 @@ namespace CDC8600
 		u32  opcount;
 		void tick();
 		void init() { opcount = 0; opsq[0].clear(); opsq[1].clear(); }
+		void dumpout();
 	};
 
 	extern RMstage RM;

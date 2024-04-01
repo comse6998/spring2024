@@ -583,6 +583,7 @@ namespace CDC8600
 	    mappers[0x17] = new mapper<idzkj>;
 	    mappers[0x36] = new mapper<jmpp>;
 	    mappers[0xb1] = new mapper<cmpz>;
+	    mappers[0x0d] = new mapper<ipjkj>;
 	}
     } // namespace operations
 
@@ -990,7 +991,7 @@ namespace CDC8600
 		    if (F[j])
 		    {
 			for (u32 i : PROC[me()].precycle)		// for all recyclable physical registers
-			    if (PROC[me()].Plastop[i] == op[0])		// is this the last op for that registers?
+			    if (PROC[me()].Plastop[i] == op[j])		// is this the last op for that registers?
 			    {
 				// cout << "recycling physical register " << i << endl;
 				PROC[me()].pfree.insert(i);		// return register to free list
@@ -1099,6 +1100,49 @@ namespace CDC8600
 	    }
 	}
 
+	void dump
+	(
+	    const bitvector& v,
+	    u32   first,
+	    u32   len
+	)
+	{
+	    bitvector u(len);
+	    copy(len, v, first, u, 0);
+	    dump(u);
+	}
+
+	void RMstage::dumpout()
+	{
+	    dump(out,176,16);
+	    cout << ".";
+	    dump(out,160,16);
+	    cout << ".";
+	    dump(out,152, 8);
+	    cout << ".";
+	    dump(out,140,12);
+	    cout << ".";
+	    dump(out,128,12);
+	    cout << ".";
+	    dump(out,116,12);
+	    cout << ".";
+	    dump(out, 96,20);
+	    cout << ".";
+	    dump(out, 80,16);
+	    cout << ".";
+	    dump(out, 64,16);
+	    cout << ".";
+	    dump(out, 56, 8);
+	    cout << ".";
+	    dump(out, 44,12);
+	    cout << ".";
+	    dump(out, 32,12);
+	    cout << ".";
+	    dump(out, 20,12);
+	    cout << ".";
+	    dump(out,  0,20);
+	}
+
 	void run
 	(
 	    const char* filename
@@ -1112,7 +1156,7 @@ namespace CDC8600
 		 << "                      IF | "
 		 << "               IC[0] | "
 		 << "               IC[1] | "
-		 << "                                              RM | "
+		 << "                                                                   RM | "
 		 << "                   FX[0] | "
 		 << "                   CQ[0] | "
 		 << "                   FX[1] | "
@@ -1123,7 +1167,7 @@ namespace CDC8600
 		 << "-------------------------+-"
 		 << "---------------------+-"
 		 << "---------------------+-"
-		 << "-------------------------------------------------+-"
+		 << "----------------------------------------------------------------------+-"
 		 << "-------------------------+-"
 		 << "-------------------------+-"
 		 << "-------------------------+-"
@@ -1138,7 +1182,7 @@ namespace CDC8600
 		dump(IF.out)   ; cout << " | ";
 		dump(IC[0].out); cout << " | ";
 		dump(IC[1].out); cout << " | ";
-		dump(RM.out)   ; cout << " | ";
+		RM.dumpout();    cout << " | ";
 		dump(FX[0].out); cout << " | ";
 		dump(CQ[0].out); cout << " | ";
 		dump(FX[1].out); cout << " | ";
