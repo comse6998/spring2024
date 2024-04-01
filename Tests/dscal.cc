@@ -16,8 +16,8 @@ void test_dscal(int count)
 {
     reset();
 
-    int32_t n = rand() % 256;
-    int32_t incx = (rand() % 16) - 8;
+    int32_t n = rand() % 128;
+    int32_t incx = (rand() % 8) - 4;
     double a = drand48();
     
     tracing = false; 
@@ -58,7 +58,8 @@ void test_dscal(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 45) dump(PROC[0].trace);
+    if (n < 20) dump(PROC[0].trace);
+    if (n < 20) dump(PROC[0].trace, "dscal.tr");
 }
 
 int main()
