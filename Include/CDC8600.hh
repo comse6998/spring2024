@@ -667,6 +667,31 @@ namespace CDC8600
 
 	class FXstage : public stage<96,96>
 	{
+	    private:
+		class RFstage : public stage<96,96>
+		{
+		};
+
+		class L0stage : public stage<96,96>
+		{
+		};
+
+		class L1stage : public stage<96,96>
+		{
+		};
+
+		class WBstage : public stage<96,96>
+		{
+		};
+
+	    public:
+		RFstage RF;
+		L0stage L0;
+		L1stage L1;
+		WBstage WB;
+
+		void tick();
+		void reset();
 	};
 
 	extern FXstage FX[2];

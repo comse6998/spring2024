@@ -972,6 +972,41 @@ namespace CDC8600
 	   txready = true; txdone = false;
 	}
 
+	void FXstage::tick()
+	{
+	    u32 m = in.size();
+	    u32 n = out.size();
+
+	   if (txdone && rxdone)
+	   {
+	       for (u32 i=0; i<n; i++) out[i] = false;
+	       for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
+
+	       RF.tick();
+	       L0.tick();
+	       L1.tick();
+	       WB.tick();
+
+	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
+	       transfer(96, L1, 0, WB, 0);
+	       transfer(96, L0, 0, L1, 0);
+	       transfer(96, RF, 0, L0, 0);
+	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+	       rxdone = false; rxready = true;
+	       txready = true; txdone = false;
+	   }
+	}
+
+	void FXstage::reset()
+	{
+	    rxready = true; rxdone = true; txready = true; txdone = true;
+	    RF.reset();
+	    L0.reset();
+	    L1.reset();
+	    WB.reset();
+	}
+
 	void COstage::tick()
 	{
 	    if (rxdone)
