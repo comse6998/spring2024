@@ -903,9 +903,10 @@ namespace CDC8600
 	   {
 	       bitvector op(80);
 	       for (u32 i=0; i < 80; i++) op[i] = in[ 0 + i];
-	       opsq[0].push_back(op);
+	       u32 F[2];
+	       copy( 8, op, 56, F[0]); if (F[0] || (0 == opsq[0].size())) opsq[0].push_back(op);
 	       for (u32 i=0; i < 80; i++) op[i] = in[80 + i];
-	       opsq[1].push_back(op);
+	       copy( 8, op, 56, F[1]); if (F[1] || (0 == opsq[1].size())) opsq[1].push_back(op);
 	   }
 
 	   if (txdone && rxdone)
@@ -927,7 +928,7 @@ namespace CDC8600
 	       if (!F[0]) opsq[0].erase(opsq[0].begin());	// skip if function code from IC[0] == 0
 	       if (!F[1]) opsq[1].erase(opsq[1].begin());	// skip if function code from IC[1] == 0
 
-	       if (F[1] && (fg[1] < fg[0]))
+	       if (F[1] && ((fg[1] < fg[0]) || (0 == F[0])))
 	       {
 		   // operations from IC[1] are behind those in IC[0], process operations from IC[1]
 
@@ -1128,7 +1129,6 @@ namespace CDC8600
 
 	bool RMstage::busy()
 	{
-	    return false;
 	    return (opsq[0].size() + opsq[1].size());
 	}
 
