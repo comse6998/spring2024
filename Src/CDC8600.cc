@@ -973,6 +973,27 @@ namespace CDC8600
 	   txready = true; txdone = false;
 	}
 
+	void IQstage::tick()
+	{
+	    if (rxdone)
+	    {
+		opsq.push_back(in);
+	        rxdone = false; rxready = true;
+	    }
+
+	    if (opsq.size() && txdone)
+	    {
+		copy(96, opsq[0], 0, out, 0);
+		opsq.erase(opsq.begin());
+		txready = true; txdone = false;
+	    }
+	    else
+	    {
+		for (u32 i=0; i < out.size(); i++) out[i] = false;
+		txready = true; txdone = false;
+	    }
+	}
+
 	void FXstage::tick()
 	{
 	   if (txdone && rxdone)
@@ -1344,7 +1365,9 @@ namespace CDC8600
 	)
 	{
 	    IF.init(filename);
+	    IC[0].init(); IC[1].init();
 	    RM.init();
+	    IQ[0].init(); IQ[1].init();
 	    OI[0].init(0); OI[1].init(1);
 
 	    cout << "   cycle | "

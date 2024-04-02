@@ -622,6 +622,7 @@ namespace CDC8600
 		vector<bitvector>	opsq;
 		void tick();
 		void dumpout();
+		void init() { opsq.clear(); }
 	};
 
 	extern ICstage IC[2];
@@ -646,6 +647,11 @@ namespace CDC8600
 
 	class IQstage : public stage<96,96>
 	{
+	    public:
+		vector<bitvector>	opsq;
+		void init() { opsq.clear(); }
+		void tick();
+		void dumpout();
 	};
 	
 	extern IQstage IQ[2];
