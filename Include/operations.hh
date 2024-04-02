@@ -120,6 +120,13 @@ namespace CDC8600
 		{
 		    return pipes::FXArith;
 		}
+
+		virtual pipes::dep_t dep
+		(
+		)
+		{
+		    return pipes::no_dep;
+		}
 	};
 
 	template<typename T>		// For fixed- and floating-point operations;
@@ -153,6 +160,11 @@ namespace CDC8600
 		pipes::pipe_t pipe()
 		{
 		    return _op.pipe();
+		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
 		}
 	};
 
@@ -285,6 +297,7 @@ namespace CDC8600
 		string mnemonic() const { return "idzkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_k) + ")"; }
 		u64 encode() const { return ((u64)0x17 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::k_dep; }
 	};
 
 	class idjkj : public FXop
@@ -326,6 +339,7 @@ namespace CDC8600
 		string mnemonic() const { return "isjkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 		u64 encode() const { return ((u64)0x12 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
 	};
 
 	class isjki : public FXop
@@ -398,6 +412,7 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 		u64 encode() const { return ((u64)0x0d << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::pipe_t pipe() { return pipes::FXMul; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
 	};
 
 	class cmpz : public FXop
@@ -413,6 +428,8 @@ namespace CDC8600
 		string mnemonic() const { return "cmpz"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ")"; }
 		u64 encode() const { return ((u64)0xb1 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
+		pipes::dep_t dep() { return pipes::j_dep; }
 	};
 
 	class cmp : public FXop
@@ -494,6 +511,7 @@ namespace CDC8600
 		string mnemonic() const { return "jmpp"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
 		u64 encode() const { return ((u64)0x36 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::j_dep; }
 	};
 
 	template<>

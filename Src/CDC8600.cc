@@ -849,7 +849,7 @@ namespace CDC8600
 
 	void IFstage::tick()
 	{
-	    if (txdone)
+	    if (txdone && (fetchcount < fetchgroups.size()))
 	    {
 		copy(32, fetchgroups[fetchcount] >> 32, out, 0);
 		copy(16, fetchcount, out, 32);
@@ -858,6 +858,12 @@ namespace CDC8600
 		txdone = false;
 		txready = true;
 		fetchcount++;
+	    }
+	    else
+	    {
+		for (u32 i = 0; i < out.size(); i++) out[i] = false;
+		txdone = false;
+		txready = false;
 	    }
 	}
 
@@ -973,23 +979,52 @@ namespace CDC8600
 	   txready = true; txdone = false;
 	}
 
+	bool inputsready
+	(
+	    const bitvector& v
+	)
+	{
+	    u32 F = pipes::F(v);
+	    u32 jreg = pipes::jreg(v);
+	    u32 kreg = pipes::kreg(v);
+
+	    switch(operations::mappers[F]->dep())
+	    {
+		case CDC8600::pipes::k_dep  : return (PROC[me()].Pfull[kreg]);				// depends on k register
+		case CDC8600::pipes::j_dep  : return (PROC[me()].Pfull[jreg]);				// depends on j register
+		case CDC8600::pipes::jk_dep : return (PROC[me()].Pfull[jreg] & PROC[me()].Pfull[kreg]);	// depends on j and k registers
+		case CDC8600::pipes::no_dep : return true;						// no dependences
+		default 		    : assert(false);						// should not happen
+	    }
+
+	    return false;
+	}
+
 	void IQstage::tick()
 	{
 	    if (rxdone)
 	    {
-		opsq.push_back(in);
-	        rxdone = false; rxready = true;
+		if (pipes::F(in)) opsq.push_back(in);			// push input into issue queue
+	        rxdone = false; rxready = true;				// ready to receive more
 	    }
 
-	    if (opsq.size() && txdone)
+	    if (opsq.size() && txdone)					// there is at lease one operation in the issue queue
 	    {
-		copy(96, opsq[0], 0, out, 0);
-		opsq.erase(opsq.begin());
+		for (u32 i = 0; i < out.size(); i++) out[i] = false;	// default is to send zeros
+		for (u32 i = 0; i < opsq.size(); i++)			// traverse issue queue from older to newer
+		{
+		    if (inputsready(opsq[i]))				// are all inputs for operation i ready?
+		    {
+			copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+			opsq.erase(opsq.begin() + i);			// dequeue operation i
+			// cout << "Selecting operation " << pipes::op(out) << " from position " << i << " in issue queue" << endl;
+		    }
+		}
 		txready = true; txdone = false;
 	    }
 	    else
 	    {
-		for (u32 i=0; i < out.size(); i++) out[i] = false;
+		for (u32 i = 0; i < out.size(); i++) out[i] = false;
 		txready = true; txdone = false;
 	    }
 	}
@@ -1013,93 +1048,6 @@ namespace CDC8600
 	       txready = true; txdone = false;
 	   }
 	}
-
-	namespace pipes
-	{
-	    u32 fg
-	    /*
-	     * Extract the fg field from a 96-bit operation bit vector
-	     */
-	    (
-	        const bitvector& v
-	    )
-	    {
-		assert(96 == v.size());
-		u32 x;
-		copy(16, v, 80, x);
-		return x;
-	    }
-
-	    u32 op
-	    /*
-	     * Extract the op # field from a 96-bit operation bit vector
-	     */
-	    (
-	        const bitvector& v
-	    )
-	    {
-		assert(96 == v.size());
-		u32 x;
-		copy(16, v, 64, x);
-		return x;
-	    }
-
-	    u32 F
-	    /*
-	     * Extract the F field from a 96-bit operation bit vector
-	     */
-	    (
-	        const bitvector& v
-	    )
-	    {
-		assert(96 == v.size());
-		u32 x;
-		copy( 8, v, 56, x);
-		return x;
-	    }
-
-	    u32 ireg
-	    /*
-	     * Extract the i (target) register field from a 96-bit operation bit vector
-	     */
-	    (
-	        const bitvector& v
-	    )
-	    {
-		assert(96 == v.size());
-		u32 x;
-		copy(12, v, 44, x);
-		return x;
-	    }
-
-	    u32 jreg
-	    /*
-	     * Extract the j (source) register field from a 96-bit operation bit vector
-	     */
-	    (
-	        const bitvector& v
-	    )
-	    {
-		assert(96 == v.size());
-		u32 x;
-		copy(12, v, 32, x);
-		return x;
-	    }
-
-	    u32 kreg
-	    /*
-	     * Extract the k (source) register field from a 96-bit operation bit vector
-	     */
-	    (
-	        const bitvector& v
-	    )
-	    {
-		assert(96 == v.size());
-		u32 x;
-		copy(12, v, 20, x);
-		return x;
-	    }
-	} // namespace pipes
 
 	void FXstage::WBstage::tick()
 	{
@@ -1171,6 +1119,22 @@ namespace CDC8600
 	bool IFstage::busy()
 	{
 	    return (fetchcount < fetchgroups.size());
+	}
+
+	bool ICstage::busy()
+	{
+	    return opsq.size();
+	}
+
+	bool RMstage::busy()
+	{
+	    return false;
+	    return (opsq[0].size() + opsq[1].size());
+	}
+
+	bool IQstage::busy()
+	{
+	    return opsq.size();
 	}
 
 	bool busy()
@@ -1419,5 +1383,92 @@ namespace CDC8600
 		cout << endl;
 	    }
 	}
+
+	namespace pipes
+	{
+	    u32 fg
+	    /*
+	     * Extract the fg field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(16, v, 80, x);
+		return x;
+	    }
+
+	    u32 op
+	    /*
+	     * Extract the op # field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(16, v, 64, x);
+		return x;
+	    }
+
+	    u32 F
+	    /*
+	     * Extract the F field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy( 8, v, 56, x);
+		return x;
+	    }
+
+	    u32 ireg
+	    /*
+	     * Extract the i (target) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 44, x);
+		return x;
+	    }
+
+	    u32 jreg
+	    /*
+	     * Extract the j (source) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 32, x);
+		return x;
+	    }
+
+	    u32 kreg
+	    /*
+	     * Extract the k (source) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 20, x);
+		return x;
+	    }
+	} // namespace pipes
     } // namespace pipeline
 } // namespace 8600

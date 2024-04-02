@@ -623,6 +623,7 @@ namespace CDC8600
 		void tick();
 		void dumpout();
 		void init() { opsq.clear(); }
+		bool busy();
 	};
 
 	extern ICstage IC[2];
@@ -635,6 +636,7 @@ namespace CDC8600
 		void tick();
 		void init() { opcount = 0; opsq[0].clear(); opsq[1].clear(); }
 		void dumpout();
+		bool busy();
 	};
 
 	extern RMstage RM;
@@ -651,6 +653,7 @@ namespace CDC8600
 		vector<bitvector>	opsq;
 		void init() { opsq.clear(); }
 		void tick();
+		bool busy();
 		void dumpout();
 	};
 	
@@ -747,8 +750,17 @@ namespace CDC8600
 	bool busy();
 	void transfer();
 	void run(const char* filename);
-    } // namespace pipeline
 
+	namespace pipes
+	{
+	    u32 fg  ( const pipeline::bitvector& v);
+	    u32 op  ( const pipeline::bitvector& v);
+	    u32 F   ( const pipeline::bitvector& v);
+	    u32 ireg( const pipeline::bitvector& v);
+	    u32 jreg( const pipeline::bitvector& v);
+	    u32 kreg( const pipeline::bitvector& v);
+	} // namespace pipes
+    } // namespace pipeline
 } // namespace CDC8600
 
 #endif // _CDC8600_HH_
