@@ -60,7 +60,17 @@ void test_dtrmv_utn(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(PROC[0].trace);
+    if (n < 10) 
+    {
+        dump(PROC[0].trace);
+        dump(PROC[1].trace);
+        dump(PROC[2].trace);
+        dump(PROC[3].trace);
+        dump(PROC[0].trace, "dtrmv_utn.tr.0");
+        dump(PROC[1].trace, "dtrmv_utn.tr.1");
+        dump(PROC[2].trace, "dtrmv_utn.tr.2");
+        dump(PROC[3].trace, "dtrmv_utn.tr.3");
+    }
 }
 
 int main()
