@@ -691,6 +691,53 @@ namespace CDC8600
 		{
 		};
 
+        class A0stage : public stage<96,96>
+		{
+		};
+        class A1stage : public stage<96,96>
+		{
+		};
+
+		class A2stage : public stage<96,96>
+		{
+		};
+
+        class A3stage : public stage<96,96>
+		{
+		};
+
+        class M0stage : public stage<96,96>
+		{
+		};
+
+        class M1stage : public stage<96,96>
+		{
+		};
+
+        class M2stage : public stage<96,96>
+		{
+		};
+
+        class M3stage : public stage<96,96>
+		{
+		};
+
+        class M4stage : public stage<96,96>
+		{
+		};
+
+        class M5stage : public stage<96,96>
+		{
+		};
+
+        class M6stage : public stage<96,96>
+		{
+		};
+
+        class M7stage : public stage<96,96>
+		{
+		};
+
 		class WBstage : public stage<96,96>
 		{
 		    public:

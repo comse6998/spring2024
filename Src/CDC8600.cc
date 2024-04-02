@@ -1036,12 +1036,34 @@ namespace CDC8600
 	       RF.tick();
 	       L0.tick();
 	       L1.tick();
+		   A0.tick();
+		   A1.tick();
+		   A2.tick();
+		   A3.tick();
+		   M0.tick();
+		   M1.tick();
+		   M2.tick();
+		   M3.tick();
+		   M4.tick();
+		   M5.tick();
+		   M6.tick();
+		   M7.tick();
 	       WB.tick();
 
 	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
-	       transfer(96, L1, 0, WB, 0);
+
+	       transfer(96, A3, 0, WB, 0);
+		   transfer(96, A2, 0, A3, 0);
+		   transfer(96, A1, 0, A2, 0);
+		   transfer(96, A0, 0, A1, 0);
+		   transfer(96, RF, 0, A0, 0);
+
+
+		   
+		   transfer(96, L1, 0, WB, 0);
 	       transfer(96, L0, 0, L1, 0);
 	       transfer(96, RF, 0, L0, 0);
+
 	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
 	       rxdone = false; rxready = true;
@@ -1077,6 +1099,18 @@ namespace CDC8600
 	    RF.reset();
 	    L0.reset();
 	    L1.reset();
+		A0.reset();
+		A1.reset();
+		A2.reset();
+		A3.reset();
+		M0.reset();
+		M1.reset();
+		M2.reset();
+		M3.reset();
+		M4.reset();
+		M5.reset();
+		M6.reset();
+		M7.reset();
 	    WB.reset();
 	}
 
