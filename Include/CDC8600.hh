@@ -755,6 +755,18 @@ namespace CDC8600
 		RFstage RF;
 		L0stage L0;
 		L1stage L1;
+        A0stage A0;
+        A1stage A1;
+        A2stage A2;
+        A3stage A3;
+        M0stage M0;
+        M1stage M1;
+        M2stage M2;
+        M3stage M3;
+        M4stage M4;
+        M5stage M5;
+        M6stage M6;
+        M7stage M7;
 		WBstage WB;
 
 		void tick();
