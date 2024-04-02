@@ -681,20 +681,27 @@ namespace CDC8600
 	    private:
 		class RFstage : public stage<96,96>
 		{
+		    public:
+			bool busy();
 		};
 
 		class L0stage : public stage<96,96>
 		{
+		    public:
+			bool busy();
 		};
 
 		class L1stage : public stage<96,96>
 		{
+		    public:
+			bool busy();
 		};
 
 		class WBstage : public stage<96,96>
 		{
 		    public:
 			void tick();
+			bool busy();
 		};
 
 	    public:
@@ -706,6 +713,7 @@ namespace CDC8600
 		void tick();
 		void reset();
 		void dumpout();
+		bool busy();
 	};
 
 	extern FXstage FX[2];
@@ -732,7 +740,7 @@ namespace CDC8600
 	{
 	    public:
 		void dumpout();
-
+		bool busy();
 	};
 
 	extern CQstage CQ[2];

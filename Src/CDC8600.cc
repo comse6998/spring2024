@@ -1137,6 +1137,25 @@ namespace CDC8600
 	    return opsq.size();
 	}
 
+	bool FXstage::busy()
+	{
+	    if (RF.busy()) return true;
+	    if (L0.busy()) return true;
+	    if (L1.busy()) return true;
+	    if (WB.busy()) return true;
+	    return pipes::F(in);
+	}
+
+	bool FXstage::RFstage::busy() { return pipes::F(in); }
+
+	bool FXstage::L0stage::busy() { return pipes::F(in); }
+
+	bool FXstage::L1stage::busy() { return pipes::F(in); }
+
+	bool FXstage::WBstage::busy() { return pipes::F(in); }
+
+	bool CQstage::busy()  { return pipes::F(in); }
+
 	bool busy()
 	{
 	    if (IF.busy())    return true;
