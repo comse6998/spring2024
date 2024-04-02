@@ -611,6 +611,7 @@ namespace CDC8600
 		void init(const char* filename);
 		void tick();
 		bool busy();
+		void dumpout();
 	};
 
 	extern IFstage IF;
@@ -620,6 +621,7 @@ namespace CDC8600
 	    public:
 		vector<bitvector>	opsq;
 		void tick();
+		void dumpout();
 	};
 
 	extern ICstage IC[2];
@@ -692,6 +694,7 @@ namespace CDC8600
 
 		void tick();
 		void reset();
+		void dumpout();
 	};
 
 	extern FXstage FX[2];
@@ -716,6 +719,9 @@ namespace CDC8600
 
 	class CQstage : public stage<96,96>
 	{
+	    public:
+		void dumpout();
+
 	};
 
 	extern CQstage CQ[2];

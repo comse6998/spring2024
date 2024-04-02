@@ -1141,6 +1141,26 @@ namespace CDC8600
 	    dump(u);
 	}
 
+	void dumpoutop
+	(
+	    const bitvector& out
+	)
+	{
+	    dump(out, 80,16);
+	    cout << ".";
+	    dump(out, 64,16);
+	    cout << ".";
+	    dump(out, 56, 8);
+	    cout << ".";
+	    dump(out, 44,12);
+	    cout << ".";
+	    dump(out, 32,12);
+	    cout << ".";
+	    dump(out, 20,12);
+	    cout << ".";
+	    dump(out,  0,20);
+	}
+
 	void RMstage::dumpout()
 	{
 	    dump(out,176,16);
@@ -1172,6 +1192,42 @@ namespace CDC8600
 	    dump(out,  0,20);
 	}
 
+	void IFstage::dumpout()
+	{
+	    dump(out, 80, 16);
+	    cout << ".";
+	    dump(out, 48, 32);
+	    cout << ".";
+	    dump(out, 32, 16);
+	    cout << ".";
+	    dump(out,  0, 32);
+	}
+
+	void ICstage::dumpout()
+	{
+	    dump(out, 64, 16);
+	    cout << ".";
+	    dump(out, 56, 8);
+	    cout << ".";
+	    dump(out, 44,12);
+	    cout << ".";
+	    dump(out, 32,12);
+	    cout << ".";
+	    dump(out, 20,12);
+	    cout << ".";
+	    dump(out,  0,20);
+	}
+
+	void FXstage::dumpout()
+	{
+	    dumpoutop(out);
+	}
+
+	void CQstage::dumpout()
+	{
+	    dumpoutop(out);
+	}
+
 	void run
 	(
 	    const char* filename
@@ -1182,25 +1238,36 @@ namespace CDC8600
 	    OI[0].init(0); OI[1].init(1);
 
 	    cout << "   cycle | "
-		 << "                      IF | "
-		 << "               IC[0] | "
-		 << "               IC[1] | "
+		 << "                         IF | "
+		 << "                        IC[0] | "
+		 << "                        IC[1] | "
 		 << "                                                                   RM | "
-		 << "                   FX[0] | "
-		 << "                   CQ[0] | "
-		 << "                   FX[1] | "
-		 << "                   CQ[1]"
+		 << "                             FX[0] | "
+		 << "                             CQ[0] | "
+		 << "                             FX[1] | "
+		 << "                             CQ[1]"
+		 << endl;
+
+	    cout << "         | "
+		 << "  fg      hw1   fg      hw0 | "
+		 << "  fg  F    i    j    k      K | "
+		 << "  fg  F    i    j    k      K | "
+		 << " fg1  op1 F1   i1   j1   k1     K1  fg0  op0 F0   i0   j0   k0     K0 | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K"
 		 << endl;
 
 	    cout << "---------+-"
-		 << "-------------------------+-"
-		 << "---------------------+-"
-		 << "---------------------+-"
+		 << "----------------------------+-"
+		 << "------------------------------+-"
+		 << "------------------------------+-"
 		 << "----------------------------------------------------------------------+-"
-		 << "-------------------------+-"
-		 << "-------------------------+-"
-		 << "-------------------------+-"
-		 << "------------------------"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "----------------------------------"
 		 << endl;
 
 	    for (u32 cycle = 0; busy(); cycle++)
@@ -1208,14 +1275,14 @@ namespace CDC8600
 		tick();
 		transfer();
 		cout << setw(8) << cycle << " | ";
-		dump(IF.out)   ; cout << " | ";
-		dump(IC[0].out); cout << " | ";
-		dump(IC[1].out); cout << " | ";
+		IF.dumpout();    cout << " | ";
+		IC[0].dumpout(); cout << " | ";
+		IC[1].dumpout(); cout << " | ";
 		RM.dumpout();    cout << " | ";
-		dump(FX[0].out); cout << " | ";
-		dump(CQ[0].out); cout << " | ";
-		dump(FX[1].out); cout << " | ";
-		dump(CQ[1].out);
+		FX[0].dumpout(); cout << " | ";
+		CQ[0].dumpout(); cout << " | ";
+		FX[1].dumpout(); cout << " | ";
+		CQ[1].dumpout();
 		cout << endl;
 	    }
 	}
