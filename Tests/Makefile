@@ -83,4 +83,6 @@ clean:
 	/bin/rm -rf run
 	/bin/rm -rf ${TESTS}
 	/bin/rm -rf *.tr
+	/bin/rm -rf *.tr.?
+	/bin/rm -rf *.pipe
 	bash -c "pushd ${BLAS_REF} && make clean && popd > /dev/null"
