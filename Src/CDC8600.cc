@@ -974,14 +974,8 @@ namespace CDC8600
 
 	void FXstage::tick()
 	{
-	    u32 m = in.size();
-	    u32 n = out.size();
-
 	   if (txdone && rxdone)
 	   {
-	       for (u32 i=0; i<n; i++) out[i] = false;
-	       for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
-
 	       RF.tick();
 	       L0.tick();
 	       L1.tick();
