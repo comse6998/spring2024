@@ -394,6 +394,7 @@ namespace CDC8600
 		string mnemonic() const { return "ipjkj"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 		u64 encode() const { return ((u64)0x0d << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::pipe_t pipe() { return pipes::FXMul; }
 	};
 
 	class cmpz : public FXop
