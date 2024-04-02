@@ -247,6 +247,7 @@ namespace CDC8600
 	pfree.clear(); for (u32 i=params::micro::nregs; i < params::micro::pregs; i++) pfree.insert(i);		// Initial set of free physical registers
 	precycle.clear();											// Set of recyclable registers starts empty
 	Plastop.resize(params::micro::pregs); for (u32 i=0; i<params::micro::pregs; i++) Plastop[i] = 0;	// Start with all physical registers with last operation = 0
+	Pfull.resize(params::micro::pregs);   for (u32 i=0; i<params::micro::pregs; i++) Pfull[i] = true;	// Start with all physical registers having a content
 	assert(params::micro::pregs > params::micro::nregs);							// Make sure there are more physical regisers than architected registers
 	niap.clear();												// Clear next instruction address predictor
     }
@@ -990,6 +991,115 @@ namespace CDC8600
 	       rxdone = false; rxready = true;
 	       txready = true; txdone = false;
 	   }
+	}
+
+	namespace pipes
+	{
+	    u32 fg
+	    /*
+	     * Extract the fg field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(16, v, 80, x);
+		return x;
+	    }
+
+	    u32 op
+	    /*
+	     * Extract the op # field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(16, v, 64, x);
+		return x;
+	    }
+
+	    u32 F
+	    /*
+	     * Extract the F field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy( 8, v, 56, x);
+		return x;
+	    }
+
+	    u32 ireg
+	    /*
+	     * Extract the i (target) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 44, x);
+		return x;
+	    }
+
+	    u32 jreg
+	    /*
+	     * Extract the j (source) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 32, x);
+		return x;
+	    }
+
+	    u32 kreg
+	    /*
+	     * Extract the k (source) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 20, x);
+		return x;
+	    }
+	} // namespace pipes
+
+	void FXstage::WBstage::tick()
+	{
+	    if (txdone && rxdone)
+	    {
+		u32 m = in.size();
+		u32 n = out.size();
+		for (u32 i=0; i<n; i++) out[i] = false;
+		for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
+		rxdone = false; rxready = true;
+		txready = true; txdone = false;
+
+		u32 F = pipes::F(in);			// extract F field
+		u32 ireg = pipes::ireg(in);		// extract i register field
+
+		if (F)
+		{
+		    PROC[me()].Pfull[ireg] = true;	// target register is now full
+		    // cout << "Physical register " << ireg << " is now full" << endl;
+		}
+	    }
 	}
 
 	void FXstage::reset()

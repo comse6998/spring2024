@@ -565,7 +565,7 @@ namespace CDC8600
 		      txready = true; txdone = false;
 		   }
 		}
-		virtual void tock() 	{ assert(false); }
+		virtual void tock() 	{ }
 		virtual bool busy()	{ return false; }
 		virtual void reset()	{ rxready = true; rxdone = true; txready = true; txdone = true; }
 	};
@@ -684,6 +684,8 @@ namespace CDC8600
 
 		class WBstage : public stage<96,96>
 		{
+		    public:
+			void tick();
 		};
 
 	    public:
@@ -736,7 +738,6 @@ namespace CDC8600
 
 	void reset();
 	void tick();
-	void tock();
 	bool busy();
 	void transfer();
 	void run(const char* filename);

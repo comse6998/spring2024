@@ -35,6 +35,7 @@ namespace CDC8600
 		 virtual vector<units::unit>& units() = 0;			// the units that can execute this operation
 		 virtual    u64 encode() const { return 0; }			// 64-bit encoding of the operation
 		 virtual pipes::pipe_t pipe() const { return pipes::FXArith; }	// execution pipe for this operation
+		 virtual pipes::dep_t dep() const { return pipes::no_dep; }	// type of dependence for this operation
 
 		 virtual   void dump(ostream &out)			// operation trace
 		 {
@@ -139,10 +140,12 @@ namespace CDC8600
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
 		    k = PROC[me()].mapper[k];				// physical register for X(k)
-		    u08 tgtreg = PROC[me()].pfind();			// find next target physical register
+		    u32 tgtreg = PROC[me()].pfind();			// find next target physical register
 		    PROC[me()].pfree.erase(tgtreg);			// target physical register comes out of the free set
 		    PROC[me()].precycle.insert(PROC[me()].mapper[i]);	// old physical register goes back to the recyclable set
 		    PROC[me()].Plastop[PROC[me()].mapper[i]] = op;	// old physical register will be recycled with this operation finishes
+		    PROC[me()].Pfull[tgtreg] = false;			// the target register is now empty
+		    // cout << "Physical register " << tgtreg << " is now empty" << endl;
 		    PROC[me()].mapper[i] = tgtreg;			// new mapping of target logical register to target physical register
 		    i = PROC[me()].mapper[i];				// physical register for X(i)
 		}

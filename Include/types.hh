@@ -168,6 +168,7 @@ namespace CDC8600
             vector<u64>                 Pready;                 // ready cycle for physical register
             vector<u64>                 Pused;                  // last used cycle for physical register
 	    vector<u64>			Plastop;		// last operation before physical register can be recycled
+	    vector<bool>		Pfull;			// full/empty bits for the physical registers
             u32                         pnext;                  // next physical register to use
             u32                         pfind();                // find a physical register to use
             set<u32>                    pfree;                  // set of free physical registers
@@ -200,7 +201,16 @@ namespace CDC8600
 	    FPAdd,
 	    FPMul,
 	    FPDiv
-	} pipe_t;
+	} pipe_t;	// the various pipes in our processor
+
+	typedef enum
+	{
+	    j_dep,
+	    k_dep,
+	    jk_dep,
+	    no_dep
+	} dep_t;	// the different types of dependences
+
     } // namespace pipes
 } // namespace CDC8600
 
