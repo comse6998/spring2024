@@ -659,19 +659,22 @@ namespace CDC8600
 	
 	extern IQstage IQ[2];
 
-	class OIstage : public stage<96,96>
+	class OIstage : public stage<96,5*96>
 	{
 	    private:
 		u32	_ix;			// operation issue index (0/1)
 	    public:
 		void init(u32 ix) { _ix = ix; }	// initialize this operation issue stage to a particular index (0/1)
 		stage<96,96>& target();		// target unit for next issue
+		void tick();
 	};
 
 	extern OIstage OI[2];
 
 	class BRstage : public stage<96,96>
 	{
+	    public:
+		void dumpout();
 	};
 
 	extern BRstage BR[2];
@@ -819,11 +822,13 @@ namespace CDC8600
 
 	extern STstage ST[2];
 
-	class CQstage : public stage<96,96>
+	class CQstage : public stage<5*96,96>
 	{
 	    public:
+		vector<bitvector>	opsq;
 		void dumpout();
 		bool busy();
+		void tick();
 	};
 
 	extern CQstage CQ[2];
