@@ -1183,6 +1183,18 @@ namespace CDC8600
 	    if (RF.busy()) return true;
 	    if (L0.busy()) return true;
 	    if (L1.busy()) return true;
+		if (A0.busy()) return true;
+		if (A1.busy()) return true;
+		if (A2.busy()) return true;
+		if (A3.busy()) return true;
+		if (M0.busy()) return true;
+		if (M1.busy()) return true;
+		if (M2.busy()) return true;
+		if (M3.busy()) return true;
+		if (M4.busy()) return true;
+		if (M5.busy()) return true;
+		if (M6.busy()) return true;
+		if (M7.busy()) return true;
 	    if (WB.busy()) return true;
 	    return pipes::F(in);
 	}
@@ -1192,6 +1204,30 @@ namespace CDC8600
 	bool FXstage::L0stage::busy() { return pipes::F(in); }
 
 	bool FXstage::L1stage::busy() { return pipes::F(in); }
+
+	bool FXstage::A0stage::busy() { return pipes::F(in); }
+
+	bool FXstage::A1stage::busy() { return pipes::F(in); }
+
+	bool FXstage::A2stage::busy() { return pipes::F(in); }
+
+	bool FXstage::A3stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M0stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M1stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M2stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M3stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M4stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M5stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M6stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M7stage::busy() { return pipes::F(in); }
 
 	bool FXstage::WBstage::busy() { return pipes::F(in); }
 
