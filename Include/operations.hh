@@ -347,6 +347,7 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 		u64 encode() const { return ((u64)0x12 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::j_dep; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
 	};
 
 	class isjki : public FXop
@@ -485,6 +486,8 @@ namespace CDC8600
 	{
 	    public:
 		jmpz(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
+		jmpz(u32 K, u08 j) : BRop(K, j, 0, 0, "") { }
+		jmpz() : BRop(0, 0, 0, 0, "") { }
 		u64 ready() const { return PROC[me()].Pready[_j]; }
 		void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -492,6 +495,9 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "jmpz"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
+		u64 encode() const { return ((u64)0x34 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::j_dep; }
+		pipes::pipe_t pipe() { return pipes::BR; }
 	};
 
         class jmpnz : public BRop
@@ -522,6 +528,30 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
 		u64 encode() const { return ((u64)0x36 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::j_dep; }
+		pipes::pipe_t pipe() { return pipes::BR; }
+	};
+
+	template<>
+	class mapper<jmpz>	: public basemapper
+	{
+	    private:
+		jmpz	_op;
+	    public:
+		void map
+		(
+		    u32& i,	// target register
+		    u32& j,	// source register
+		    u32& k,	// source register
+		    u32  op	// operation #
+		)
+		{
+		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		}
+
+		pipes::pipe_t pipe()
+		{
+		    return _op.pipe();
+		}
 	};
 
 	template<>
