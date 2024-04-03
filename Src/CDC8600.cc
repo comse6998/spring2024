@@ -583,6 +583,7 @@ namespace CDC8600
 	    mappers[0x12] = new mapper<isjkj>;
 	    mappers[0x17] = new mapper<idzkj>;
 	    mappers[0x36] = new mapper<jmpp>;
+	    mappers[0x34] = new mapper<jmpz>;
 	    mappers[0xb1] = new mapper<cmpz>;
 	    mappers[0x0d] = new mapper<ipjkj>;
 	}
@@ -1030,6 +1031,29 @@ namespace CDC8600
 	    }
 	}
 
+	void OIstage::tick() 	
+	{
+	   if (txdone && rxdone)
+	   {
+	      for (u32 i=0; i<out.size(); i++) out[i] = false;
+	      switch(operations::mappers[pipes::F(in)]->pipe())
+	      {
+		  case CDC8600::pipes::BR : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
+		  case CDC8600::pipes::ST : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
+		  case CDC8600::pipes::LD : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
+		  case CDC8600::pipes::FXArith: 
+		  case CDC8600::pipes::FXMul:
+		  case CDC8600::pipes::FXLogic: for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
+	    	  case CDC8600::pipes::FPAdd:
+	          case CDC8600::pipes::FPMul:
+		  case CDC8600::pipes::FPDiv: for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
+		  default : assert(false); 	// this should not happen
+	      }
+	      rxdone = false; rxready = true;
+	      txready = true; txdone = false;
+	   }
+	}
+
 	void FXstage::tick()
 	{
 	   if (txdone && rxdone)
@@ -1079,6 +1103,32 @@ namespace CDC8600
 	    L0.reset();
 	    L1.reset();
 	    WB.reset();
+	}
+
+	void CQstage::tick() 	
+	{
+	    if (rxdone)
+	    {
+	        for (u32 i = 0; i < 5; i++)
+	        {
+		    bitvector op(96);
+		    copy(96, in, i*96, op, 0);
+		    if (pipes::F(op)) opsq.push_back(op);
+	        }
+		rxdone = false; rxready = true;
+	     }
+
+	     if (opsq.size() && txdone)
+	     {
+	       copy(96, opsq[0], 0, out, 0);
+	       opsq.erase(opsq.begin());
+	       txready = true; txdone = false;
+	     }
+	     else
+	     {
+	 	for (u32 i = 0; i < out.size(); i++) out[i] = false;
+		txready = true; txdone = false;
+	     }
 	}
 
 	void COstage::tick()
@@ -1154,7 +1204,7 @@ namespace CDC8600
 
 	bool FXstage::WBstage::busy() { return pipes::F(in); }
 
-	bool CQstage::busy()  { return pipes::F(in); }
+	bool CQstage::busy()  { return opsq.size(); }
 
 	bool busy()
 	{
@@ -1210,10 +1260,22 @@ namespace CDC8600
 	{
 	    transfer(96, CQ[0],  0, CO   ,  0);
 	    transfer(96, CQ[1],  0, CO   , 96);
-	    transfer(96, FX[0],  0, CQ[0],  0);
-	    transfer(96, FX[1],  0, CQ[1],  0);
-	    transfer(96, OI[0],  0, OI[0].target(), 0);
-	    transfer(96, OI[1],  0, OI[1].target(), 0);
+	    for (u32 i = 0; i < 2; i++)
+	    {
+		transfer(96, BR[i],  0, CQ[i], 0*96);
+		transfer(96, FX[i],  0, CQ[i], 1*96);
+		transfer(96, FP[i],  0, CQ[i], 2*96);
+		transfer(96, LD[i],  0, CQ[i], 3*96);
+		transfer(96, ST[i],  0, CQ[i], 4*96);
+	    }
+	    for (u32 i = 0; i < 2; i++)
+	    {
+		transfer(96, OI[i],0*96, BR[i], 0);
+		transfer(96, OI[i],1*96, FX[i], 0);
+		transfer(96, OI[i],2*96, FP[i], 0);
+		transfer(96, OI[i],3*96, LD[i], 0);
+		transfer(96, OI[i],4*96, ST[i], 0);
+	    }
 	    transfer(96, IQ[0],  0, OI[0],  0);
 	    transfer(96, IQ[1],  0, OI[1],  0);
 	    transfer(96, OD[0],  0, IQ[0],  0);
@@ -1342,6 +1404,11 @@ namespace CDC8600
 	    dumpoutop(out);
 	}
 
+	void BRstage::dumpout()
+	{
+	    dumpoutop(out);
+	}
+
 	void run
 	(
 	    const char* filename
@@ -1358,8 +1425,10 @@ namespace CDC8600
 		 << "                        IC[0] | "
 		 << "                        IC[1] | "
 		 << "                                                                   RM | "
+		 << "                             BR[0] | "
 		 << "                             FX[0] | "
 		 << "                             CQ[0] | "
+		 << "                             BR[1] | "
 		 << "                             FX[1] | "
 		 << "                             CQ[1]"
 		 << endl;
@@ -1372,6 +1441,8 @@ namespace CDC8600
 		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K"
 		 << endl;
 
@@ -1380,6 +1451,8 @@ namespace CDC8600
 		 << "------------------------------+-"
 		 << "------------------------------+-"
 		 << "----------------------------------------------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
@@ -1395,8 +1468,10 @@ namespace CDC8600
 		IC[0].dumpout(); cout << " | ";
 		IC[1].dumpout(); cout << " | ";
 		RM.dumpout();    cout << " | ";
+		BR[0].dumpout(); cout << " | ";
 		FX[0].dumpout(); cout << " | ";
 		CQ[0].dumpout(); cout << " | ";
+		BR[1].dumpout(); cout << " | ";
 		FX[1].dumpout(); cout << " | ";
 		CQ[1].dumpout();
 		cout << endl;
