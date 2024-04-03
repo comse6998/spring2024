@@ -681,6 +681,9 @@ namespace CDC8600
 
 	class FXstage : public stage<96,96>
 	{
+        public:
+        u08 pipe_traffic;  //8 bits to keep track of when new issues to FX are possible 
+
 	    private:
 		class RFstage : public stage<96,96>
 		{
@@ -771,7 +774,7 @@ namespace CDC8600
 			bool busy();
 		};
 
-		class WBstage : public stage<96,96>
+		class WBstage : public stage<3*96,96>
 		{
 		    public:
 			void tick();

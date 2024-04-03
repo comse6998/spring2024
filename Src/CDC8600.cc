@@ -1017,8 +1017,31 @@ namespace CDC8600
 		{
 		    if (inputsready(opsq[i]))				// are all inputs for operation i ready?
 		    {
-			copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-			opsq.erase(opsq.begin() + i);			// dequeue operation i
+				switch(operations::mappers[pipes::F(opsq[i])]->pipe())
+				{
+					case CDC8600::pipes::FXArith: 	if(FX->pipe_traffic & 0x10 == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														FX->pipe_traffic += 0x10;
+														break;
+													}
+					case CDC8600::pipes::FXMul:  	if(FX->pipe_traffic & 0x01 == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														FX->pipe_traffic += 0x01;
+														break;
+													}
+					case CDC8600::pipes::FXLogic: 	if(FX->pipe_traffic & 0x40 == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														FX->pipe_traffic += 0x40;
+														break;
+													}
+					default : assert(false); 	// this should not happen
+				}
 			// cout << "Selecting operation " << pipes::op(out) << " from position " << i << " in issue queue" << endl;
 		    }
 		}
@@ -1044,8 +1067,8 @@ namespace CDC8600
 		  case CDC8600::pipes::FXArith: 
 		  case CDC8600::pipes::FXMul:
 		  case CDC8600::pipes::FXLogic: for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
-	    	  case CDC8600::pipes::FPAdd:
-	          case CDC8600::pipes::FPMul:
+	      case CDC8600::pipes::FPAdd:
+	      case CDC8600::pipes::FPMul:
 		  case CDC8600::pipes::FPDiv: for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
 		  default : assert(false); 	// this should not happen
 	      }
@@ -1056,6 +1079,10 @@ namespace CDC8600
 
 	void FXstage::tick()
 	{
+
+	   pipe_traffic << 1;
+
+
 	   if (txdone && rxdone)
 	   {
 	       RF.tick();
@@ -1075,9 +1102,17 @@ namespace CDC8600
 		   M7.tick();
 	       WB.tick();
 
+		switch(operations::mappers[pipes::F(in)]->pipe())
+	    {
+			case CDC8600::pipes::FXArith: transfer(96, RF, 0, A0, 0); break;
+			case CDC8600::pipes::FXMul:	  transfer(96, RF, 0, M0, 0); break;
+			case CDC8600::pipes::FXLogic: transfer(96, RF, 0, L0, 0); break;
+			default : assert(false); 	// this should not happen
+	    }
+
 	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
-	       transfer(96, M7, 0, WB, 0);
+	       transfer(96, M7, 0, WB, 0*96);
 		   transfer(96, M6, 0, M7, 0);
 		   transfer(96, M5, 0, M6, 0);
 		   transfer(96, M4, 0, M5, 0);
@@ -1085,17 +1120,15 @@ namespace CDC8600
 		   transfer(96, M2, 0, M3, 0);
 		   transfer(96, M1, 0, M2, 0);
 		   transfer(96, M0, 0, M1, 0);
-	
-	       transfer(96, A3, 0, WB, 0);
+		   
+	       transfer(96, A3, 0, WB, 1*96);
 		   transfer(96, A2, 0, A3, 0);
 		   transfer(96, A1, 0, A2, 0);
 		   transfer(96, A0, 0, A1, 0);
-		   transfer(96, RF, 0, A0, 0);
-		   
-		   transfer(96, L1, 0, WB, 0);
+		   	   
+		   transfer(96, L1, 0, WB, 2*96);
 	       transfer(96, L0, 0, L1, 0);
-	       transfer(96, RF, 0, L0, 0);
-
+	       
 	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
 	       rxdone = false; rxready = true;
