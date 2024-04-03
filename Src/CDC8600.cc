@@ -1022,21 +1022,21 @@ namespace CDC8600
 		    {
 				switch(operations::mappers[pipes::F(opsq[i])]->pipe())
 				{
-					case CDC8600::pipes::FXArith: 	if(FX->pipe_traffic & 0x10 == 0)
+					case CDC8600::pipes::FXArith: 	if(FX[_ix].pipe_traffic & 0x10 == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FX->pipe_traffic += 0x10;
 														break;
 													}
-					case CDC8600::pipes::FXMul:  	if(FX->pipe_traffic & 0x01 == 0)
+					case CDC8600::pipes::FXMul:  	if(FX[_ix].pipe_traffic & 0x01 == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FX->pipe_traffic += 0x01;
 														break;
 													}
-					case CDC8600::pipes::FXLogic: 	if(FX->pipe_traffic & 0x40 == 0)
+					case CDC8600::pipes::FXLogic: 	if(FX[_ix].pipe_traffic & 0x40 == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
@@ -1530,8 +1530,9 @@ namespace CDC8600
 	    IF.init(filename);
 	    IC[0].init(); IC[1].init();
 	    RM.init();
-	    IQ[0].init(); IQ[1].init();
+	    IQ[0].init(0); IQ[1].init(1);
 	    OI[0].init(0); OI[1].init(1);
+		FX[0].init(0); FX[1].init(1);
 
 	    cout << "   cycle | "
 		 << "                         IF | "
