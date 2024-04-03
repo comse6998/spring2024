@@ -699,49 +699,73 @@ namespace CDC8600
 
         class A0stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
         class A1stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
 		class A2stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class A3stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class M0stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class M1stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class M2stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class M3stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class M4stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class M5stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class M6stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
         class M7stage : public stage<96,96>
 		{
+            public:
+			bool busy();
 		};
 
 		class WBstage : public stage<96,96>

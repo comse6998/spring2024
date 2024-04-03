@@ -1053,13 +1053,20 @@ namespace CDC8600
 
 	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
+	       transfer(96, M7, 0, WB, 0);
+		   transfer(96, M6, 0, M7, 0);
+		   transfer(96, M5, 0, M6, 0);
+		   transfer(96, M4, 0, M5, 0);
+		   transfer(96, M3, 0, M4, 0);
+		   transfer(96, M2, 0, M3, 0);
+		   transfer(96, M1, 0, M2, 0);
+		   transfer(96, M0, 0, M1, 0);
+
 	       transfer(96, A3, 0, WB, 0);
 		   transfer(96, A2, 0, A3, 0);
 		   transfer(96, A1, 0, A2, 0);
 		   transfer(96, A0, 0, A1, 0);
 		   transfer(96, RF, 0, A0, 0);
-
-
 		   
 		   transfer(96, L1, 0, WB, 0);
 	       transfer(96, L0, 0, L1, 0);
