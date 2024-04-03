@@ -1,4 +1,4 @@
-class rdjK : public FjK
+class rdjk : public Fjk
 {
     public:
         rdjk(u08 j, u08 k) : Fjk(0x25, j, k) {}
