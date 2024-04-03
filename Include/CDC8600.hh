@@ -496,7 +496,7 @@ namespace CDC8600
 #include<instructions/idjkj.hh>                         // Integer difference of (Xj) minus k to Xj                     (p58)
 #include<instructions/isjkj.hh>                         // Integer sum of (Xj) plus k to Xj                             (p57)
 #include<instructions/idzkj.hh>                         // Integer difference of zero minus (Xk) to Xj                  (p62)
-#include<instructions/rdjK.hh>                          // Read data at address K to Xj                                 (p74)
+#include<instructions/rdKj.hh>                          // Read data at address K to Xj                                 (p74)
 #include<instructions/rdjki.hh>                         // Read data at address (Xj) + (Xk) to (Xi)                     (p133)
 #include<instructions/rdjk.hh>                          // Read data at address (Xk) to (Xj)                            (p75)
 #include<instructions/sdjki.hh>                         // Store data at address (Xj) + (Xk) from Xi                    (p135)
