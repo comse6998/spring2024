@@ -1061,7 +1061,7 @@ namespace CDC8600
 		   transfer(96, M2, 0, M3, 0);
 		   transfer(96, M1, 0, M2, 0);
 		   transfer(96, M0, 0, M1, 0);
-
+	
 	       transfer(96, A3, 0, WB, 0);
 		   transfer(96, A2, 0, A3, 0);
 		   transfer(96, A1, 0, A2, 0);
