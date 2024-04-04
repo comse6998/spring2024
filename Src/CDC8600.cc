@@ -1043,7 +1043,7 @@ namespace CDC8600
 														FX->pipe_traffic += 0x40;
 													}
 													break;
-					//default : assert(false); 	// this should not happen
+					default : assert(false); 	// this should not happen
 				}
 			// cout << "Selecting operation " << pipes::op(out) << " from position " << i << " in issue queue" << endl;
 		    }
