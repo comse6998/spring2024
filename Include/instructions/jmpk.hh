@@ -43,4 +43,11 @@ class jmpk : public Fjk
 		_j = (code >> 20) & 0xf;      // extract j
 		_k = code & 0xfffff;          // extract K
 	}
+
+	vector<operations::operation*> crack()
+	{
+		vector<operations::operation*>	ops;
+		ops.push_back(new operations::jmpk(_k, _j));
+		return ops;
+	}
 };
