@@ -1027,23 +1027,23 @@ namespace CDC8600
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FX->pipe_traffic += 0x10;
-														break;
 													}
+													break;
 					case CDC8600::pipes::FXMul:  	if(FX[_ix].pipe_traffic & 0x01 == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FX->pipe_traffic += 0x01;
-														break;
 													}
+													break;
 					case CDC8600::pipes::FXLogic: 	if(FX[_ix].pipe_traffic & 0x40 == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FX->pipe_traffic += 0x40;
-														break;
 													}
-					default : assert(false); 	// this should not happen
+													break;
+					//default : assert(false); 	// this should not happen
 				}
 			// cout << "Selecting operation " << pipes::op(out) << " from position " << i << " in issue queue" << endl;
 		    }
@@ -1146,18 +1146,49 @@ namespace CDC8600
 		u32 m = in.size();
 		u32 n = out.size();
 		for (u32 i=0; i<n; i++) out[i] = false;
-		for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
+		bool mult = false;
+		bool arith = false;
+		bool logical = false;
+		for (int i = 0; i < n; ++i) {
+			if (in[i])
+				mult = true;
+			if (in[i+96])
+				arith = true;
+			if (in[i+96*2])
+				logical = true;
+		}
+
+		assert(!(mult && arith) || !(mult && logical) || !(arith && logical));
+		u32 offset = 0;
+		if (arith)
+			offset = 96;
+		else if (logical)
+			offset = 96 * 2;
+
+		for (u32 i=0; i<min(m,n); i++)
+		{
+
+			out[i] = in[i+offset];
+		} 
 		rxdone = false; rxready = true;
 		txready = true; txdone = false;
 
-		u32 F = pipes::F(in);			// extract F field
-		u32 ireg = pipes::ireg(in);		// extract i register field
+		u32 Fmult = pipes::F(bitvector(in.begin(), in.begin()+96));			// extract F field
+		u32 Farith = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
+		u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.end()));			// extract F field
 
-		if (F)
-		{
-		    PROC[me()].Pfull[ireg] = true;	// target register is now full
-		    // cout << "Physical register " << ireg << " is now full" << endl;
-		}
+		u32 iregmult = pipes::ireg(bitvector(in.begin(), in.begin()+96));			// extract F field
+		u32 iregarith = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
+		u32 ireglogical = pipes::ireg(bitvector(in.begin()+96*2, in.end()));			// extract F field
+
+		if (Fmult)
+			PROC[me()].Pfull[iregmult] = true;	// target register is now full
+		else if (Farith)
+			PROC[me()].Pfull[iregarith] = true;	// target register is now full
+		else if (Flogical)
+			PROC[me()].Pfull[ireglogical] = true;	// target register is now full
+		// cout << "Physical register " << ireg << " is now full" << endl;
+
 	    }
 	}
 
