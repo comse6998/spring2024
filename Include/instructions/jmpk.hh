@@ -1,53 +1,59 @@
 class jmpk : public Fjk
 {
     private:
-	bool	_taken;
-	string	_label;
+        bool    _taken;
+        string  _label;
 
     public:
-	jmpk(u08 j, u08 k) : Fjk(0x3C, j, k) {}
-	jmpk() : Fjk(0x3C, 0, 0) {}
+        jmpk(u08 j, u08 k) : Fjk(0x3C, j, k) {}
+        jmpk() : Fjk(0x3C, 0, 0) {}
 
-	bool execute()
-	{
-	    _taken = true;
-		stringstream ss;
-		u32 targetline = PROC[me()].label2line[_label];
-		u32 targetaddr = PROC[me()].line2addr[targetline];
+        bool execute()
+        {
+            _taken = true;
+                stringstream ss;
+                u32 targetline = PROC[me()].label2line[_label];
+                u32 targetaddr = PROC[me()].line2addr[targetline];
 
-		ss << setfill('0') << setw(8) << hex << targetaddr << " "
-		   << dec << setfill(' ');
-		_trace = ss.str();
-	    return _taken;
-	}
-	
-	string mnemonic() const
-	{
-	    return "jmpk";
-	}
+                ss << setfill('0') << setw(8) << hex << targetaddr << " "
+                   << dec << setfill(' ');
+                _trace = ss.str();
+            return _taken;
+        }
 
-	string dasm() const
-	{
-	    return mnemonic() + "(" + to_string(_k) + ")";
-	}
-	bool ops()
-	{
-	    _label = "";
-	    operations::process<operations::jmpk>(_k, _j, PROC[me()].line2addr[_line], _taken, _label);
-	    return false;
-	}
+        string mnemonic() const
+        {
+            return "jmpk";
+        }
 
-	void decode(u32 code)
-	{
-		assert(match(code >> 24));    // we are in the right instruction
-		_j = (code >> 20) & 0xf;      // extract j
-		_k = code & 0xfffff;          // extract K
-	}
+        string dasm() const
+        {
+            return mnemonic() + "(" + to_string(_k) + ")";
+        }
+        bool ops()
+        {
+            _label = "";
+            operations::process<operations::jmpk>(_k, _j, PROC[me()].line2addr[_line], _taken, _label);
+            return false;
+        }
 
-	vector<operations::operation*> crack()
-	{
-		vector<operations::operation*>	ops;
-		ops.push_back(new operations::jmpk(_k, _j));
-		return ops;
-	}
+        bool match(u08 F)
+        {
+            return _F == F;
+        }
+
+        void decode(u32 code)
+        {
+            assert(code < 65536);       // 16-bit instruction
+            assert(match(code >> 8));   // we are in the right instruction
+            _j = (code >> 4) & 0xf;     // extract j
+            _k = code & 0xf;            // extract k
+        }
+
+        vector<operations::operation*> crack()
+        {
+                vector<operations::operation*>  ops;
+                ops.push_back(new operations::jmpk(_k, _j));
+                return ops;
+        }
 };

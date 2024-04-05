@@ -22,7 +22,7 @@ class isjkj : public Fjk
 
 	bool ops()
 	{
-	    operations::process<operations::isjkj>(_j,_j, _k, 0);
+	    operations::process<operations::isjkj>(_j, _j, 0, _k);
 	    return false;
 	}
 
@@ -42,7 +42,7 @@ class isjkj : public Fjk
 	vector<operations::operation*> crack()
 	{
 	    vector<operations::operation*>	ops;
-	    ops.push_back(new operations::isjkj(_j, _j, _k, 0));
+	    ops.push_back(new operations::isjkj(_j, _j, 0, _k));
 	    return ops;
 	}
 };

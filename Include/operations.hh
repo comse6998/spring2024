@@ -340,7 +340,7 @@ namespace CDC8600
 		isjkj() : FXop(0, 0, 0, 0) { }
 		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]  ); }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
-		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "isjkj"; }

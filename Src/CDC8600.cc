@@ -657,6 +657,7 @@ namespace CDC8600
 	    makeinstr[0x35] = new maker<jmpnz>;
 	    makeinstr[0x36] = new maker<jmpp>;
 	    makeinstr[0x34] = new maker<jmpz>;
+	    makeinstr[0x3c] = new maker<jmpk>;
 	    makeinstr[0x0F] = new maker<pass>; // Be explicit
 	    makeinstr[0x24] = new maker<rdjK>;
 	    makeinstr[0x01] = new maker<lpjkj>;
