@@ -1121,10 +1121,10 @@ namespace CDC8600
 	{
 		rxready = true; rxdone = true; txready = true; txdone = true;
 		RF.reset();
+		X0.reset();
 		X1.reset();
 		X2.reset();
 		X3.reset();
-		X4.reset();
 	}
 	void CQstage::tick() 	
 	{
@@ -1211,16 +1211,16 @@ namespace CDC8600
 		if (txdone && rxdone)
 		{
 			RF.tick();
+			X0.tick();
 			X1.tick();
 			X2.tick();
 			X3.tick();
-			X4.tick();
 
-			copy(96, X4.out, 0, out, 0); X4.txdone = true;
-			transfer(96, X3, 0, X4, 0);
+			copy(96, X3.out, 0, out, 0); X3.txdone = true;
 			transfer(96, X2, 0, X3, 0);
 			transfer(96, X1, 0, X2, 0);
-			transfer(96, RF, 0, X1, 0);
+			transfer(96, X0, 0, X1, 0);
+			transfer(96, RF, 0, X0, 0);
 			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
 			rxdone = false; rxready = true;
@@ -1280,17 +1280,17 @@ namespace CDC8600
 	bool STstage::busy()
 	{
 		if(RF.busy()) return true;
+		if(X0.busy()) return true;
 		if(X1.busy()) return true;
 		if(X2.busy()) return true;
 		if(X3.busy()) return true;
-		if(X4.busy()) return true;
 		return pipes::F(in);
 	}
 
+	bool STstage::X0stage::busy() {return pipes::F(in);}
 	bool STstage::X1stage::busy() {return pipes::F(in);}
 	bool STstage::X2stage::busy() {return pipes::F(in);}
 	bool STstage::X3stage::busy() {return pipes::F(in);}
-	bool STstage::X4stage::busy() {return pipes::F(in);}
 	bool STstage::RFstage::busy() {return pipes::F(in);}
 
 	bool CQstage::busy()  { return opsq.size(); }
