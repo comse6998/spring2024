@@ -1217,8 +1217,6 @@ namespace CDC8600
 			X4.tick();
 
 			copy(96, X4.out, 0, out, 0); X4.txdone = true;
-			copy(96, X3.out, 0, out, 0); X3.txdone = true;
-			copy(96, X2.out, 0, out, 0); X2.txdone = true;
 			transfer(96, X3, 0, X4, 0);
 			transfer(96, X2, 0, X3, 0);
 			transfer(96, X1, 0, X2, 0);
@@ -1496,6 +1494,11 @@ namespace CDC8600
 	}
 
 	void BRstage::dumpout()
+	{
+	    dumpoutop(out);
+	}
+
+	void STstage::dumpout()
 	{
 	    dumpoutop(out);
 	}
