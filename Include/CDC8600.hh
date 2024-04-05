@@ -760,6 +760,48 @@ namespace CDC8600
 
 	class STstage : public stage<96,96>
 	{
+        private:
+        class X1stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X2stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X3stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X4stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class RFstage : public stage<96,96>
+		{
+		    public:
+			bool busy();
+		};
+
+	    public:
+        RFstage RF;
+        X1stage X1;
+        X2stage X2;
+        X3stage X3;
+        X4stage X4;
+        void tick();
+		void dumpout();
+        bool busy();
+        void reset();
+
 	};
 
 	extern STstage ST[2];

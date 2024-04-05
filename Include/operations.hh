@@ -370,6 +370,7 @@ namespace CDC8600
 	{
 	    public:
 		agen(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		agen() : FXop(0, 0, 0, 0) {}
 		u64 ready() const { return max(max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]), max(PROC[me()].Pready[PROC[me()].mapper[params::micro::RA]], PROC[me()].Pready[PROC[me()].mapper[params::micro::FL]])); }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
