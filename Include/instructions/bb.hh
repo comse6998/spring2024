@@ -38,6 +38,20 @@ class bb : public Fijk
 	    operations::process<operations::bb>(_i, params::micro::CMPFLAGS, PROC[me()].line2addr[_line], _taken, _label);
 	    return false;
 	}
+
+	bool match(u08 F)
+	{
+		return _F == F;
+	}
+
+	void decode(u32 code)
+        {
+            assert(code < 65536);        // 16-bit instruction
+            assert(match(code >> 12));   // we are in the right instruction
+            _k = code  & 0xf;            // extract the k field
+            _j = (code >> 4) & 0xf;      // extract the j field
+            _i = (code >> 8) & 0xf;      // extract the j field
+        }
 	
 	void fixit()
 	{
@@ -50,5 +64,13 @@ class bb : public Fijk
 	    assert(sourceaddr >= targetaddr);
 	    _i = (sourceaddr/8) - (targetaddr/8); // Finally calculate and assert _i
 	    assert(_i < 16);
+	}
+
+	vector<operations::operation*> crack()
+	{
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::cmp(params::micro::CMPFLAGS, _j, _k, 0));
+	    ops.push_back(new operations::bb(_i, params::micro::CMPFLAGS));
+	    return ops;
 	}
 };

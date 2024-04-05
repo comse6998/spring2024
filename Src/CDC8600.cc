@@ -657,6 +657,7 @@ namespace CDC8600
 	    makeinstr[0x35] = new maker<jmpnz>;
 	    makeinstr[0x36] = new maker<jmpp>;
 	    makeinstr[0x34] = new maker<jmpz>;
+	    makeinstr[0x3c] = new maker<jmpk>;
 	    makeinstr[0x0F] = new maker<pass>; // Be explicit
 	    makeinstr[0x24] = new maker<rdjK>;
 	    makeinstr[0x01] = new maker<lpjkj>;
@@ -1213,6 +1214,14 @@ namespace CDC8600
 	    WB.reset();
 	}
 
+	void BRstage::reset()
+	{
+		rxready = true; rxdone = true; txready = true; txdone = true;
+		RF.reset();
+		X1.reset();
+		X2.reset();
+	}
+
 	void CQstage::tick() 	
 	{
 	    if (rxdone)
@@ -1273,6 +1282,24 @@ namespace CDC8600
 		txready = false;
 		txdone = true;
 	    }
+	}
+
+	void BRstage::tick()
+	{
+		if (txdone && rxdone)
+		{
+			RF.tick();
+			X1.tick();
+			X2.tick();
+
+			copy(96, X2.out, 0, out, 0); X2.txdone = true;
+			transfer(96, X1, 0, X2, 0);
+			transfer(96, RF, 0, X1, 0);
+			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
 	}
 
 	bool IFstage::busy()
@@ -1348,21 +1375,33 @@ namespace CDC8600
 
 	bool FXstage::WBstage::busy() { return pipes::F(in); }
 
+	bool BRstage::busy()
+	{
+		if(RF.busy()) return true;
+		if(X1.busy()) return true;
+		if(X2.busy()) return true;
+		return pipes::F(in);
+	}
+
+	bool BRstage::X1stage::busy() {return pipes::F(in);}
+	bool BRstage::X2stage::busy() {return pipes::F(in);}
+	bool BRstage::RFstage::busy() {return pipes::F(in);}
+
 	bool CQstage::busy()  { return opsq.size(); }
 
 	bool busy()
 	{
 	    if (IF.busy())    return true;
-	    if (IC[0].busy()) return true; 
+	    if (IC[0].busy()) return true;
 	    if (IC[1].busy()) return true;
 	    if (RM.busy())    return true;
 	    if (OD[0].busy()) return true; 
 	    if (OD[1].busy()) return true;
-	    if (IQ[0].busy()) return true; 
+	    if (IQ[0].busy()) return true;
 	    if (IQ[1].busy()) return true;
-	    if (OI[0].busy()) return true; 
+	    if (OI[0].busy()) return true;
 	    if (OI[1].busy()) return true;
-	    if (BR[0].busy()) return true; 
+	    if (BR[0].busy()) return true;
 	    if (BR[1].busy()) return true;
 	    if (FX[0].busy()) return true; 
 	    if (FX[1].busy()) return true;
