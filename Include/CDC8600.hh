@@ -843,7 +843,7 @@ namespace CDC8600
         private:
         u32 _ix;    
 
-        class RFstage : public stage<96,3*96>
+        class RFstage : public stage<96,96>
         {
 		    public:
 			// Default tick()
