@@ -649,9 +649,11 @@ namespace CDC8600
 
 	class IQstage : public stage<96,96>
 	{
+        private:
+        u32 _ix;    
 	    public:
 		vector<bitvector>	opsq;
-		void init() { opsq.clear(); }
+		void init(u32 ix) { opsq.clear(); _ix = ix; }
 		void tick();
 		bool busy();
 		void dumpout();
@@ -706,6 +708,8 @@ namespace CDC8600
 
 	class FXstage : public stage<96,96>
 	{
+        
+
 	    private:
 		class RFstage : public stage<96,96>
 		{
@@ -725,18 +729,106 @@ namespace CDC8600
 			bool busy();
 		};
 
-		class WBstage : public stage<96,96>
+        class A0stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+        class A1stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+		class A2stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class A3stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class M0stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class M1stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class M2stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class M3stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class M4stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class M5stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class M6stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+        class M7stage : public stage<96,96>
+		{
+            public:
+			bool busy();
+		};
+
+		class WBstage : public stage<3*96,96>
 		{
 		    public:
 			void tick();
 			bool busy();
 		};
 
+        u32 _ix;
+
+
 	    public:
 		RFstage RF;
 		L0stage L0;
 		L1stage L1;
+        A0stage A0;
+        A1stage A1;
+        A2stage A2;
+        A3stage A3;
+        M0stage M0;
+        M1stage M1;
+        M2stage M2;
+        M3stage M3;
+        M4stage M4;
+        M5stage M5;
+        M6stage M6;
+        M7stage M7;
 		WBstage WB;
+        u08 pipe_traffic;               //8 bits to keep track of when new issues to FX are possible 
+        void init(u32 ix) { _ix = ix; pipe_traffic = 0; }
 
 		void tick();
 		void reset();

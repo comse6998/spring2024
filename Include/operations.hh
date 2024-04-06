@@ -338,7 +338,7 @@ namespace CDC8600
 	    public:
 		isjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
 		isjkj() : FXop(0, 0, 0, 0) { }
-		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]  ); }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
