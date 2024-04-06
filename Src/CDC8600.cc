@@ -1544,21 +1544,12 @@ namespace CDC8600
 			bool is_FPMul = false;
 			bool is_FPAdd = false;
 			bool is_FPDiv = false;
-			for (int i = 0; i < n; ++i) {
-				if (in[i]) {
-					is_FPMul = true;
-					offset = 0;
-				}
-				if (in[i+96]) {
-					is_FPAdd = true;
-					offset = 96;
-				}
-				if (in[i+96*2]) {
-					is_FPDiv = true;
-					offset = 96 * 2;
-				}
-			}
 
+			is_FPMul = !(F_FPMul == 0);
+			is_FPAdd = !(F_FPAdd == 0);
+			offset = is_FPAdd ? 96 : offset;
+			is_FPDiv = !(F_FPDiv == 0);
+			offset = is_FPDiv ? 96 * 2 : offset;
 			assert(((int)is_FPMul) + (int)is_FPAdd + (int)is_FPDiv <= 1);
 
 			for (u32 i=0; i<min(m,n); i++) out[i] = in[i+offset];

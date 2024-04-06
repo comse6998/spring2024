@@ -841,6 +841,8 @@ namespace CDC8600
 	class FPstage : public stage<96,96>
 	{
         private:
+        u32 _ix;    
+
         class RFstage : public stage<96,3*96>
         {
 		    public:
@@ -952,6 +954,7 @@ namespace CDC8600
 
 		WBstage WB;
 
+		void init(u32 ix) { pipe_traffic = 0; _ix = ix; }
         u08 pipe_traffic;
         void reset();
         void tick();
