@@ -649,9 +649,12 @@ namespace CDC8600
 
 	class IQstage : public stage<96,96>
 	{
+	    private:
+		u32 _ix;
+
 	    public:
 		vector<bitvector>	opsq;
-		void init() { opsq.clear(); }
+		void init(u32 ix) { opsq.clear(); _ix = ix; }
 		void tick();
 		bool busy();
 		void dumpout();
@@ -707,6 +710,8 @@ namespace CDC8600
 	class FXstage : public stage<96,96>
 	{
 	    private:
+		u32 _ix;
+
 		class RFstage : public stage<96,96>
 		{
 		    public:
@@ -821,6 +826,9 @@ namespace CDC8600
 		M6stage M6;
 		M7stage M7;
 		WBstage WB;
+
+		u08 pipe_traffic;               //8 bits to keep track of when new issues to FX are possible 
+		void init(u32 ix) { _ix = ix; pipe_traffic = 0; }
 
 		void tick();
 		void reset();
