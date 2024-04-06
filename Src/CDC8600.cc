@@ -1240,6 +1240,15 @@ namespace CDC8600
 		X2.reset();
 	}
 
+	void STstage::reset()
+	{
+		rxready = true; rxdone = true; txready = true; txdone = true;
+		RF.reset();
+		X0.reset();
+		X1.reset();
+		X2.reset();
+		X3.reset();
+	}
 	void CQstage::tick() 	
 	{
 	    if (rxdone)
@@ -1313,6 +1322,28 @@ namespace CDC8600
 			copy(96, X2.out, 0, out, 0); X2.txdone = true;
 			transfer(96, X1, 0, X2, 0);
 			transfer(96, RF, 0, X1, 0);
+			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
+	}
+
+	void STstage::tick()
+	{
+		if (txdone && rxdone)
+		{
+			RF.tick();
+			X0.tick();
+			X1.tick();
+			X2.tick();
+			X3.tick();
+
+			copy(96, X3.out, 0, out, 0); X3.txdone = true;
+			transfer(96, X2, 0, X3, 0);
+			transfer(96, X1, 0, X2, 0);
+			transfer(96, X0, 0, X1, 0);
+			transfer(96, RF, 0, X0, 0);
 			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
 			rxdone = false; rxready = true;
@@ -1533,6 +1564,167 @@ namespace CDC8600
 
 	bool FPstage::WBstage::busy() { return pipes::F(in); }
 
+	bool STstage::busy()
+	{
+		if(RF.busy()) return true;
+		if(X0.busy()) return true;
+		if(X1.busy()) return true;
+		if(X2.busy()) return true;
+		if(X3.busy()) return true;
+		return pipes::F(in);
+	}
+
+	bool STstage::X0stage::busy() {return pipes::F(in);}
+	bool STstage::X1stage::busy() {return pipes::F(in);}
+	bool STstage::X2stage::busy() {return pipes::F(in);}
+	bool STstage::X3stage::busy() {return pipes::F(in);}
+	bool STstage::RFstage::busy() {return pipes::F(in);}
+
+
+	/* Class method definitions for FPstage, and all its sub stages */
+
+	void FPstage::reset()
+	{
+	    rxready = true; rxdone = true; txready = true; txdone = true;
+	    RF.reset(); D0.reset(); A0.reset(); A1.reset();
+		A2.reset(); A3.reset(); M0.reset(); M1.reset();
+		M2.reset(); M3.reset(); M4.reset(); M5.reset();
+		M6.reset(); M7.reset(); WB.reset();
+	}
+
+	/* tick() keeps the pipeline flowing */
+	void FPstage::tick()
+	{
+		/* This is a the default for the data flow, and we shouldn't do this */
+
+		// u32 m = in.size();
+	    // u32 n = out.size();
+
+		// if (txdone && rxdone)
+		// {
+	    //    for (u32 i=0; i<n; i++) out[i] = false;
+	    //    for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
+		// }
+
+		if (txdone && rxdone) {
+			RF.tick();
+
+			M0.tick(); M1.tick(); M2.tick(); M3.tick();
+			M4.tick(); M5.tick(); M6.tick(); M7.tick();
+
+			A0.tick();A1.tick(); A2.tick(); A3.tick();
+
+			D0.tick();
+
+			WB.tick();
+
+			copy(96, WB.out, 0, out, 0); WB.txdone = true;
+
+			/* Transfer to 3 channels of WB's input, only one of them should be non-zero */
+			transfer(96, M7, 0, WB, 0*96);
+			transfer(96, A3, 0, WB, 1*96);
+			transfer(96, D0, 0, WB, 2*96);
+
+			transfer(96, M6, 0, M7, 0*96);
+			transfer(96, M5, 0, M6, 0*96);
+			transfer(96, M4, 0, M5, 0*96);
+			transfer(96, M3, 0, M4, 0*96);
+			transfer(96, M2, 0, M3, 0*96);
+			transfer(96, M1, 0, M2, 0*96);
+			transfer(96, M0, 0, M1, 0*96);
+
+			transfer(96, A2, 0, A3, 0*96);
+			transfer(96, A1, 0, A2, 0*96);
+			transfer(96, A0, 0, A1, 0*96);
+
+			switch(operations::mappers[pipes::F(RF.out)]->pipe())
+			{
+				case CDC8600::pipes::FPMul:
+					transfer(96, RF, 0, M0, 0); break;
+				case CDC8600::pipes::FPAdd:
+					transfer(96, RF, 0, A0, 0); break;
+				case CDC8600::pipes::FPDiv:
+					transfer(96, RF, 0, D0, 0); break;
+				default:
+					assert(false);
+			}
+
+			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
+
+		pipe_traffic = pipe_traffic << 1;
+	}
+
+	bool FPstage::busy()
+	{
+	    if (RF.busy()) return true;
+	    if (D0.busy()) return true;
+		if (A0.busy()) return true;
+		if (A1.busy()) return true;
+		if (A2.busy()) return true;
+		if (A3.busy()) return true;
+		if (M0.busy()) return true;
+		if (M1.busy()) return true;
+		if (M2.busy()) return true;
+		if (M3.busy()) return true;
+		if (M4.busy()) return true;
+		if (M5.busy()) return true;
+		if (M6.busy()) return true;
+		if (M7.busy()) return true;
+	    if (WB.busy()) return true;
+	    return pipes::F(in);
+	}
+
+	void FPstage::RFstage::tick()
+	{
+		// TODO
+	}
+
+	void FPstage::WBstage::tick()
+	{
+		// assert: only one 96-bit segment should be non-zero.
+		// TODO
+	}
+	
+	bool FPstage::RFstage::busy() { return pipes::F(in); }
+
+	bool FPstage::M0stage::busy() { return pipes::F(in); }
+	bool FPstage::M1stage::busy() { return pipes::F(in); }
+	bool FPstage::M2stage::busy() { return pipes::F(in); }
+	bool FPstage::M3stage::busy() { return pipes::F(in); }
+	bool FPstage::M4stage::busy() { return pipes::F(in); }
+	bool FPstage::M5stage::busy() { return pipes::F(in); }
+	bool FPstage::M6stage::busy() { return pipes::F(in); }
+	bool FPstage::M7stage::busy() { return pipes::F(in); }
+
+	bool FPstage::A0stage::busy() { return pipes::F(in); }
+	bool FPstage::A1stage::busy() { return pipes::F(in); }
+	bool FPstage::A2stage::busy() { return pipes::F(in); }
+	bool FPstage::A3stage::busy() { return pipes::F(in); }
+
+	bool FPstage::D0stage::busy() { return pipes::F(in); }
+
+	bool FPstage::WBstage::busy() { return pipes::F(in); }
+
+	bool STstage::busy()
+	{
+		if(RF.busy()) return true;
+		if(X0.busy()) return true;
+		if(X1.busy()) return true;
+		if(X2.busy()) return true;
+		if(X3.busy()) return true;
+		return pipes::F(in);
+	}
+
+	bool STstage::X0stage::busy() {return pipes::F(in);}
+	bool STstage::X1stage::busy() {return pipes::F(in);}
+	bool STstage::X2stage::busy() {return pipes::F(in);}
+	bool STstage::X3stage::busy() {return pipes::F(in);}
+	bool STstage::RFstage::busy() {return pipes::F(in);}
+
 	bool CQstage::busy()  { return opsq.size(); }
 
 	bool busy()
@@ -1742,6 +1934,17 @@ namespace CDC8600
 	{
 		/* Can be further improved by dumping the sub stages as well */
 		dumpoutop(out);
+	}
+
+	void FPstage::dumpout()
+	{
+		/* Can be further improved by dumping the sub stages as well */
+		dumpoutop(out);
+
+
+	void STstage::dumpout()
+	{
+	    dumpoutop(out);
 	}
 
 	void run
