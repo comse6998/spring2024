@@ -3,6 +3,7 @@
 #include<fstream>
 #include<CDC8600.hh>
 #include<ISA.hh>
+#include<bitset>
 #ifdef _OPENMP
 #include<omp.h>
 #endif
@@ -1416,7 +1417,12 @@ namespace CDC8600
 
 	bool FXstage::M7stage::busy() { return pipes::F(in); }
 
-	bool FXstage::WBstage::busy() { return pipes::F(in); }
+	bool FXstage::WBstage::busy() {
+            u32 Fmult = pipes::F(bitvector(in.begin(), in.begin()+96));			// extract F field
+            u32 Farith = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
+            u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));			// extract F field
+            return Fmult || Farith || Flogical;
+        }
 
 	bool BRstage::busy()
 	{
