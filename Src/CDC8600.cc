@@ -1078,6 +1078,30 @@ namespace CDC8600
 	   }
 	}
 
+	void LDstage::tick()
+	{
+	   if (txdone && rxdone)
+	   {
+	       RF.tick();
+	       X0.tick();
+	       X1.tick();
+		   X2.tick();
+		   X3.tick();
+	       WB.tick();
+
+	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
+		   transfer(96, X3, 0, WB, 0);
+		   transfer(96, X2, 0, X3, 0);
+	       transfer(96, X1, 0, X2, 0);
+	       transfer(96, X0, 0, X1, 0);
+	       transfer(96, RF, 0, X0, 0);
+	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+	       rxdone = false; rxready = true;
+	       txready = true; txdone = false;
+	   }
+	}
+
 	void FXstage::WBstage::tick()
 	{
 	    if (txdone && rxdone)
@@ -1100,12 +1124,45 @@ namespace CDC8600
 	    }
 	}
 
+	void LDstage::WBstage::tick()
+	{
+		if (txdone && rxdone)
+	    {
+		u32 m = in.size();
+		u32 n = out.size();
+		for (u32 i=0; i<n; i++) out[i] = false;
+		for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
+		rxdone = false; rxready = true;
+		txready = true; txdone = false;
+
+		u32 F = pipes::F(in);			// extract F field
+		u32 jreg = pipes::jreg(in);		// extract i register field
+
+		if (F)
+		{
+		    PROC[me()].Pfull[jreg] = true;	// target register is now full
+		    // cout << "Physical register " << ireg << " is now full" << endl;
+		}
+	    }
+	}
+
 	void FXstage::reset()
 	{
 	    rxready = true; rxdone = true; txready = true; txdone = true;
 	    RF.reset();
 	    L0.reset();
 	    L1.reset();
+	    WB.reset();
+	}
+
+	void LDstage::reset()
+	{
+		rxready = true; rxdone = true; txready = true; txdone  = true;
+		RF.reset();
+	    X0.reset();
+	    X1.reset();
+		X2.reset();
+		X3.reset();
 	    WB.reset();
 	}
 
@@ -1226,6 +1283,17 @@ namespace CDC8600
 	    return pipes::F(in);
 	}
 
+	bool LDstage::busy()
+	{
+		if (RF.busy()) return true;
+	    if (X0.busy()) return true;
+	    if (X1.busy()) return true;
+		if (X2.busy()) return true;
+		if (X3.busy()) return true;
+	    if (WB.busy()) return true;
+	    return pipes::F(in);
+	}
+
 	bool FXstage::RFstage::busy() { return pipes::F(in); }
 
 	bool FXstage::L0stage::busy() { return pipes::F(in); }
@@ -1233,6 +1301,18 @@ namespace CDC8600
 	bool FXstage::L1stage::busy() { return pipes::F(in); }
 
 	bool FXstage::WBstage::busy() { return pipes::F(in); }
+
+	bool LDstage::RFstage::busy() { return pipes::F(in); }
+
+	bool LDstage::X0stage::busy() { return pipes::F(in); }
+
+	bool LDstage::X1stage::busy() { return pipes::F(in); }
+
+	bool LDstage::X2stage::busy() { return pipes::F(in); }
+
+	bool LDstage::X3stage::busy() { return pipes::F(in); }
+
+	bool LDstage::WBstage::busy() { return pipes::F(in); }
 
 	bool BRstage::busy()
 	{
@@ -1441,6 +1521,11 @@ namespace CDC8600
 	    dumpoutop(out);
 	}
 
+	void LDstage::dumpout()
+	{
+		dumpoutop(out);
+	}
+	
 	void CQstage::dumpout()
 	{
 	    dumpoutop(out);
@@ -1469,9 +1554,11 @@ namespace CDC8600
 		 << "                                                                   RM | "
 		 << "                             BR[0] | "
 		 << "                             FX[0] | "
+		 << "                             LD[0] | "
 		 << "                             CQ[0] | "
 		 << "                             BR[1] | "
 		 << "                             FX[1] | "
+		 << "                             LD[1] | "
 		 << "                             CQ[1]"
 		 << endl;
 
@@ -1485,6 +1572,8 @@ namespace CDC8600
 		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K"
 		 << endl;
 
@@ -1493,6 +1582,8 @@ namespace CDC8600
 		 << "------------------------------+-"
 		 << "------------------------------+-"
 		 << "----------------------------------------------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
@@ -1512,9 +1603,11 @@ namespace CDC8600
 		RM.dumpout();    cout << " | ";
 		BR[0].dumpout(); cout << " | ";
 		FX[0].dumpout(); cout << " | ";
+		LD[0].dumpout(); cout << " | ";
 		CQ[0].dumpout(); cout << " | ";
 		BR[1].dumpout(); cout << " | ";
 		FX[1].dumpout(); cout << " | ";
+		LD[1].dumpout(); cout << " | ";
 		CQ[1].dumpout();
 		cout << endl;
 	    }
