@@ -1209,13 +1209,13 @@ namespace CDC8600
 	{
 	    if (txdone && rxdone)
 	    {
-		u32 m = in.size();
+		// u32 m = in.size();
 		u32 n = out.size();
 		for (u32 i=0; i<n; i++) out[i] = false;
 		bool mult = false;
 		bool arith = false;
 		bool logical = false;
-		for (int i = 0; i < n; ++i) {
+		for (u32 i = 0; i < n; ++i) {
 			if (in[i])
 				mult = true;
 			if (in[i+96])
