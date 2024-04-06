@@ -716,16 +716,88 @@ namespace CDC8600
 		class L0stage : public stage<96,96>
 		{
 		    public:
-			bool busy();
+		    bool busy();
 		};
-
+		
 		class L1stage : public stage<96,96>
 		{
 		    public:
-			bool busy();
+		    bool busy();
+		};
+		
+		class A0stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class A1stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class A2stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class A3stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class M0stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class M1stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class M2stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class M3stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class M4stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class M5stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class M6stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
+		};
+		
+		class M7stage : public stage<96,96>
+		{
+		    public:
+		    bool busy();
 		};
 
-		class WBstage : public stage<96,96>
+		class WBstage : public stage<3*96,96>
 		{
 		    public:
 			void tick();
@@ -736,6 +808,18 @@ namespace CDC8600
 		RFstage RF;
 		L0stage L0;
 		L1stage L1;
+		A0stage A0;
+		A1stage A1;
+		A2stage A2;
+		A3stage A3;
+		M0stage M0;
+		M1stage M1;
+		M2stage M2;
+		M3stage M3;
+		M4stage M4;
+		M5stage M5;
+		M6stage M6;
+		M7stage M7;
 		WBstage WB;
 
 		void tick();

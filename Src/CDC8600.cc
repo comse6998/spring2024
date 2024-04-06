@@ -651,7 +651,6 @@ namespace CDC8600
 	    makeinstr[0x17] = new maker<idzkj>;
 	    makeinstr[0x13] = new maker<idjkj>;
 	    makeinstr[0x0D] = new maker<ipjkj>;
-	    makeinstr[0x06] = new maker<isjki>;
 	    makeinstr[0x30] = new maker<jmp>;
 	    makeinstr[0x37] = new maker<jmpn>;
 	    makeinstr[0x35] = new maker<jmpnz>;
@@ -663,6 +662,7 @@ namespace CDC8600
 	    makeinstr[0x01] = new maker<lpjkj>;
 
             /* Deal with instructions with 4-bit codes */
+            makeinstr[0x60] = new maker<isjki>;
             makeinstr[0xB0] = new maker<bb>;
             makeinstr[0x70] = new maker<idjki>;
             makeinstr[0x80] = new maker<fadd>;
@@ -672,6 +672,7 @@ namespace CDC8600
             makeinstr[0xF0] = new maker<sdjki>;
             for (u32 i = 0x01; i < 0x10; ++i) 
 	    {
+                makeinstr[0x60 + i] = makeinstr[0x60];
                 makeinstr[0xB0 + i] = makeinstr[0xB0];
                 makeinstr[0x70 + i] = makeinstr[0x70];
                 makeinstr[0x80 + i] = makeinstr[0x80];
@@ -1062,19 +1063,45 @@ namespace CDC8600
 	{
 	   if (txdone && rxdone)
 	   {
-	       RF.tick();
-	       L0.tick();
-	       L1.tick();
-	       WB.tick();
-
-	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
-	       transfer(96, L1, 0, WB, 0);
-	       transfer(96, L0, 0, L1, 0);
-	       transfer(96, RF, 0, L0, 0);
-	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
-
-	       rxdone = false; rxready = true;
-	       txready = true; txdone = false;
+	        RF.tick();
+	        L0.tick();
+	        L1.tick();
+	        A0.tick();
+	        A1.tick();
+	        A2.tick();
+	        A3.tick();
+	        M0.tick();
+	        M1.tick();
+	        M2.tick();
+	        M3.tick();
+	        M4.tick();
+	        M5.tick();
+	        M6.tick();
+	        M7.tick();
+	        WB.tick();
+	        
+	        copy(96, WB.out, 0, out, 0); WB.txdone = true;
+	        transfer(96, M7, 0, WB, 0*96);
+	        transfer(96, M6, 0, M7, 0);
+	        transfer(96, M5, 0, M6, 0);
+	        transfer(96, M4, 0, M5, 0);
+	        transfer(96, M3, 0, M4, 0);
+	        transfer(96, M2, 0, M3, 0);
+	        transfer(96, M1, 0, M2, 0);
+	        transfer(96, M0, 0, M1, 0);
+	        transfer(96, RF, 0, M0, 0);
+	        transfer(96, A3, 0, WB, 1*96);
+	        transfer(96, A2, 0, A3, 0);
+	        transfer(96, A1, 0, A2, 0);
+	        transfer(96, A0, 0, A1, 0);
+	        transfer(96, RF, 0, A0, 0);
+	        transfer(96, L1, 0, WB, 2*96);
+	        transfer(96, L0, 0, L1, 0);
+	        transfer(96, RF, 0, L0, 0);
+	        copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+	        
+	        rxdone = false; rxready = true;
+	        txready = true; txdone = false;
 	   }
 	}
 
@@ -1089,14 +1116,13 @@ namespace CDC8600
 		rxdone = false; rxready = true;
 		txready = true; txdone = false;
 
-		u32 F = pipes::F(in);			// extract F field
-		u32 ireg = pipes::ireg(in);		// extract i register field
-
-		if (F)
-		{
-		    PROC[me()].Pfull[ireg] = true;	// target register is now full
-		    // cout << "Physical register " << ireg << " is now full" << endl;
-		}
+		bitvector M(in.begin(), in.begin() + 1*96);
+		bitvector A(in.begin()+1*96, in.begin()+2*96);
+		bitvector L(in.begin()+2*96, in.end()); 
+		u32 Fm = pipes::F(M), Fa = pipes::F(A), Fl = pipes::F(L);
+		if (Fm && operations::mappers[Fm]->pipe() == CDC8600::pipes::FXMul)   PROC[me()].Pfull[pipes::ireg(M)] = true;
+		if (Fa && operations::mappers[Fa]->pipe() == CDC8600::pipes::FXArith) PROC[me()].Pfull[pipes::ireg(A)] = true;
+		if (Fl && operations::mappers[Fa]->pipe() == CDC8600::pipes::FXLogic) PROC[me()].Pfull[pipes::ireg(L)] = true;
 	    }
 	}
 
@@ -1106,6 +1132,18 @@ namespace CDC8600
 	    RF.reset();
 	    L0.reset();
 	    L1.reset();
+	    A0.reset();
+	    A1.reset();
+	    A2.reset();
+	    A3.reset();
+	    M0.reset();
+	    M1.reset();
+	    M2.reset();
+	    M3.reset();
+	    M4.reset();
+	    M5.reset();
+	    M6.reset();
+	    M7.reset();
 	    WB.reset();
 	}
 
@@ -1253,17 +1291,45 @@ namespace CDC8600
 	    if (RF.busy()) return true;
 	    if (L0.busy()) return true;
 	    if (L1.busy()) return true;
+	    if (A0.busy()) return true;
+	    if (A1.busy()) return true;
+	    if (A2.busy()) return true;
+	    if (A3.busy()) return true;
+	    if (M0.busy()) return true;
+	    if (M1.busy()) return true;
+	    if (M2.busy()) return true;
+	    if (M3.busy()) return true;
+	    if (M4.busy()) return true;
+	    if (M5.busy()) return true;
+	    if (M6.busy()) return true;
+	    if (M7.busy()) return true;
 	    if (WB.busy()) return true;
 	    return pipes::F(in);
 	}
 
 	bool FXstage::RFstage::busy() { return pipes::F(in); }
-
 	bool FXstage::L0stage::busy() { return pipes::F(in); }
-
 	bool FXstage::L1stage::busy() { return pipes::F(in); }
-
-	bool FXstage::WBstage::busy() { return pipes::F(in); }
+	bool FXstage::A0stage::busy() { return pipes::F(in); }
+	bool FXstage::A1stage::busy() { return pipes::F(in); }
+	bool FXstage::A2stage::busy() { return pipes::F(in); }
+	bool FXstage::A3stage::busy() { return pipes::F(in); }
+	bool FXstage::M0stage::busy() { return pipes::F(in); }
+	bool FXstage::M1stage::busy() { return pipes::F(in); }
+	bool FXstage::M2stage::busy() { return pipes::F(in); }
+	bool FXstage::M3stage::busy() { return pipes::F(in); }
+	bool FXstage::M4stage::busy() { return pipes::F(in); }
+	bool FXstage::M5stage::busy() { return pipes::F(in); }
+	bool FXstage::M6stage::busy() { return pipes::F(in); }
+	bool FXstage::M7stage::busy() { return pipes::F(in); }
+	bool FXstage::WBstage::busy() { 
+		bitvector M(in.begin(), in.begin() + 1*96);
+		bitvector A(in.begin()+1*96, in.begin()+2*96);
+		bitvector L(in.begin()+2*96, in.end());
+		return (pipes::F(M) == CDC8600::pipes::FXMul || 
+				pipes::F(A) == CDC8600::pipes::FXArith || 
+				pipes::F(L)  == CDC8600::pipes::FXLogic);
+	}
 
 	bool BRstage::busy()
 	{

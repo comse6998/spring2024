@@ -39,4 +39,11 @@ class isjki : public Fijk
 	    _j = (code >> 4) & 0xf;     // extract j
 	    _k = code  & 0xf;           // extract k
         }
+
+	vector<operations::operation*> crack()
+	{
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::isjki(_i, _j, _k, 0));
+	    return ops;
+	}
 };
