@@ -758,6 +758,9 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fadd"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x8 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FPAdd; }
         };
 
         class fmul : public FPop
@@ -771,6 +774,9 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fmul"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0xC << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FPMul; }
         };
 
         class fsub : public FPop
@@ -784,6 +790,9 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fsub"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x9 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FPAdd; }
         };
     } // namespace operations
 } // namespace CDC8600

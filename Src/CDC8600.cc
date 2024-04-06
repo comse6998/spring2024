@@ -1050,18 +1050,28 @@ namespace CDC8600
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FP[_ix].pipe_traffic += 0x01;
 													}
+													break;
 					case CDC8600::pipes::FPAdd:	if((FP[_ix].pipe_traffic & 0x10) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FP[_ix].pipe_traffic += 0x10;
 													}
+													break;
 					case CDC8600::pipes::FPDiv:	if((FP[_ix].pipe_traffic & 0x80) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FP[_ix].pipe_traffic += 0x80;
 													}
+													break;
+					case CDC8600::pipes::BR:
+					case CDC8600::pipes::ST:
+					case CDC8600::pipes::LD:		{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation i
+													}
+													break;
 					default : assert(false); 	// this should not happen
 				}
 			// cout << "Selecting operation " << pipes::op(out) << " from position " << i << " in issue queue" << endl;
@@ -1481,7 +1491,13 @@ namespace CDC8600
 			transfer(96, A1, 0, A2, 0*96);
 			transfer(96, A0, 0, A1, 0*96);
 
-			switch(operations::mappers[pipes::F(RF.out)]->pipe())
+			// cout << "FPStage::tick(): F for operations: " << endl;
+			// cout << pipes::F(in) << endl;
+
+			// cout << operations::mappers[pipes::F(in)]->pipe();
+			// cout << endl;
+
+			switch(operations::mappers[pipes::F(in)]->pipe())
 			{
 				case CDC8600::pipes::FPMul:
 					transfer(96, RF, 0, M0, 0); break;
@@ -1490,7 +1506,8 @@ namespace CDC8600
 				case CDC8600::pipes::FPDiv:
 					transfer(96, RF, 0, D0, 0); break;
 				default:
-					assert(false);
+					// Should not assert false here, since default for no-op is FXArith
+					break;
 			}
 
 			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
