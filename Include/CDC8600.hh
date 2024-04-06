@@ -754,6 +754,56 @@ namespace CDC8600
 
 	class LDstage : public stage<96,96>
 	{
+        private:
+        class X0stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X1stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X2stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X3stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+
+        class RFstage : public stage<96,96>
+		{
+		    public:
+			bool busy();
+		};
+        class WBstage : public stage<96,96>
+		{
+		    public:
+			void tick();
+			bool busy();
+		};
+
+        public : 
+        RFstage RF;
+		WBstage WB;
+        X0stage X0;
+        X1stage X1;
+        X2stage X2;
+        X3stage X3;
+
+		void tick();
+		void reset();
+		void dumpout();
+		bool busy();
 	};
 
 	extern LDstage LD[2];
