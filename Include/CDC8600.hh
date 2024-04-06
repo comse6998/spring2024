@@ -844,7 +844,7 @@ namespace CDC8600
         class RFstage : public stage<96,3*96>
         {
 		    public:
-			void tick();
+			// Default tick()
 			bool busy();
         };
         class M0stage : public stage<96,96>

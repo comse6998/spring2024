@@ -1450,17 +1450,6 @@ namespace CDC8600
 	/* tick() keeps the pipeline flowing */
 	void FPstage::tick()
 	{
-		/* This is a the default for the data flow, and we shouldn't do this */
-
-		// u32 m = in.size();
-	    // u32 n = out.size();
-
-		// if (txdone && rxdone)
-		// {
-	    //    for (u32 i=0; i<n; i++) out[i] = false;
-	    //    for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
-		// }
-
 		if (txdone && rxdone) {
 			RF.tick();
 
@@ -1533,15 +1522,57 @@ namespace CDC8600
 	    return pipes::F(in);
 	}
 
-	void FPstage::RFstage::tick()
-	{
-		// TODO
-	}
-
 	void FPstage::WBstage::tick()
 	{
-		// assert: only one 96-bit segment should be non-zero.
-		// TODO
+		// WBstage output size is 96, input size is 96*3 
+		u32 m = in.size();
+	    u32 n = out.size();
+		u32 offset = 0;
+
+		if (txdone && rxdone) {
+			for (u32 i=0; i<n; i++) out[i] = false;
+
+			// assert: only one 96-bit segment should be non-zero.
+			u32 F_FPMul = pipes::F(bitvector(in.begin(), in.begin()+96));
+			u32 F_FPAdd = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));
+			u32 F_FPDiv = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));
+
+			u32 ireg_FPMul = pipes::ireg(bitvector(in.begin(), in.begin()+96));
+			u32 ireg_FPAdd = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));
+			u32 ireg_FPDiv = pipes::ireg(bitvector(in.begin()+96*2, in.end()));
+
+			bool is_FPMul = false;
+			bool is_FPAdd = false;
+			bool is_FPDiv = false;
+			for (int i = 0; i < n; ++i) {
+				if (in[i]) {
+					is_FPMul = true;
+					offset = 0;
+				}
+				if (in[i+96]) {
+					is_FPAdd = true;
+					offset = 96;
+				}
+				if (in[i+96*2]) {
+					is_FPDiv = true;
+					offset = 96 * 2;
+				}
+			}
+
+			assert(((int)is_FPMul) + (int)is_FPAdd + (int)is_FPDiv <= 1);
+
+			for (u32 i=0; i<min(m,n); i++) out[i] = in[i+offset];
+			
+			if (is_FPMul)
+				PROC[me()].Pfull[ireg_FPMul] = true;
+			else if (is_FPAdd)
+				PROC[me()].Pfull[ireg_FPAdd] = true;
+			else if (is_FPDiv)
+				PROC[me()].Pfull[ireg_FPDiv] = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
 	}
 	
 	bool FPstage::RFstage::busy() { return pipes::F(in); }
@@ -1562,7 +1593,13 @@ namespace CDC8600
 
 	bool FPstage::D0stage::busy() { return pipes::F(in); }
 
-	bool FPstage::WBstage::busy() { return pipes::F(in); }
+	bool FPstage::WBstage::busy()
+	{
+		u32 F_FPMul = pipes::F(bitvector(in.begin(), in.begin()+96));
+		u32 F_FPAdd = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));
+		u32 F_FPDiv = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));
+		return F_FPMul || F_FPAdd || F_FPDiv;
+	}
 
 	bool STstage::busy()
 	{
