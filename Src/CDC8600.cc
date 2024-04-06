@@ -1023,25 +1023,67 @@ namespace CDC8600
 		    {
 				switch(operations::mappers[pipes::F(opsq[i])]->pipe())
 				{
-					case CDC8600::pipes::FXArith: 	if(FX[_ix].pipe_traffic & 0x10 == 0)
+					case CDC8600::pipes::FXArith: 	if((FX[_ix].pipe_traffic & 0x10) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FX->pipe_traffic += 0x10;
-													}
+													} 
 													break;
-					case CDC8600::pipes::FXMul:  	if(FX[_ix].pipe_traffic & 0x01 == 0)
+					case CDC8600::pipes::FXMul:  	if((FX[_ix].pipe_traffic & 0x01) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FX->pipe_traffic += 0x01;
-													}
+													} 
 													break;
-					case CDC8600::pipes::FXLogic: 	if(FX[_ix].pipe_traffic & 0x40 == 0)
+					case CDC8600::pipes::FXLogic: 	if((FX[_ix].pipe_traffic & 0x40) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
 														FX->pipe_traffic += 0x40;
+													} 
+													break;
+					case CDC8600::pipes::BR:	if(true)
+												 	{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation i														
+													}
+													std::cout << "pipe::BR" << endl;
+													break;
+					case CDC8600::pipes::ST:	if(true)
+												 	{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														cout << "pipe::ST" << endl;
+													}
+													break;
+					case CDC8600::pipes::LD:	if(true)
+												 	{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation 
+														cout << "pipe::LD" << endl;
+													}
+													break;
+					case CDC8600::pipes::FPAdd:	if(true)
+												 	{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														cout << "pipe::FPAdd" << endl;
+													}
+													break;
+					case CDC8600::pipes::FPMul:	if(true)
+												 	{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation 
+														cout << "pipe::FPMul" << endl;
+													}
+													break;
+					case CDC8600::pipes::FPDiv:	if(true)
+												 	{
+														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
+														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														cout << "pipe::FPDiv" << endl;
 													}
 													break;
 					default : assert(false); 	// this should not happen
@@ -1065,16 +1107,16 @@ namespace CDC8600
 	      for (u32 i=0; i<out.size(); i++) out[i] = false;
 	      switch(operations::mappers[pipes::F(in)]->pipe())
 	      {
-		  case CDC8600::pipes::BR : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
-		  case CDC8600::pipes::ST : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
-		  case CDC8600::pipes::LD : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
-		  case CDC8600::pipes::FXArith: 
-		  case CDC8600::pipes::FXMul:
-		  case CDC8600::pipes::FXLogic: for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
-	      case CDC8600::pipes::FPAdd:
-	      case CDC8600::pipes::FPMul:
-		  case CDC8600::pipes::FPDiv: for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
-		  default : assert(false); 	// this should not happen
+			case CDC8600::pipes::BR : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
+			case CDC8600::pipes::ST : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
+			case CDC8600::pipes::LD : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
+			case CDC8600::pipes::FXArith: 
+			case CDC8600::pipes::FXMul:
+			case CDC8600::pipes::FXLogic: for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
+			case CDC8600::pipes::FPAdd:
+			case CDC8600::pipes::FPMul:
+			case CDC8600::pipes::FPDiv: for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
+			default : assert(false); 	// this should not happen
 	      }
 	      rxdone = false; rxready = true;
 	      txready = true; txdone = false;
@@ -1083,9 +1125,6 @@ namespace CDC8600
 
 	void FXstage::tick()
 	{
-
-	   pipe_traffic << 1;
-
 
 	   if (txdone && rxdone)
 	   {
@@ -1113,6 +1152,10 @@ namespace CDC8600
 			case CDC8600::pipes::FXLogic: transfer(96, RF, 0, L0, 0); break;
 			default : assert(false); 	// this should not happen
 	    }
+		   pipe_traffic = pipe_traffic << 1;
+		   std::cout << "this is pipe traffic: " << std::bitset<8>(FX[_ix].pipe_traffic) << endl;
+
+
 
 	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
@@ -1166,7 +1209,7 @@ namespace CDC8600
 		else if (logical)
 			offset = 96 * 2;
 
-		for (u32 i=0; i<min(m,n); i++)
+		for (u32 i=0; i<96; i++)
 		{
 
 			out[i] = in[i+offset];
@@ -1176,11 +1219,11 @@ namespace CDC8600
 
 		u32 Fmult = pipes::F(bitvector(in.begin(), in.begin()+96));			// extract F field
 		u32 Farith = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
-		u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.end()));			// extract F field
+		u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));			// extract F field
 
 		u32 iregmult = pipes::ireg(bitvector(in.begin(), in.begin()+96));			// extract F field
 		u32 iregarith = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
-		u32 ireglogical = pipes::ireg(bitvector(in.begin()+96*2, in.end()));			// extract F field
+		u32 ireglogical = pipes::ireg(bitvector(in.begin()+96*2, in.begin()+3*96));			// extract F field
 
 		if (Fmult)
 			PROC[me()].Pfull[iregmult] = true;	// target register is now full
