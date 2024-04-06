@@ -37,4 +37,11 @@ class rdjk : public Fjk
             _k = code  & 0xf;           // extract the k field
             _j = (code >> 4) & 0xf;     // extract the j field
         }
+        
+    vector<operations::operation*> crack()
+	{
+        vector<operations::operation*>	ops;
+	    ops.push_back(new operations::rdw(_j, _k));
+	    return ops;
+    }
 };
