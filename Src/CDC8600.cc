@@ -1049,7 +1049,6 @@ namespace CDC8600
 												 	{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i														
-                                                                                                                std::cout << "pipe::BR" << endl;
 													}
 													break;
 					case CDC8600::pipes::ST:	if(true)
