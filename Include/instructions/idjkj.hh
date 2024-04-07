@@ -43,7 +43,7 @@ class idjkj : public Fjk
 
 	//vector<operations::operation*> crack()
 	//{
-	//    vector<operations::operation*>	ops;
+	//   vector<operations::operation*>	ops;
 	//    ops.push_back(new operations::idjkj(_j, _j, 0, _k));
 	//    return ops;
 	//}
