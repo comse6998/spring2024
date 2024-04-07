@@ -1,14 +1,22 @@
 class rdjk : public Fjk
 {
+    private:
+        u32 _addr;
+
     public:
         rdjk(u08 j, u08 k) : Fjk(0x25, j, k) {}
+        rdjk() : Fjk(0x25, 0, 0) {}
 
         bool execute()
         {
+            u64 addr = (PROC[me()].X(_k).u()) & 0xfffff; // save the address
             stringstream ss;
-            ss << setfill('0') << setw(16) << hex << PROC[me()].X(_k).i(); // combine the source data to the ss
-            PROC[me()].X(_j).i() = PROC[me()].X(_k).i();
-            ss << " " << setw(16) << PROC[me()].X(_j).i() << dec << setfill(' ');
+                addr += PROC[me()].RA().u()*256;		    // Add reference address
+                PROC[me()].X(_j) = MEM[addr];               // Read data
+                _addr = addr;				    // Save read address
+                ss << setfill('0') << setw(16) << hex << addr; // combine the source data to the ss
+                ss << " " << setw(16) << PROC[me()].X(_j).i() << " "<< dec << setfill(' ');
+            
             _trace = ss.str();
             return false;
         }
@@ -20,7 +28,8 @@ class rdjk : public Fjk
 
         bool ops()
         {
-            operations::process<operations::rdw>(_j, _k, 0);
+            operations::process<operations::agen>(params::micro::Xs, _k, 0, 0);
+            operations::process<operations::rdw>(_j, params::micro::Xs, _addr);
             return false;
         }
         
