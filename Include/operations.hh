@@ -349,6 +349,22 @@ namespace CDC8600
 		pipes::dep_t dep() { return pipes::j_dep; }
 		pipes::pipe_t pipe() { return pipes::FXArith; }
 	};
+	class lpjkj : public FXop
+	{
+	    public:
+		lpjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		lpjkj() : FXop(0, 0, 0, 0) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
+		u64 latency() const { return 2; }
+		u64 throughput() const { return 1; }
+		string mnemonic() const { return "lpjkj"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x01 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::j_dep; }
+		pipes::pipe_t pipe() { return pipes::FXLogic; }
+	};
 
 	class isjki : public FXop
 	{
@@ -762,6 +778,9 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fadd"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x80 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FPAdd; }
         };
 
         class fmul : public FPop
@@ -775,6 +794,9 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fmul"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0xA0 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FPMul; }
         };
 
         class fsub : public FPop
@@ -788,6 +810,9 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fsub"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x90 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FPAdd; }
         };
     } // namespace operations
 } // namespace CDC8600

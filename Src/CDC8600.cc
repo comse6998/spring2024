@@ -1140,6 +1140,7 @@ namespace CDC8600
 		   M6.tick();
 		   M7.tick();
 	       WB.tick();
+		   pipe_traffic = pipe_traffic << 1;
 
 		switch(operations::mappers[pipes::F(in)]->pipe())
 	    {
@@ -1148,7 +1149,7 @@ namespace CDC8600
 			case CDC8600::pipes::FXLogic: transfer(96, RF, 0, L0, 0); break;
 			default : assert(false); 	// this should not happen
 	    }
-		   pipe_traffic = pipe_traffic << 1;
+		   
 
 	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
