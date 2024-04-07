@@ -656,6 +656,8 @@ namespace CDC8600
 	    makeinstr[0x0F] = new maker<pass>; // Be explicit
 	    makeinstr[0x24] = new maker<rdjK>;
 	    makeinstr[0x01] = new maker<lpjkj>;
+		makeinstr[0x04] = new maker<cpkj>;
+
 
             /* Deal with instructions with 4-bit codes */
             makeinstr[0xB0] = new maker<bb>;

@@ -505,6 +505,7 @@ namespace CDC8600
 #include<instructions/fsub.hh>                          // floating point subtraction Xi = Xj - Xk                      (p128)
 #include<instructions/bb.hh>                            // Branch backward i words if (Xj) < (Xk)
 #include<instructions/jmpnz.hh>                         // Jump to P + K if (Xj) unequal to 0 
+#include<instructions/cpkj.hh>                         // Copy Xk to Xj                                                (p40)
     } // namespace instructions
 
     extern bool                 tracing;

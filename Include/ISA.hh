@@ -74,5 +74,7 @@
 
 #define fsub(Xi, Xj, Xk)	process(new instructions::fsub(Xi, Xj, Xk), __LINE__);
 
+#define cpkj(Xj, Xk)  process(new instructions::cpkj(Xj, Xk), __LINE__);
+
 
 #endif // _ISA_HH_

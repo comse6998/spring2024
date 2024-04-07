@@ -72,6 +72,11 @@ void test_daxpy(int count, i32 incx, i32 incy)
         dump(PROC[0].trace, "daxpy.tr");
     }
 
+    if (incx==1 && incy == 1){
+        dump(PROC[0].trace);
+        dump(PROC[0].trace, "daxpy.tr");
+    }
+
 }
 
 int main()
