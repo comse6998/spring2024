@@ -15,6 +15,18 @@ class lpjkj : public Fjk
 		return false;
 	}
 
+	bool ops()
+	{
+	    operations::process<operations::lpjkj>(_j, _j, 0, _k);
+	    return false;
+	}
+
+
+	bool match(u08 F)
+	{
+		if (0x01 == F) return true;
+		return false;
+	}
 
 	void decode(u32 code)
         {
@@ -27,5 +39,12 @@ class lpjkj : public Fjk
 	string mnemonic() const
 	{
 	    return "lpjkj";
+	}
+
+	vector<operations::operation*> crack()
+	{
+		vector<operations::operation*>	ops;
+		ops.push_back(new operations::lpjkj(_j, _j, 0, _k));
+		return ops;
 	}
 };

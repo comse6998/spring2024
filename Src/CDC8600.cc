@@ -1056,35 +1056,30 @@ namespace CDC8600
 												 	{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
-														cout << "pipe::ST" << endl;
 													}
 													break;
 					case CDC8600::pipes::LD:	if(true)
 												 	{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation 
-														cout << "pipe::LD" << endl;
 													}
 													break;
 					case CDC8600::pipes::FPAdd:	if(true)
 												 	{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
-														cout << "pipe::FPAdd" << endl;
 													}
 													break;
 					case CDC8600::pipes::FPMul:	if(true)
 												 	{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation 
-														cout << "pipe::FPMul" << endl;
 													}
 													break;
 					case CDC8600::pipes::FPDiv:	if(true)
 												 	{
 														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
 														opsq.erase(opsq.begin() + i);			// dequeue operation i
-														cout << "pipe::FPDiv" << endl;
 													}
 													break;
 					default : assert(false); 	// this should not happen
@@ -1145,6 +1140,7 @@ namespace CDC8600
 		   M6.tick();
 		   M7.tick();
 	       WB.tick();
+		   pipe_traffic = pipe_traffic << 1;
 
 		switch(operations::mappers[pipes::F(in)]->pipe())
 	    {
@@ -1153,7 +1149,7 @@ namespace CDC8600
 			case CDC8600::pipes::FXLogic: transfer(96, RF, 0, L0, 0); break;
 			default : assert(false); 	// this should not happen
 	    }
-		   pipe_traffic = pipe_traffic << 1;
+		   
 
 	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
