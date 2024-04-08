@@ -1004,7 +1004,7 @@ namespace CDC8600
 		case CDC8600::pipes::j_dep  : return (PROC[me()].Pfull[jreg]);				// depends on j register
 		case CDC8600::pipes::jk_dep : return (PROC[me()].Pfull[jreg] & PROC[me()].Pfull[kreg]);	// depends on j and k registers
 		case CDC8600::pipes::no_dep : return true;						// no dependences
-		default 		    		: assert(false);						// should not happen
+		default 		    : assert(false);						// should not happen
 	    }
 
 	    return false;
