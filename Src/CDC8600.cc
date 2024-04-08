@@ -587,9 +587,12 @@ namespace CDC8600
 	    mappers[0x34] = new mapper<jmpz>;
 	    mappers[0xb1] = new mapper<cmpz>;
 	    mappers[0x0d] = new mapper<ipjkj>;
-            mappers[0x13] = new mapper<idjkj>;
-            mappers[0x70] = new mapper<idjki>;
-            mappers[0x60] = new mapper<isjki>;
+        mappers[0x13] = new mapper<idjkj>;
+        mappers[0x70] = new mapper<idjki>;
+        mappers[0x60] = new mapper<isjki>;
+		mappers[0x90] = new mapper<fsub>;
+		mappers[0x80] = new mapper<fadd>;
+		mappers[0xA0] = new mapper<fmul>;
 	}
     } // namespace operations
 
@@ -1043,23 +1046,23 @@ namespace CDC8600
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FX->pipe_traffic += 0x40;
-													} 
+													}
 													break;
-					case CDC8600::pipes::FPMul:	if((FP[_ix].pipe_traffic & 0x01) == 0)
+					case CDC8600::pipes::FPMul:		if((FP[_ix].pipe_traffic & 0x01) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FP[_ix].pipe_traffic += 0x01;
 													}
 													break;
-					case CDC8600::pipes::FPAdd:	if((FP[_ix].pipe_traffic & 0x10) == 0)
+					case CDC8600::pipes::FPAdd:		if((FP[_ix].pipe_traffic & 0x10) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FP[_ix].pipe_traffic += 0x10;
 													}
 													break;
-					case CDC8600::pipes::FPDiv:	if((FP[_ix].pipe_traffic & 0x80) == 0)
+					case CDC8600::pipes::FPDiv:		if((FP[_ix].pipe_traffic & 0x80) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
@@ -1095,7 +1098,7 @@ namespace CDC8600
 			case CDC8600::pipes::BR : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
 			case CDC8600::pipes::ST : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
 			case CDC8600::pipes::LD : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
-			case CDC8600::pipes::FXArith: 
+			case CDC8600::pipes::FXArith:
 			case CDC8600::pipes::FXMul:
 			case CDC8600::pipes::FXLogic: for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
 			case CDC8600::pipes::FPAdd:
@@ -1650,8 +1653,7 @@ namespace CDC8600
 			offset = is_FPAdd ? 96 : offset;
 			is_FPDiv = !(F_FPDiv == 0);
 			offset = is_FPDiv ? 96 * 2 : offset;
-			assert(((int)is_FPMul) + (int)is_FPAdd + (int)is_FPDiv <= 1);
-
+			assert((int)is_FPMul + (int)is_FPAdd + (int)is_FPDiv <= 1);
 			for (u32 i=0; i<min(m,n); i++) out[i] = in[i+offset];
 			
 			if (is_FPMul)

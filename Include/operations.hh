@@ -787,6 +787,7 @@ namespace CDC8600
         {
 	    public:
 		fadd(u08 i, u08 j, u08 k, u08 K) : FPop(i, j, k, K) { }
+		fadd() : FPop(0, 0, 0, 0) { }
 		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -803,6 +804,7 @@ namespace CDC8600
         {
 	    public:
 		fmul(u08 i, u08 j, u08 k, u08 K) : FPop(i, j, k, K) { }
+		fmul() : FPop(0, 0, 0, 0) { }
 		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -819,6 +821,7 @@ namespace CDC8600
         {
 	    public:
 		fsub(u08 i, u08 j, u08 k, u08 K) : FPop(i, j, k, K) { }
+		fsub() : FPop(0, 0, 0, 0) { }
 		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
