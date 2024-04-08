@@ -845,9 +845,9 @@ namespace CDC8600
 
         class RFstage : public stage<96,96>
         {
-		    public:
-			// Default tick()
-			bool busy();
+            public:
+            // Default tick()
+            bool busy();
         };
         class M0stage : public stage<96,96>
         {
@@ -936,31 +936,31 @@ namespace CDC8600
 
         public:
         RFstage RF;
-		M0stage M0;
-		M1stage M1;
+        M0stage M0;
+        M1stage M1;
         M2stage M2;
-		M3stage M3;
-		M4stage M4;
-		M5stage M5;
+        M3stage M3;
+        M4stage M4;
+        M5stage M5;
         M6stage M6;
-		M7stage M7;
+        M7stage M7;
 
         A0stage A0;
-		A1stage A1;
+        A1stage A1;
         A2stage A2;
-		A3stage A3;
+        A3stage A3;
 
-		D0stage D0;
+        D0stage D0;
 
-		WBstage WB;
+        WBstage WB;
 
-		void init(u32 ix) { pipe_traffic = 0; _ix = ix; }
+        void init(u32 ix) { pipe_traffic = 0; _ix = ix; }
         u08 pipe_traffic;
         void reset();
         void tick();
         bool busy();
         void dumpout();
-	};
+    };
 
 	extern FPstage FP[2];
 
