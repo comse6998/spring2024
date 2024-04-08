@@ -1608,8 +1608,8 @@ namespace CDC8600
 
 	bool FPstage::busy()
 	{
-	    if (RF.busy()) return true;
-	    if (D0.busy()) return true;
+		if (RF.busy()) return true;
+		if (D0.busy()) return true;
 		if (A0.busy()) return true;
 		if (A1.busy()) return true;
 		if (A2.busy()) return true;
@@ -1622,8 +1622,8 @@ namespace CDC8600
 		if (M5.busy()) return true;
 		if (M6.busy()) return true;
 		if (M7.busy()) return true;
-	    if (WB.busy()) return true;
-	    return pipes::F(in);
+		if (WB.busy()) return true;
+		return pipes::F(in);
 	}
 
 	void FPstage::WBstage::tick()
