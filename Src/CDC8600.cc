@@ -1026,59 +1026,59 @@ namespace CDC8600
 				{
 					case CDC8600::pipes::FXArith: 	if((FX[_ix].pipe_traffic & 0x10) == 0)
 													{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FX->pipe_traffic += 0x10;
 													} 
 													break;
 					case CDC8600::pipes::FXMul:  	if((FX[_ix].pipe_traffic & 0x01) == 0)
 													{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FX->pipe_traffic += 0x01;
 													} 
 													break;
 					case CDC8600::pipes::FXLogic: 	if((FX[_ix].pipe_traffic & 0x40) == 0)
 													{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FX->pipe_traffic += 0x40;
 													} 
 													break;
 					case CDC8600::pipes::BR:	if(true)
 												 	{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i														
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i														
 													}
 													break;
 					case CDC8600::pipes::ST:	if(true)
 												 	{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 													}
 													break;
 					case CDC8600::pipes::LD:	if(true)
 												 	{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation 
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation 
 													}
 													break;
 					case CDC8600::pipes::FPAdd:	if(true)
 												 	{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 													}
 													break;
 					case CDC8600::pipes::FPMul:	if(true)
 												 	{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation 
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation 
 													}
 													break;
 					case CDC8600::pipes::FPDiv:	if(true)
 												 	{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 													}
 													break;
 					default : assert(false); 	// this should not happen
@@ -1138,7 +1138,7 @@ namespace CDC8600
 		   M5.tick();
 		   M6.tick();
 		   M7.tick();
-	       WB.tick();
+		   WB.tick();
 		   pipe_traffic = pipe_traffic << 1;
 
 		switch(operations::mappers[pipes::F(in)]->pipe())
@@ -1235,12 +1235,12 @@ namespace CDC8600
 		txready = true; txdone = false;
 
 		u32 Fmult = pipes::F(bitvector(in.begin(), in.begin()+96));			// extract F field
-		u32 Farith = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
-		u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));			// extract F field
+		u32 Farith = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));		// extract F field
+		u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));		// extract F field
 
-		u32 iregmult = pipes::ireg(bitvector(in.begin(), in.begin()+96));			// extract F field
-		u32 iregarith = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
-		u32 ireglogical = pipes::ireg(bitvector(in.begin()+96*2, in.begin()+3*96));			// extract F field
+		u32 iregmult = pipes::ireg(bitvector(in.begin(), in.begin()+96));		// extract F field
+		u32 iregarith = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));		// extract F field
+		u32 ireglogical = pipes::ireg(bitvector(in.begin()+96*2, in.begin()+3*96));	// extract F field
 
 		if (Fmult)
 			PROC[me()].Pfull[iregmult] = true;	// target register is now full
@@ -1249,7 +1249,6 @@ namespace CDC8600
 		else if (Flogical)
 			PROC[me()].Pfull[ireglogical] = true;	// target register is now full
 		// cout << "Physical register " << ireg << " is now full" << endl;
-
 	    }
 	}
 
@@ -1443,6 +1442,7 @@ namespace CDC8600
 
 	bool IQstage::busy()
 	{
+	    return false;
 	    return opsq.size();
 	}
 
