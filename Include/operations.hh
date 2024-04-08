@@ -282,7 +282,9 @@ namespace CDC8600
 		string mnemonic() const { return "xKi"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_K) + ")"; }
 		u64 encode() const { return ((u64)0x10 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
-                pipes::dep_t dep() { return pipes::no_dep; }
+        pipes::dep_t dep() { return pipes::no_dep; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
+
 	};
 
 	class idzkj : public FXop
@@ -299,6 +301,8 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_k) + ")"; }
 		u64 encode() const { return ((u64)0x17 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::k_dep; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
+
 	};
 
 	class idjkj : public FXop
@@ -315,6 +319,7 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_K) + ")"; }
 		u64 encode() const { return ((u64)0x13 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::j_dep; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
 	};
 
         class idjki : public FXop
@@ -331,6 +336,8 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 		u64 encode() const { return ((u64)0x70 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
+
 	};
 
 	class isjkj : public FXop
@@ -338,7 +345,7 @@ namespace CDC8600
 	    public:
 		isjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
 		isjkj() : FXop(0, 0, 0, 0) { }
-		u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]  ); }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
 		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return 2; }
@@ -348,6 +355,22 @@ namespace CDC8600
 		u64 encode() const { return ((u64)0x12 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::j_dep; }
 		pipes::pipe_t pipe() { return pipes::FXArith; }
+	};
+	class lpjkj : public FXop
+	{
+	    public:
+		lpjkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		lpjkj() : FXop(0, 0, 0, 0) { }
+		u64 ready() const { return PROC[me()].Pready[_j]; }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
+		u64 latency() const { return 2; }
+		u64 throughput() const { return 1; }
+		string mnemonic() const { return "lpjkj"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x01 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::j_dep; }
+		pipes::pipe_t pipe() { return pipes::FXLogic; }
 	};
 
 	class isjki : public FXop
@@ -364,6 +387,8 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
 		u64 encode() const { return ((u64)0x60 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
+
 	};
 
 	class agen : public FXop
@@ -378,12 +403,16 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "agen"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
+
 	};
 
 	class rdw : public LDop
 	{
 	    public:
 		rdw(u08 j, u08 k, u32 addr) : LDop(j, k, addr) { }
+		rdw(u08 j, u08 k) : LDop(j, k , 0) {}
 		u64 ready() const { return max(PROC[me()].Pready[_k], MEMready[_addr]); }
 		void target(u64 cycle) { PROC[me()].Pready[_j] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); }
@@ -391,6 +420,9 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "rdw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
+		u64 encode() const { return ((u64)0x25 << 56) | ((u64)0 << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _addr; }
+		pipes::pipe_t pipe() { return pipes::LD; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
 	};
 
 	template<> void process<rdw>(u08, u08, u32);
@@ -408,6 +440,8 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "stw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
+		pipes::pipe_t pipe() { return pipes::ST; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
 	};
 
 	template<> void process<stw>(u08, u08, u32);
@@ -457,6 +491,8 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "cmp"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
+		pipes::dep_t dep() { return pipes::j_dep; }
 	};
 
 	class jmp : public BRop
@@ -758,7 +794,7 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fadd"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
-		u64 encode() const { return ((u64)0x8 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		u64 encode() const { return ((u64)0x80 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
 		pipes::pipe_t pipe() { return pipes::FPAdd; }
         };
@@ -774,7 +810,7 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fmul"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
-		u64 encode() const { return ((u64)0xC << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		u64 encode() const { return ((u64)0xA0 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
 		pipes::pipe_t pipe() { return pipes::FPMul; }
         };
@@ -790,7 +826,7 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "fsub"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
-		u64 encode() const { return ((u64)0x9 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		u64 encode() const { return ((u64)0x90 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
 		pipes::pipe_t pipe() { return pipes::FPAdd; }
         };

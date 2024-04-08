@@ -41,10 +41,10 @@ class idjki : public Fijk
             _i = (code >> 8) & 0xf;      // extract the j field
         }
 
-	vector<operations::operation*> crack()
-	{
-	    vector<operations::operation*>	ops;
-	    ops.push_back(new operations::idjki(_i, _j, _k, 0));
-	    return ops;
-	}
+        vector<operations::operation*> crack()
+        {
+            vector<operations::operation*>	ops;
+            ops.push_back(new operations::idjki(_i, _j, _k, 0));
+            return ops;
+        }
 };

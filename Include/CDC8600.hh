@@ -828,7 +828,7 @@ namespace CDC8600
         M7stage M7;
 		WBstage WB;
         u08 pipe_traffic;               //8 bits to keep track of when new issues to FX are possible 
-        void init(u32 ix) { _ix = ix; }
+        void init(u32 ix) { _ix = ix; pipe_traffic = 0; }
 
 		void tick();
 		void reset();
@@ -966,6 +966,56 @@ namespace CDC8600
 
 	class LDstage : public stage<96,96>
 	{
+        private:
+        class X0stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X1stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X2stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+        class X3stage : public stage<96,96>
+        {
+            public :
+            bool busy();
+        };
+
+
+        class RFstage : public stage<96,96>
+		{
+		    public:
+			bool busy();
+		};
+        class WBstage : public stage<96,96>
+		{
+		    public:
+			void tick();
+			bool busy();
+		};
+
+        public : 
+        RFstage RF;
+		WBstage WB;
+        X0stage X0;
+        X1stage X1;
+        X2stage X2;
+        X3stage X3;
+
+		void tick();
+		void reset();
+		void dumpout();
+		bool busy();
 	};
 
 	extern LDstage LD[2];
