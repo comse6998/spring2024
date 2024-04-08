@@ -1580,12 +1580,6 @@ namespace CDC8600
 			transfer(96, A1, 0, A2, 0*96);
 			transfer(96, A0, 0, A1, 0*96);
 
-			// cout << "FPStage::tick(): F for operations: " << endl;
-			// cout << pipes::F(in) << endl;
-
-			// cout << operations::mappers[pipes::F(in)]->pipe();
-			// cout << endl;
-
 			switch(operations::mappers[pipes::F(in)]->pipe())
 			{
 				case CDC8600::pipes::FPMul:
@@ -1596,10 +1590,9 @@ namespace CDC8600
 					transfer(96, RF, 0, D0, 0); break;
 				case  CDC8600::pipes::NOP:
 					// Should not assert false here, since default for no-op is FXArith
-					// Also, shouldn't just break, this will stuck the pipeline
+					// Also, shouldn't just break, this will congest the pipeline
 					transfer(96, RF, 0, M0, 0); break;
 				default:
-					// cout << endl << operations::mappers[pipes::F(in)]->pipe() << endl;
 					assert(false);
 			}
 
