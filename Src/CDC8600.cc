@@ -1045,69 +1045,31 @@ namespace CDC8600
 														FX->pipe_traffic += 0x40;
 													} 
 													break;
-					case CDC8600::pipes::BR:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation i														
-													}
-													break;
-					case CDC8600::pipes::ST:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation i
-													}
-													break;
-					case CDC8600::pipes::LD:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation 
-													}
-													break;
-					case CDC8600::pipes::FPAdd:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation i
-													}
-													break;
-					case CDC8600::pipes::FPMul:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation 
-													}
-													break;
-					case CDC8600::pipes::FPDiv:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation i
-													}
-													break;
 					case CDC8600::pipes::FPMul:	if((FP[_ix].pipe_traffic & 0x01) == 0)
 													{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FP[_ix].pipe_traffic += 0x01;
 													}
 													break;
 					case CDC8600::pipes::FPAdd:	if((FP[_ix].pipe_traffic & 0x10) == 0)
 													{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FP[_ix].pipe_traffic += 0x10;
 													}
 													break;
 					case CDC8600::pipes::FPDiv:	if((FP[_ix].pipe_traffic & 0x80) == 0)
 													{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FP[_ix].pipe_traffic += 0x80;
 													}
 													break;
 					case CDC8600::pipes::BR:
 					case CDC8600::pipes::ST:
-					case CDC8600::pipes::LD:		{
-														copy(96, opsq[i], 0, out, 0);			// copy operation i to output
-														opsq.erase(opsq.begin() + i);			// dequeue operation i
-													}
+					case CDC8600::pipes::LD:		copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+													opsq.erase(opsq.begin() + i);	// dequeue operation i
 													break;
 					default : assert(false); 	// this should not happen
 				}
