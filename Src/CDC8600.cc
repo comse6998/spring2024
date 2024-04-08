@@ -587,9 +587,12 @@ namespace CDC8600
 	    mappers[0x34] = new mapper<jmpz>;
 	    mappers[0xb1] = new mapper<cmpz>;
 	    mappers[0x0d] = new mapper<ipjkj>;
-            mappers[0x13] = new mapper<idjkj>;
-            mappers[0x70] = new mapper<idjki>;
-            mappers[0x60] = new mapper<isjki>;
+	    mappers[0x13] = new mapper<idjkj>;
+	    mappers[0x70] = new mapper<idjki>;
+	    mappers[0x60] = new mapper<isjki>;
+	    mappers[0x90] = new mapper<fsub>;
+	    mappers[0x80] = new mapper<fadd>;
+	    mappers[0xA0] = new mapper<fmul>;
 	}
     } // namespace operations
 
@@ -1043,43 +1046,33 @@ namespace CDC8600
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FX->pipe_traffic += 0x40;
-													} 
-													break;
-					case CDC8600::pipes::BR:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation i														
 													}
 													break;
-					case CDC8600::pipes::ST:	if(true)
-												 	{
+					case CDC8600::pipes::FPMul:		if((FP[_ix].pipe_traffic & 0x01) == 0)
+													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FP[_ix].pipe_traffic += 0x01;
 													}
 													break;
-					case CDC8600::pipes::LD:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation 
-													}
-													break;
-					case CDC8600::pipes::FPAdd:	if(true)
-												 	{
+					case CDC8600::pipes::FPAdd:		if((FP[_ix].pipe_traffic & 0x10) == 0)
+													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FP[_ix].pipe_traffic += 0x10;
 													}
 													break;
-					case CDC8600::pipes::FPMul:	if(true)
-												 	{
-														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
-														opsq.erase(opsq.begin() + i);	// dequeue operation 
-													}
-													break;
-					case CDC8600::pipes::FPDiv:	if(true)
-												 	{
+					case CDC8600::pipes::FPDiv:		if((FP[_ix].pipe_traffic & 0x80) == 0)
+													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FP[_ix].pipe_traffic += 0x80;
 													}
+													break;
+					case CDC8600::pipes::BR:
+					case CDC8600::pipes::ST:
+					case CDC8600::pipes::LD:		copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+													opsq.erase(opsq.begin() + i);	// dequeue operation i
 													break;
 					default : assert(false); 	// this should not happen
 				}
@@ -1105,7 +1098,7 @@ namespace CDC8600
 			case CDC8600::pipes::BR : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
 			case CDC8600::pipes::ST : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
 			case CDC8600::pipes::LD : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
-			case CDC8600::pipes::FXArith: 
+			case CDC8600::pipes::FXArith:
 			case CDC8600::pipes::FXMul:
 			case CDC8600::pipes::FXLogic: for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
 			case CDC8600::pipes::FPAdd:
@@ -1539,6 +1532,169 @@ namespace CDC8600
 	bool BRstage::X2stage::busy() {return pipes::F(in);}
 	bool BRstage::RFstage::busy() {return pipes::F(in);}
 
+	/* Class method definitions for FPstage, and all its sub stages */
+
+	void FPstage::reset()
+	{
+	    rxready = true; rxdone = true; txready = true; txdone = true;
+	    RF.reset(); D0.reset(); A0.reset(); A1.reset();
+		A2.reset(); A3.reset(); M0.reset(); M1.reset();
+		M2.reset(); M3.reset(); M4.reset(); M5.reset();
+		M6.reset(); M7.reset(); WB.reset();
+	}
+
+	/* tick() keeps the pipeline flowing */
+	void FPstage::tick()
+	{
+		if (txdone && rxdone) {
+			RF.tick();
+
+			M0.tick(); M1.tick(); M2.tick(); M3.tick();
+			M4.tick(); M5.tick(); M6.tick(); M7.tick();
+
+			A0.tick();A1.tick(); A2.tick(); A3.tick();
+
+			D0.tick();
+
+			WB.tick();
+
+			copy(96, WB.out, 0, out, 0); WB.txdone = true;
+
+			/* Transfer to 3 channels of WB's input, only one of them should be non-zero */
+			transfer(96, M7, 0, WB, 0*96);
+			transfer(96, A3, 0, WB, 1*96);
+			transfer(96, D0, 0, WB, 2*96);
+
+			transfer(96, M6, 0, M7, 0*96);
+			transfer(96, M5, 0, M6, 0*96);
+			transfer(96, M4, 0, M5, 0*96);
+			transfer(96, M3, 0, M4, 0*96);
+			transfer(96, M2, 0, M3, 0*96);
+			transfer(96, M1, 0, M2, 0*96);
+			transfer(96, M0, 0, M1, 0*96);
+
+			transfer(96, A2, 0, A3, 0*96);
+			transfer(96, A1, 0, A2, 0*96);
+			transfer(96, A0, 0, A1, 0*96);
+
+			// cout << "FPStage::tick(): F for operations: " << endl;
+			// cout << pipes::F(in) << endl;
+
+			// cout << operations::mappers[pipes::F(in)]->pipe();
+			// cout << endl;
+
+			switch(operations::mappers[pipes::F(in)]->pipe())
+			{
+				case CDC8600::pipes::FPMul:
+					transfer(96, RF, 0, M0, 0); break;
+				case CDC8600::pipes::FPAdd:
+					transfer(96, RF, 0, A0, 0); break;
+				case CDC8600::pipes::FPDiv:
+					transfer(96, RF, 0, D0, 0); break;
+				default:
+					// Should not assert false here, since default for no-op is FXArith
+					// Also, shouldn't just break, this will stuck the pipeline
+					transfer(96, RF, 0, M0, 0); break;
+			}
+
+			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
+
+		pipe_traffic = pipe_traffic << 1;
+	}
+
+	bool FPstage::busy()
+	{
+		if (RF.busy()) return true;
+		if (D0.busy()) return true;
+		if (A0.busy()) return true;
+		if (A1.busy()) return true;
+		if (A2.busy()) return true;
+		if (A3.busy()) return true;
+		if (M0.busy()) return true;
+		if (M1.busy()) return true;
+		if (M2.busy()) return true;
+		if (M3.busy()) return true;
+		if (M4.busy()) return true;
+		if (M5.busy()) return true;
+		if (M6.busy()) return true;
+		if (M7.busy()) return true;
+		if (WB.busy()) return true;
+		return pipes::F(in);
+	}
+
+	void FPstage::WBstage::tick()
+	{
+		// WBstage output size is 96, input size is 96*3 
+		u32 m = in.size();
+	    u32 n = out.size();
+		u32 offset = 0;
+
+		if (txdone && rxdone) {
+			for (u32 i=0; i<n; i++) out[i] = false;
+
+			// assert: only one 96-bit segment should be non-zero.
+			u32 F_FPMul = pipes::F(bitvector(in.begin(), in.begin()+96));
+			u32 F_FPAdd = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));
+			u32 F_FPDiv = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));
+
+			u32 ireg_FPMul = pipes::ireg(bitvector(in.begin(), in.begin()+96));
+			u32 ireg_FPAdd = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));
+			u32 ireg_FPDiv = pipes::ireg(bitvector(in.begin()+96*2, in.end()));
+
+			bool is_FPMul = false;
+			bool is_FPAdd = false;
+			bool is_FPDiv = false;
+
+			is_FPMul = !(F_FPMul == 0);
+			is_FPAdd = !(F_FPAdd == 0);
+			offset = is_FPAdd ? 96 : offset;
+			is_FPDiv = !(F_FPDiv == 0);
+			offset = is_FPDiv ? 96 * 2 : offset;
+			assert((int)is_FPMul + (int)is_FPAdd + (int)is_FPDiv <= 1);
+			for (u32 i=0; i<min(m,n); i++) out[i] = in[i+offset];
+			
+			if (is_FPMul)
+				PROC[me()].Pfull[ireg_FPMul] = true;
+			else if (is_FPAdd)
+				PROC[me()].Pfull[ireg_FPAdd] = true;
+			else if (is_FPDiv)
+				PROC[me()].Pfull[ireg_FPDiv] = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
+	}
+	
+	bool FPstage::RFstage::busy() { return pipes::F(in); }
+
+	bool FPstage::M0stage::busy() { return pipes::F(in); }
+	bool FPstage::M1stage::busy() { return pipes::F(in); }
+	bool FPstage::M2stage::busy() { return pipes::F(in); }
+	bool FPstage::M3stage::busy() { return pipes::F(in); }
+	bool FPstage::M4stage::busy() { return pipes::F(in); }
+	bool FPstage::M5stage::busy() { return pipes::F(in); }
+	bool FPstage::M6stage::busy() { return pipes::F(in); }
+	bool FPstage::M7stage::busy() { return pipes::F(in); }
+
+	bool FPstage::A0stage::busy() { return pipes::F(in); }
+	bool FPstage::A1stage::busy() { return pipes::F(in); }
+	bool FPstage::A2stage::busy() { return pipes::F(in); }
+	bool FPstage::A3stage::busy() { return pipes::F(in); }
+
+	bool FPstage::D0stage::busy() { return pipes::F(in); }
+
+	bool FPstage::WBstage::busy()
+	{
+		u32 F_FPMul = pipes::F(bitvector(in.begin(), in.begin()+96));
+		u32 F_FPAdd = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));
+		u32 F_FPDiv = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));
+		return F_FPMul || F_FPAdd || F_FPDiv;
+	}
+
 	bool STstage::busy()
 	{
 		if(RF.busy()) return true;
@@ -1765,6 +1921,12 @@ namespace CDC8600
 	    dumpoutop(out);
 	}
 
+	void FPstage::dumpout()
+	{
+		/* Can be further improved by dumping the sub stages as well */
+		dumpoutop(out);
+	}
+
 	void STstage::dumpout()
 	{
 	    dumpoutop(out);
@@ -1789,11 +1951,15 @@ namespace CDC8600
 		 << "                                                                   RM | "
 		 << "                             BR[0] | "
 		 << "                             FX[0] | "
+		 << "                             ST[0] | "
 		 << "                             LD[0] | "
+		 << "                             FP[0] | "
 		 << "                             CQ[0] | "
 		 << "                             BR[1] | "
 		 << "                             FX[1] | "
+		 << "                             ST[1] | "
 		 << "                             LD[1] | "
+		 << "                             FP[1] | "
 		 << "                             CQ[1]"
 		 << endl;
 
@@ -1802,6 +1968,10 @@ namespace CDC8600
 		 << "  fg  F    i    j    k      K | "
 		 << "  fg  F    i    j    k      K | "
 		 << " fg1  op1 F1   i1   j1   k1     K1  fg0  op0 F0   i0   j0   k0     K0 | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
@@ -1824,6 +1994,10 @@ namespace CDC8600
 		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
 		 << "----------------------------------"
 		 << endl;
 
@@ -1838,11 +2012,15 @@ namespace CDC8600
 		RM.dumpout();    cout << " | ";
 		BR[0].dumpout(); cout << " | ";
 		FX[0].dumpout(); cout << " | ";
+		ST[0].dumpout(); cout << " | ";
 		LD[0].dumpout(); cout << " | ";
+		FP[0].dumpout(); cout << " | ";
 		CQ[0].dumpout(); cout << " | ";
 		BR[1].dumpout(); cout << " | ";
 		FX[1].dumpout(); cout << " | ";
+		ST[1].dumpout(); cout << " | ";
 		LD[1].dumpout(); cout << " | ";
+		FP[1].dumpout(); cout << " | ";
 		CQ[1].dumpout();
 		cout << endl;
 	    }

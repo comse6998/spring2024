@@ -840,7 +840,127 @@ namespace CDC8600
 
 	class FPstage : public stage<96,96>
 	{
-	};
+        private:
+        u32 _ix;    
+
+        class RFstage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class M0stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class M1stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class M2stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class M3stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class M4stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class M5stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class M6stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class M7stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class A0stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class A1stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class A2stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class A3stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class D0stage : public stage<96,96>
+        {
+            public:
+            // Default tick()
+            bool busy();
+        };
+        class WBstage : public stage<96*3,96>
+        {
+            public:
+            void tick();
+            bool busy();
+        };
+
+        public:
+        RFstage RF;
+        M0stage M0;
+        M1stage M1;
+        M2stage M2;
+        M3stage M3;
+        M4stage M4;
+        M5stage M5;
+        M6stage M6;
+        M7stage M7;
+
+        A0stage A0;
+        A1stage A1;
+        A2stage A2;
+        A3stage A3;
+
+        D0stage D0;
+
+        WBstage WB;
+
+        void init(u32 ix) { pipe_traffic = 0; _ix = ix; }
+        u08 pipe_traffic;
+        void reset();
+        void tick();
+        bool busy();
+        void dumpout();
+    };
 
 	extern FPstage FP[2];
 
