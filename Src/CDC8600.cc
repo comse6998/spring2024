@@ -1951,11 +1951,13 @@ namespace CDC8600
 		 << "                                                                   RM | "
 		 << "                             BR[0] | "
 		 << "                             FX[0] | "
+		 << "                             ST[0] | "
 		 << "                             LD[0] | "
 		 << "                             FP[0] | "
 		 << "                             CQ[0] | "
 		 << "                             BR[1] | "
 		 << "                             FX[1] | "
+		 << "                             ST[1] | "
 		 << "                             LD[1] | "
 		 << "                             FP[1] | "
 		 << "                             CQ[1]"
@@ -1966,6 +1968,8 @@ namespace CDC8600
 		 << "  fg  F    i    j    k      K | "
 		 << "  fg  F    i    j    k      K | "
 		 << " fg1  op1 F1   i1   j1   k1     K1  fg0  op0 F0   i0   j0   k0     K0 | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
 		 << "  fg   op  F    i    j    k      K | "
@@ -1992,6 +1996,8 @@ namespace CDC8600
 		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
 		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
 		 << "----------------------------------"
 		 << endl;
 
@@ -2006,11 +2012,13 @@ namespace CDC8600
 		RM.dumpout();    cout << " | ";
 		BR[0].dumpout(); cout << " | ";
 		FX[0].dumpout(); cout << " | ";
+		ST[0].dumpout(); cout << " | ";
 		LD[0].dumpout(); cout << " | ";
 		FP[0].dumpout(); cout << " | ";
 		CQ[0].dumpout(); cout << " | ";
 		BR[1].dumpout(); cout << " | ";
 		FX[1].dumpout(); cout << " | ";
+		ST[1].dumpout(); cout << " | ";
 		LD[1].dumpout(); cout << " | ";
 		FP[1].dumpout(); cout << " | ";
 		CQ[1].dumpout();
