@@ -587,12 +587,12 @@ namespace CDC8600
 	    mappers[0x34] = new mapper<jmpz>;
 	    mappers[0xb1] = new mapper<cmpz>;
 	    mappers[0x0d] = new mapper<ipjkj>;
-        mappers[0x13] = new mapper<idjkj>;
-        mappers[0x70] = new mapper<idjki>;
-        mappers[0x60] = new mapper<isjki>;
-		mappers[0x90] = new mapper<fsub>;
-		mappers[0x80] = new mapper<fadd>;
-		mappers[0xA0] = new mapper<fmul>;
+	    mappers[0x13] = new mapper<idjkj>;
+	    mappers[0x70] = new mapper<idjki>;
+	    mappers[0x60] = new mapper<isjki>;
+	    mappers[0x90] = new mapper<fsub>;
+	    mappers[0x80] = new mapper<fadd>;
+	    mappers[0xA0] = new mapper<fmul>;
 	}
     } // namespace operations
 
