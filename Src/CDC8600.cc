@@ -1593,7 +1593,8 @@ namespace CDC8600
 					transfer(96, RF, 0, D0, 0); break;
 				default:
 					// Should not assert false here, since default for no-op is FXArith
-					break;
+					// Also, shouldn't just break, this will stuck the pipeline
+					transfer(96, RF, 0, M0, 0); break;
 			}
 
 			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
