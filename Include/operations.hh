@@ -34,7 +34,7 @@ namespace CDC8600
 		 virtual string dasm() const = 0;				// operation disassembly with physical registers
 		 virtual vector<units::unit>& units() = 0;			// the units that can execute this operation
 		 virtual    u64 encode() const { return 0; }			// 64-bit encoding of the operation
-		 virtual pipes::pipe_t pipe() const { return pipes::FXArith; }	// execution pipe for this operation
+		 virtual pipes::pipe_t pipe() const { return pipes::NOP; }	// execution pipe for this operation
 		 virtual pipes::dep_t dep() const { return pipes::no_dep; }	// type of dependence for this operation
 
 		 virtual   void dump(ostream &out)			// operation trace
@@ -118,7 +118,7 @@ namespace CDC8600
 		(
 		)
 		{
-		    return pipes::FXArith;
+		    return pipes::NOP;
 		}
 
 		virtual pipes::dep_t dep
