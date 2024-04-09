@@ -3,10 +3,6 @@ class isjki : public Fijk
     public:
 	isjki(u08 i, u08 j, u08 k) : Fijk(0x6, i, j, k) {}
 	isjki() : Fijk(0x6, 0, 0, 0) {}
-<<<<<<< HEAD
-=======
-
->>>>>>> upstream/main
 	bool execute()
 	{
 	    stringstream ss;
