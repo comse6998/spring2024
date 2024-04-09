@@ -22,7 +22,8 @@ void test_dswap(int count)
     uint32_t nx = n*abs(incx); if (0 == nx) nx = 1;
     uint32_t ny = n*abs(incy); if (0 == ny) ny = 1;
     
-    tracing = false; if (n < 10) tracing = true;
+    tracing = false; 
+    //if (n < 10) tracing = true;
 
     f64 *x = (f64*)CDC8600::memalloc(nx);
     f64 *y = (f64*)CDC8600::memalloc(ny);
@@ -61,20 +62,20 @@ void test_dswap(int count)
 
     
     
-    cout << "dswap [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", incy = " << setw(2) << incy << ", # of instr = " << setw(9) << instructions::count << ") : ";
-    //cout << "dcopy [" << setw(2) << count << "] ";
+    cout << "dswap [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
     cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << instructions::count;
-    cout << ", # of cycles = " << setw(9) << operations::maxcycle;
-    cout << ") : ";
-    if (pass)
-        cout << "PASS" << std::endl;
-    else
-        cout << "FAIL" << std::endl;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
 
-    if (n < 10) dump(trace);
+    if (n < 10) dump(PROC[0].trace, "dswap.tr");
+
+    if (pass)
+        cout << " => PASS" << std::endl;
+    else
+        cout << " => FAIL" << std::endl;
+
 }
 
 int main()

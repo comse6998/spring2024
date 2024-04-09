@@ -75,7 +75,11 @@ void test_dgemv_td(int count)
     else
         cout << "FAIL" << std::endl;
 
-    /* if (n < 10) dump(PROC[0].trace); */
+    if (n < 10) {
+        for (u32 p = 0; p < params::Proc::N; ++p) {
+            dump(PROC[p].trace, (char *) ("dgemv_td.tr." + to_string(p)).c_str());
+        }
+    }
 }
 
 int main()

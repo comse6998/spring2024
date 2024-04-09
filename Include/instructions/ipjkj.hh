@@ -2,6 +2,7 @@ class ipjkj : public Fjk
 {
     public:
 	ipjkj(u08 j, u08 k) : Fjk(0x0D, j, k) {}
+	ipjkj() : Fjk(0x0D, 0, 0) {}
 
 	bool execute()
 	{
@@ -37,4 +38,11 @@ class ipjkj : public Fjk
 	    _j = (code >> 4) & 0xf;     // extract j
 	    _k = code  & 0xf;           // extract k
         }
+
+	vector<operations::operation*> crack()
+	{
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::ipjkj(_j, _j, _k, 0));
+	    return ops;
+	}
 };

@@ -2,6 +2,7 @@ class rdjK : public FjK
 {
     public:
 	rdjK(u08 j, u32 K) : FjK(0x24, j, K) {}
+	rdjK() : FjK(0x24, 0, 0) {}
 
 	bool execute()
 	{

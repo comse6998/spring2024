@@ -5,9 +5,8 @@ class jmpp : public FjK
 	bool	_taken;
 
     public:
-	jmpp(u08 j, string L) : FjK(0x34, j, 0) { _label = L; }
-	jmpp() : FjK(0x34, 0, 0) { }
-
+	jmpp(u08 j, string L) : FjK(0x36, j, 0) { _label = L; }
+	jmpp() : FjK(0x36, 0, 0) {}
 
 	bool execute()
 	{
@@ -60,4 +59,12 @@ class jmpp : public FjK
 	    _j = (code >> 20) & 0xf;      // extract j
 	    _K = code & 0xfffff;          // extract K
         }
+
+	vector<operations::operation*> crack()
+	{
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::cmpz(params::micro::CMPFLAGS, _j, 0, 0));
+	    ops.push_back(new operations::jmpp(_K, params::micro::CMPFLAGS));
+	    return ops;
+	}
 };

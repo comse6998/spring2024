@@ -6,6 +6,7 @@ class jmpnz : public FjK
     
     public:
 	jmpnz(u08 j, string L) : FjK(0x35, j, 0) { _label = L; }
+	jmpnz() : FjK(0x35, 0, 0) {}
 
 	bool execute()
 	{
@@ -59,5 +60,13 @@ class jmpnz : public FjK
 	assert(match(code >> 24));    // we are in the right instruction
 	_j = (code >> 20) & 0xf;      // extract j
 	_K = code & 0xfffff;          // extract K
+	}
+
+	vector<operations::operation*> crack()
+	{
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::cmpz(params::micro::CMPFLAGS, _j, 0, 0));
+	    ops.push_back(new operations::jmpnz(_K, params::micro::CMPFLAGS));
+	    return ops;
 	}
 };

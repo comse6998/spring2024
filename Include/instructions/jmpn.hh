@@ -6,6 +6,7 @@ class jmpn : public FjK
 
     public:
 	jmpn(u08 j, string L) : FjK(0x37, j, 0) { _label = L; }
+	jmpn() : FjK(0x37, 0, 0) {}
 
 	bool execute()
 	{
@@ -47,5 +48,25 @@ class jmpn : public FjK
 	    assert(PROC[me()].line2addr.count(_line));
 	    u32 sourceaddr = PROC[me()].line2addr[_line];
 	    _K = ((targetaddr/8) - (sourceaddr/8)) & 0xfffff;
+	}
+
+        bool match(u08 F)
+        {
+	    return _F == F;
+        }
+
+        void decode(u32 code)
+        {
+	    assert(match(code >> 24));    // we are in the right instruction
+	    _j = (code >> 20) & 0xf;      // extract j
+	    _K = code & 0xfffff;          // extract K
+        }
+
+	vector<operations::operation*> crack()
+	{
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::cmpz(params::micro::CMPFLAGS, _j, 0, 0));
+	    ops.push_back(new operations::jmpn(_K, params::micro::CMPFLAGS));
+	    return ops;
 	}
 };

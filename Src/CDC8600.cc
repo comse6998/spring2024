@@ -3,6 +3,7 @@
 #include<fstream>
 #include<CDC8600.hh>
 #include<ISA.hh>
+#include<bitset>
 #ifdef _OPENMP
 #include<omp.h>
 #endif
@@ -245,6 +246,9 @@ namespace CDC8600
 	mapper.clear(); for (u32 i=0; i<params::micro::nregs; i++) mapper[i] = i;				// Star tiwth identity mapping
 	pnext = 0;												// Start with physical register 0
 	pfree.clear(); for (u32 i=params::micro::nregs; i < params::micro::pregs; i++) pfree.insert(i);		// Initial set of free physical registers
+	precycle.clear();											// Set of recyclable registers starts empty
+	Plastop.resize(params::micro::pregs); for (u32 i=0; i<params::micro::pregs; i++) Plastop[i] = 0;	// Start with all physical registers with last operation = 0
+	Pfull.resize(params::micro::pregs);   for (u32 i=0; i<params::micro::pregs; i++) Pfull[i] = true;	// Start with all physical registers having a content
 	assert(params::micro::pregs > params::micro::nregs);							// Make sure there are more physical regisers than architected registers
 	niap.clear();												// Clear next instruction address predictor
     }
@@ -579,6 +583,16 @@ namespace CDC8600
 	    mappers[0x10] = new mapper<xKi>;
 	    mappers[0x12] = new mapper<isjkj>;
 	    mappers[0x17] = new mapper<idzkj>;
+	    mappers[0x36] = new mapper<jmpp>;
+	    mappers[0x34] = new mapper<jmpz>;
+	    mappers[0xb1] = new mapper<cmpz>;
+	    mappers[0x0d] = new mapper<ipjkj>;
+	    mappers[0x13] = new mapper<idjkj>;
+	    mappers[0x70] = new mapper<idjki>;
+	    mappers[0x60] = new mapper<isjki>;
+	    mappers[0x90] = new mapper<fsub>;
+	    mappers[0x80] = new mapper<fadd>;
+	    mappers[0xA0] = new mapper<fmul>;
 	}
     } // namespace operations
 
@@ -639,17 +653,37 @@ namespace CDC8600
 	    makeinstr[0x10] = new maker<xkj>;
 	    makeinstr[0x12] = new maker<isjkj>;
 	    makeinstr[0x17] = new maker<idzkj>;
-		makeinstr[0xD] = new maker<rdjki>;
-		makeinstr[0x6] = new maker<isjki>;
-		makeinstr[0x34] = new maker<jmpp>;
-		makeinstr[0x7] = new maker<idjki>;
-		makeinstr[0x13] = new maker<idjkj>;
-		makeinstr[0x0f] = new maker<pass>;
-		makeinstr[0x12] = new maker<isjkj>;
-		makeinstr[0x6] = new maker<isjki>;
-		makeinstr[0x30] = new maker<jmp>;
-		makeinstr[0x9] = new maker<fsub>;
-		makeinstr[0x3c] = new maker<jmpk0>;
+	    makeinstr[0x13] = new maker<idjkj>;
+	    makeinstr[0x0D] = new maker<ipjkj>;
+	    makeinstr[0x06] = new maker<isjki>;
+	    makeinstr[0x30] = new maker<jmp>;
+	    makeinstr[0x37] = new maker<jmpn>;
+	    makeinstr[0x35] = new maker<jmpnz>;
+	    makeinstr[0x36] = new maker<jmpp>;
+	    makeinstr[0x34] = new maker<jmpz>;
+	    makeinstr[0x3c] = new maker<jmpk>;
+	    makeinstr[0x0F] = new maker<pass>; // Be explicit
+	    makeinstr[0x24] = new maker<rdjK>;
+	    makeinstr[0x01] = new maker<lpjkj>;
+
+            /* Deal with instructions with 4-bit codes */
+            makeinstr[0xB0] = new maker<bb>;
+            makeinstr[0x70] = new maker<idjki>;
+            makeinstr[0x80] = new maker<fadd>;
+            makeinstr[0xA0] = new maker<fmul>;
+            makeinstr[0x90] = new maker<fsub>;
+            makeinstr[0xD0] = new maker<rdjki>;
+            makeinstr[0xF0] = new maker<sdjki>;
+            for (u32 i = 0x01; i < 0x10; ++i) 
+	    {
+                makeinstr[0xB0 + i] = makeinstr[0xB0];
+                makeinstr[0x70 + i] = makeinstr[0x70];
+                makeinstr[0x80 + i] = makeinstr[0x80];
+                makeinstr[0xA0 + i] = makeinstr[0xA0];
+                makeinstr[0x90 + i] = makeinstr[0x90];
+                makeinstr[0xD0 + i] = makeinstr[0xD0];
+                makeinstr[0xF0 + i] = makeinstr[0xF0];
+            }
 	}
 
 	vector<u64> decode
@@ -824,7 +858,7 @@ namespace CDC8600
 
 	void IFstage::tick()
 	{
-	    if (txdone)
+	    if (txdone && (fetchcount < fetchgroups.size()))
 	    {
 		copy(32, fetchgroups[fetchcount] >> 32, out, 0);
 		copy(16, fetchcount, out, 32);
@@ -833,6 +867,12 @@ namespace CDC8600
 		txdone = false;
 		txready = true;
 		fetchcount++;
+	    }
+	    else
+	    {
+		for (u32 i = 0; i < out.size(); i++) out[i] = false;
+		txdone = false;
+		txready = false;
 	    }
 	}
 
@@ -867,22 +907,21 @@ namespace CDC8600
 
 	void RMstage::tick() 	
 	{
-	   if (txdone && rxdone)
+	   for (u32 i=0; i<192; i++) out[i] = false;
+	   if (rxdone)
 	   {
-	      for (u32 i=0; i<192; i++) out[i] = false;
-	      for (u32 i=0; i<80; i++) out[i+ 0] = in[i+ 0];
-	      for (u32 i=0; i<80; i++) out[i+96] = in[i+80];
+	       bitvector op(80);
+	       for (u32 i=0; i < 80; i++) op[i] = in[ 0 + i];
+	       u32 F[2];
+	       copy( 8, op, 56, F[0]); if (F[0] || (0 == opsq[0].size())) opsq[0].push_back(op);
+	       for (u32 i=0; i < 80; i++) op[i] = in[80 + i];
+	       copy( 8, op, 56, F[1]); if (F[1] || (0 == opsq[1].size())) opsq[1].push_back(op);
 	   }
 
-	   for (u32 i=0; i<192; i++) out[i] = false;
 	   if (txdone && rxdone)
 	   {
-	       copy(16, in, 64, out, 80);	// pass through the fetch group from IC[0]
-	       copy(16, in,144, out,176);	// pass through the fetch group from IC[1]
-	       copy(20, in,  0, out,  0);	// pass through K field from IC[0]
-	       copy(20, in, 80, out, 96);	// pass through K field from IC[1]
-	       copy( 8, in, 56, out, 56);	// pass through F field from IC[0]
-	       copy( 8, in,136, out,152);	// pass through F field from IC[1]
+	       assert(opsq[0].size());
+	       assert(opsq[1].size());
 
 	       u32 fg[2];
 	       u32 F[2];
@@ -890,40 +929,448 @@ namespace CDC8600
 	       u32 jreg[2];
 	       u32 kreg[2];
 
-	       copy(16, in, 64, fg[0]);
-	       copy(16, in,144, fg[1]);
-	       copy( 8, in, 56, F[0]);
-	       copy( 8, in,136, F[1]);
-	       copy(12, in, 44, ireg[0]);
-	       copy(12, in,124, ireg[1]);
-	       copy(12, in, 32, jreg[0]);
-	       copy(12, in,112, jreg[1]);
-	       copy(12, in, 20, kreg[0]);
-	       copy(12, in,100, kreg[1]);
+	       copy(16, opsq[0][0], 64, fg[0]);		// extract fg field from IC[0]
+	       copy(16, opsq[1][0], 64, fg[1]);		// extract fg field from IC[1]
+	       copy( 8, opsq[0][0], 56, F[0]);		// extract F field from IC[0]
+	       copy( 8, opsq[1][0], 56, F[1]);		// extract F field from IC[1]
 
-	       operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0]);	// architected -> physical register mapping
-	       copy(12, ireg[0], out, 44);	// pass physical i register from IC[0]
-	       copy(12, jreg[0], out, 32);	// pass physical j register from IC[0]
-	       copy(12, kreg[0], out, 20);	// pass physical k register from IC[0]
+	       if (!F[0]) opsq[0].erase(opsq[0].begin());	// skip if function code from IC[0] == 0
+	       if (!F[1]) opsq[1].erase(opsq[1].begin());	// skip if function code from IC[1] == 0
 
-	       copy(16, opcount, out, 64);	// pass operation count from IC[0]
-	       opcount++;
+	       if (F[1] && ((fg[1] < fg[0]) || (0 == F[0])))
+	       {
+		   // operations from IC[1] are behind those in IC[0], process operations from IC[1]
 
-	       copy(12, ireg[1], out,140);	// pass physical i register from IC[1] 
-	       copy(12, jreg[1], out,128);	// pass physical j register from IC[1] 
-	       copy(12, kreg[1], out,116);	// pass physical k register from IC[1] 
+		   copy(16, opsq[1][0], 64, out,176);	// pass through the fetch group from IC[1]
+		   copy(20, opsq[1][0],  0, out, 96);	// pass through K field from IC[1]
+		   copy( 8, opsq[1][0], 56, out,152);	// pass through F field from IC[1]
 
-	       copy(16, opcount, out,160);	// pass operation count from IC[1]
-	       opcount++;
+		   copy(12, opsq[1][0], 44, ireg[1]);	// extract i field from IC[1]
+		   copy(12, opsq[1][0], 32, jreg[1]);	// extract j field from IC[1]
+		   copy(12, opsq[1][0], 20, kreg[1]);	// extract k field from IC[1]
+
+		   operations::mappers[F[1]]->map(ireg[1], jreg[1], kreg[1], opcount);	// architected -> physical register mapping
+
+		   copy(12, ireg[1], out,140);		// pass physical i register from IC[1]
+		   copy(12, jreg[1], out,128);		// pass physical j register from IC[1]
+		   copy(12, kreg[1], out,116);		// pass physical k register from IC[1]
+
+		   copy(16, opcount, out,160);		// pass operation count from IC[1]
+		   opcount++;
+
+		   opsq[1].erase(opsq[1].begin());	// pop this operation from the queue
+	       }
+	       else if (F[0])
+	       {
+		   // operations from IC[0] are behind those in IC[1], process operations from IC[0]
+
+		   copy(16, opsq[0][0], 64, out, 80);	// pass through the fetch group from IC[0]
+		   copy(20, opsq[0][0],  0, out,  0);	// pass through K field from IC[0]
+		   copy( 8, opsq[0][0], 56, out, 56);	// pass through F field from IC[0]
+
+		   copy(12, opsq[0][0], 44, ireg[0]); 	// extract i field from IC[0]
+		   copy(12, opsq[0][0], 32, jreg[0]);	// extract j field from IC[0]
+		   copy(12, opsq[0][0], 20, kreg[0]);	// extract k field from IC[0]
+
+		   operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0], opcount);	// architected -> physical register mapping
+
+		   copy(12, ireg[0], out, 44);		// pass physical i register from IC[0]
+		   copy(12, jreg[0], out, 32);		// pass physical j register from IC[0]
+		   copy(12, kreg[0], out, 20);		// pass physical k register from IC[0]
+
+		   copy(16, opcount, out, 64);		// pass operation count from IC[0]
+		   opcount++;
+
+		   opsq[0].erase(opsq[0].begin());	// pop this operation from the queue
+	       }
 	   }
+
 	   rxdone = false; rxready = true;
 	   txready = true; txdone = false;
+	}
+
+	bool inputsready
+	(
+	    const bitvector& v
+	)
+	{
+	    u32 F = pipes::F(v);
+	    u32 jreg = pipes::jreg(v);
+	    u32 kreg = pipes::kreg(v);
+
+	    switch(operations::mappers[F]->dep())
+	    {
+		case CDC8600::pipes::k_dep  : return (PROC[me()].Pfull[kreg]);				// depends on k register
+		case CDC8600::pipes::j_dep  : return (PROC[me()].Pfull[jreg]);				// depends on j register
+		case CDC8600::pipes::jk_dep : return (PROC[me()].Pfull[jreg] & PROC[me()].Pfull[kreg]);	// depends on j and k registers
+		case CDC8600::pipes::no_dep : return true;						// no dependences
+		default 		    : assert(false);						// should not happen
+	    }
+
+	    return false;
+	}
+
+	void IQstage::tick()
+	{
+	    if (rxdone)
+	    {
+		if (pipes::F(in)) opsq.push_back(in);			// push input into issue queue
+	        rxdone = false; rxready = true;				// ready to receive more
+	    }
+
+	    if (opsq.size() && txdone)					// there is at lease one operation in the issue queue
+	    {
+		for (u32 i = 0; i < out.size(); i++) out[i] = false;	// default is to send zeros
+		for (u32 i = 0; i < opsq.size(); i++)			// traverse issue queue from older to newer
+		{
+		    if (inputsready(opsq[i]))				// are all inputs for operation i ready?
+		    {
+				switch(operations::mappers[pipes::F(opsq[i])]->pipe())
+				{
+					case CDC8600::pipes::FXArith: 	if((FX[_ix].pipe_traffic & 0x10) == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FX->pipe_traffic += 0x10;
+													} 
+													break;
+					case CDC8600::pipes::FXMul:  	if((FX[_ix].pipe_traffic & 0x01) == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FX->pipe_traffic += 0x01;
+													} 
+													break;
+					case CDC8600::pipes::FXLogic: 	if((FX[_ix].pipe_traffic & 0x40) == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FX->pipe_traffic += 0x40;
+													}
+													break;
+					case CDC8600::pipes::FPMul:		if((FP[_ix].pipe_traffic & 0x01) == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FP[_ix].pipe_traffic += 0x01;
+													}
+													break;
+					case CDC8600::pipes::FPAdd:		if((FP[_ix].pipe_traffic & 0x10) == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FP[_ix].pipe_traffic += 0x10;
+													}
+													break;
+					case CDC8600::pipes::FPDiv:		if((FP[_ix].pipe_traffic & 0x80) == 0)
+													{
+														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+														opsq.erase(opsq.begin() + i);	// dequeue operation i
+														FP[_ix].pipe_traffic += 0x80;
+													}
+													break;
+					case CDC8600::pipes::BR:
+					case CDC8600::pipes::ST:
+					case CDC8600::pipes::LD:		copy(96, opsq[i], 0, out, 0);	// copy operation i to output
+													opsq.erase(opsq.begin() + i);	// dequeue operation i
+													break;
+					default : assert(false); 	// this should not happen
+				}
+			// cout << "Selecting operation " << pipes::op(out) << " from position " << i << " in issue queue" << endl;
+		    }
+		}
+		txready = true; txdone = false;
+	    }
+	    else
+	    {
+		for (u32 i = 0; i < out.size(); i++) out[i] = false;
+		txready = true; txdone = false;
+	    }
+	}
+
+	void OIstage::tick() 	
+	{
+	   if (txdone && rxdone)
+	   {
+	      for (u32 i=0; i<out.size(); i++) out[i] = false;
+	      switch(operations::mappers[pipes::F(in)]->pipe())
+	      {
+			case CDC8600::pipes::BR : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
+			case CDC8600::pipes::ST : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
+			case CDC8600::pipes::LD : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
+			case CDC8600::pipes::FXArith:
+			case CDC8600::pipes::FXMul:
+			case CDC8600::pipes::FXLogic: for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
+			case CDC8600::pipes::FPAdd:
+			case CDC8600::pipes::FPMul:
+			case CDC8600::pipes::FPDiv: for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
+			default : assert(false); 	// this should not happen
+	      }
+	      rxdone = false; rxready = true;
+	      txready = true; txdone = false;
+	   }
+	}
+
+	void FXstage::tick()
+	{
+
+	   if (txdone && rxdone)
+	   {
+	       RF.tick();
+	       L0.tick();
+	       L1.tick();
+		   A0.tick();
+		   A1.tick();
+		   A2.tick();
+		   A3.tick();
+		   M0.tick();
+		   M1.tick();
+		   M2.tick();
+		   M3.tick();
+		   M4.tick();
+		   M5.tick();
+		   M6.tick();
+		   M7.tick();
+		   WB.tick();
+		   pipe_traffic = pipe_traffic << 1;
+
+		switch(operations::mappers[pipes::F(in)]->pipe())
+	    {
+			case CDC8600::pipes::FXArith: transfer(96, RF, 0, A0, 0); break;
+			case CDC8600::pipes::FXMul:	  transfer(96, RF, 0, M0, 0); break;
+			case CDC8600::pipes::FXLogic: transfer(96, RF, 0, L0, 0); break;
+			default : assert(false); 	// this should not happen
+	    }
+		   
+
+	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
+
+	       transfer(96, M7, 0, WB, 0*96);
+		   transfer(96, M6, 0, M7, 0);
+		   transfer(96, M5, 0, M6, 0);
+		   transfer(96, M4, 0, M5, 0);
+		   transfer(96, M3, 0, M4, 0);
+		   transfer(96, M2, 0, M3, 0);
+		   transfer(96, M1, 0, M2, 0);
+		   transfer(96, M0, 0, M1, 0);
+		   
+	       transfer(96, A3, 0, WB, 1*96);
+		   transfer(96, A2, 0, A3, 0);
+		   transfer(96, A1, 0, A2, 0);
+		   transfer(96, A0, 0, A1, 0);
+		   	   
+		   transfer(96, L1, 0, WB, 2*96);
+	       transfer(96, L0, 0, L1, 0);
+	       
+	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+	       rxdone = false; rxready = true;
+	       txready = true; txdone = false;
+	   }
+	}
+
+	void LDstage::tick()
+	{
+	   if (txdone && rxdone)
+	   {
+	       RF.tick();
+	       X0.tick();
+	       X1.tick();
+		   X2.tick();
+		   X3.tick();
+	       WB.tick();
+
+	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
+		   transfer(96, X3, 0, WB, 0);
+		   transfer(96, X2, 0, X3, 0);
+	       transfer(96, X1, 0, X2, 0);
+	       transfer(96, X0, 0, X1, 0);
+	       transfer(96, RF, 0, X0, 0);
+	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+	       rxdone = false; rxready = true;
+	       txready = true; txdone = false;
+	   }
+	}
+
+	void FXstage::WBstage::tick()
+	{
+	    if (txdone && rxdone)
+	    {
+		// u32 m = in.size();
+		u32 n = out.size();
+		for (u32 i=0; i<n; i++) out[i] = false;
+		bool mult = false;
+		bool arith = false;
+		bool logical = false;
+		for (u32 i = 0; i < n; ++i) {
+			if (in[i])
+				mult = true;
+			if (in[i+96])
+				arith = true;
+			if (in[i+96*2])
+				logical = true;
+		}
+
+		assert(!(mult && arith) || !(mult && logical) || !(arith && logical));
+		u32 offset = 0;
+		if (arith)
+			offset = 96;
+		else if (logical)
+			offset = 96 * 2;
+
+		for (u32 i=0; i<96; i++)
+		{
+
+			out[i] = in[i+offset];
+		} 
+		rxdone = false; rxready = true;
+		txready = true; txdone = false;
+
+		u32 Fmult = pipes::F(bitvector(in.begin(), in.begin()+96));			// extract F field
+		u32 Farith = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));		// extract F field
+		u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));		// extract F field
+
+		u32 iregmult = pipes::ireg(bitvector(in.begin(), in.begin()+96));		// extract F field
+		u32 iregarith = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));		// extract F field
+		u32 ireglogical = pipes::ireg(bitvector(in.begin()+96*2, in.begin()+3*96));	// extract F field
+
+		if (Fmult)
+			PROC[me()].Pfull[iregmult] = true;	// target register is now full
+		else if (Farith)
+			PROC[me()].Pfull[iregarith] = true;	// target register is now full
+		else if (Flogical)
+			PROC[me()].Pfull[ireglogical] = true;	// target register is now full
+		// cout << "Physical register " << ireg << " is now full" << endl;
+	    }
+	}
+
+	void LDstage::WBstage::tick()
+	{
+		if (txdone && rxdone)
+	    {
+		u32 m = in.size();
+		u32 n = out.size();
+		for (u32 i=0; i<n; i++) out[i] = false;
+		for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
+		rxdone = false; rxready = true;
+		txready = true; txdone = false;
+
+		u32 F = pipes::F(in);			// extract F field
+		u32 jreg = pipes::jreg(in);		// extract i register field
+
+		if (F)
+		{
+		    PROC[me()].Pfull[jreg] = true;	// target register is now full
+		    // cout << "Physical register " << ireg << " is now full" << endl;
+		}
+	    }
+	}
+
+	void FXstage::reset()
+	{
+	    rxready = true; rxdone = true; txready = true; txdone = true;
+	    RF.reset();
+	    L0.reset();
+	    L1.reset();
+		A0.reset();
+		A1.reset();
+		A2.reset();
+		A3.reset();
+		M0.reset();
+		M1.reset();
+		M2.reset();
+		M3.reset();
+		M4.reset();
+		M5.reset();
+		M6.reset();
+		M7.reset();
+	    WB.reset();
+	}
+
+	void LDstage::reset()
+	{
+		rxready = true; rxdone = true; txready = true; txdone  = true;
+		RF.reset();
+	    X0.reset();
+	    X1.reset();
+		X2.reset();
+		X3.reset();
+	    WB.reset();
+	}
+
+	void BRstage::reset()
+	{
+		rxready = true; rxdone = true; txready = true; txdone = true;
+		RF.reset();
+		X1.reset();
+		X2.reset();
+	}
+
+	void STstage::reset()
+	{
+		rxready = true; rxdone = true; txready = true; txdone = true;
+		RF.reset();
+		X0.reset();
+		X1.reset();
+		X2.reset();
+		X3.reset();
+	}
+	void CQstage::tick() 	
+	{
+	    if (rxdone)
+	    {
+	        for (u32 i = 0; i < 5; i++)
+	        {
+		    bitvector op(96);
+		    copy(96, in, i*96, op, 0);
+		    if (pipes::F(op)) opsq.push_back(op);
+	        }
+		rxdone = false; rxready = true;
+	     }
+
+	     if (opsq.size() && txdone)
+	     {
+	       copy(96, opsq[0], 0, out, 0);
+	       opsq.erase(opsq.begin());
+	       txready = true; txdone = false;
+	     }
+	     else
+	     {
+	 	for (u32 i = 0; i < out.size(); i++) out[i] = false;
+		txready = true; txdone = false;
+	     }
 	}
 
 	void COstage::tick()
 	{
 	    if (rxdone)
 	    {
+
+		u32 op[2];
+		u32 F[2];
+
+		copy( 8, in, 56, F[0]);
+		copy(16, in, 64, op[0]);
+
+		copy( 8, in,152, F[1]);
+		copy(16, in,160, op[1]);
+
+		for (u32 j = 0; j < 2; j++)
+		{
+		    if (F[j])
+		    {
+			for (u32 i : PROC[me()].precycle)		// for all recyclable physical registers
+			    if (PROC[me()].Plastop[i] == op[j])		// is this the last op for that registers?
+			    {
+				// cout << "recycling physical register " << i << endl;
+				PROC[me()].pfree.insert(i);		// return register to free list
+				PROC[me()].precycle.erase(i);		// register has been recycled
+				break;
+			    }
+		    }
+		}
+
 		rxready = true;
 		rxdone = false;
 		txready = false;
@@ -931,24 +1378,354 @@ namespace CDC8600
 	    }
 	}
 
+	void BRstage::tick()
+	{
+		if (txdone && rxdone)
+		{
+			RF.tick();
+			X1.tick();
+			X2.tick();
+
+			copy(96, X2.out, 0, out, 0); X2.txdone = true;
+			transfer(96, X1, 0, X2, 0);
+			transfer(96, RF, 0, X1, 0);
+			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
+	}
+
+	void STstage::tick()
+	{
+		if (txdone && rxdone)
+		{
+			RF.tick();
+			X0.tick();
+			X1.tick();
+			X2.tick();
+			X3.tick();
+
+			copy(96, X3.out, 0, out, 0); X3.txdone = true;
+			transfer(96, X2, 0, X3, 0);
+			transfer(96, X1, 0, X2, 0);
+			transfer(96, X0, 0, X1, 0);
+			transfer(96, RF, 0, X0, 0);
+			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
+	}
+
 	bool IFstage::busy()
 	{
 	    return (fetchcount < fetchgroups.size());
 	}
 
+	bool ICstage::busy()
+	{
+	    return opsq.size();
+	}
+
+	bool RMstage::busy()
+	{
+	    return (opsq[0].size() + opsq[1].size());
+	}
+
+	bool IQstage::busy()
+	{
+	    return false;
+	    return opsq.size();
+	}
+
+	bool FXstage::busy()
+	{
+	    if (RF.busy()) return true;
+	    if (L0.busy()) return true;
+	    if (L1.busy()) return true;
+		if (A0.busy()) return true;
+		if (A1.busy()) return true;
+		if (A2.busy()) return true;
+		if (A3.busy()) return true;
+		if (M0.busy()) return true;
+		if (M1.busy()) return true;
+		if (M2.busy()) return true;
+		if (M3.busy()) return true;
+		if (M4.busy()) return true;
+		if (M5.busy()) return true;
+		if (M6.busy()) return true;
+		if (M7.busy()) return true;
+	    if (WB.busy()) return true;
+	    return pipes::F(in);
+	}
+
+	bool LDstage::busy()
+	{
+		if (RF.busy()) return true;
+	    if (X0.busy()) return true;
+	    if (X1.busy()) return true;
+		if (X2.busy()) return true;
+		if (X3.busy()) return true;
+	    if (WB.busy()) return true;
+	    return pipes::F(in);
+	}
+
+	bool FXstage::RFstage::busy() { return pipes::F(in); }
+
+	bool FXstage::L0stage::busy() { return pipes::F(in); }
+
+	bool FXstage::L1stage::busy() { return pipes::F(in); }
+
+	bool FXstage::A0stage::busy() { return pipes::F(in); }
+
+	bool FXstage::A1stage::busy() { return pipes::F(in); }
+
+	bool FXstage::A2stage::busy() { return pipes::F(in); }
+
+	bool FXstage::A3stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M0stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M1stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M2stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M3stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M4stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M5stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M6stage::busy() { return pipes::F(in); }
+
+	bool FXstage::M7stage::busy() { return pipes::F(in); }
+
+	bool FXstage::WBstage::busy() {
+            u32 Fmult = pipes::F(bitvector(in.begin(), in.begin()+96));			// extract F field
+            u32 Farith = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
+            u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));			// extract F field
+            return Fmult || Farith || Flogical;
+        }
+
+	bool LDstage::RFstage::busy() { return pipes::F(in); }
+
+	bool LDstage::X0stage::busy() { return pipes::F(in); }
+
+	bool LDstage::X1stage::busy() { return pipes::F(in); }
+
+	bool LDstage::X2stage::busy() { return pipes::F(in); }
+
+	bool LDstage::X3stage::busy() { return pipes::F(in); }
+
+	bool LDstage::WBstage::busy() { return pipes::F(in); }
+
+	bool BRstage::busy()
+	{
+		if(RF.busy()) return true;
+		if(X1.busy()) return true;
+		if(X2.busy()) return true;
+		return pipes::F(in);
+	}
+
+	bool BRstage::X1stage::busy() {return pipes::F(in);}
+	bool BRstage::X2stage::busy() {return pipes::F(in);}
+	bool BRstage::RFstage::busy() {return pipes::F(in);}
+
+	/* Class method definitions for FPstage, and all its sub stages */
+
+	void FPstage::reset()
+	{
+	    rxready = true; rxdone = true; txready = true; txdone = true;
+	    RF.reset(); D0.reset(); A0.reset(); A1.reset();
+		A2.reset(); A3.reset(); M0.reset(); M1.reset();
+		M2.reset(); M3.reset(); M4.reset(); M5.reset();
+		M6.reset(); M7.reset(); WB.reset();
+	}
+
+	/* tick() keeps the pipeline flowing */
+	void FPstage::tick()
+	{
+		if (txdone && rxdone) {
+			RF.tick();
+
+			M0.tick(); M1.tick(); M2.tick(); M3.tick();
+			M4.tick(); M5.tick(); M6.tick(); M7.tick();
+
+			A0.tick();A1.tick(); A2.tick(); A3.tick();
+
+			D0.tick();
+
+			WB.tick();
+
+			copy(96, WB.out, 0, out, 0); WB.txdone = true;
+
+			/* Transfer to 3 channels of WB's input, only one of them should be non-zero */
+			transfer(96, M7, 0, WB, 0*96);
+			transfer(96, A3, 0, WB, 1*96);
+			transfer(96, D0, 0, WB, 2*96);
+
+			transfer(96, M6, 0, M7, 0*96);
+			transfer(96, M5, 0, M6, 0*96);
+			transfer(96, M4, 0, M5, 0*96);
+			transfer(96, M3, 0, M4, 0*96);
+			transfer(96, M2, 0, M3, 0*96);
+			transfer(96, M1, 0, M2, 0*96);
+			transfer(96, M0, 0, M1, 0*96);
+
+			transfer(96, A2, 0, A3, 0*96);
+			transfer(96, A1, 0, A2, 0*96);
+			transfer(96, A0, 0, A1, 0*96);
+
+			// cout << "FPStage::tick(): F for operations: " << endl;
+			// cout << pipes::F(in) << endl;
+
+			// cout << operations::mappers[pipes::F(in)]->pipe();
+			// cout << endl;
+
+			switch(operations::mappers[pipes::F(in)]->pipe())
+			{
+				case CDC8600::pipes::FPMul:
+					transfer(96, RF, 0, M0, 0); break;
+				case CDC8600::pipes::FPAdd:
+					transfer(96, RF, 0, A0, 0); break;
+				case CDC8600::pipes::FPDiv:
+					transfer(96, RF, 0, D0, 0); break;
+				default:
+					// Should not assert false here, since default for no-op is FXArith
+					// Also, shouldn't just break, this will stuck the pipeline
+					transfer(96, RF, 0, M0, 0); break;
+			}
+
+			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
+
+		pipe_traffic = pipe_traffic << 1;
+	}
+
+	bool FPstage::busy()
+	{
+		if (RF.busy()) return true;
+		if (D0.busy()) return true;
+		if (A0.busy()) return true;
+		if (A1.busy()) return true;
+		if (A2.busy()) return true;
+		if (A3.busy()) return true;
+		if (M0.busy()) return true;
+		if (M1.busy()) return true;
+		if (M2.busy()) return true;
+		if (M3.busy()) return true;
+		if (M4.busy()) return true;
+		if (M5.busy()) return true;
+		if (M6.busy()) return true;
+		if (M7.busy()) return true;
+		if (WB.busy()) return true;
+		return pipes::F(in);
+	}
+
+	void FPstage::WBstage::tick()
+	{
+		// WBstage output size is 96, input size is 96*3 
+		u32 m = in.size();
+	    u32 n = out.size();
+		u32 offset = 0;
+
+		if (txdone && rxdone) {
+			for (u32 i=0; i<n; i++) out[i] = false;
+
+			// assert: only one 96-bit segment should be non-zero.
+			u32 F_FPMul = pipes::F(bitvector(in.begin(), in.begin()+96));
+			u32 F_FPAdd = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));
+			u32 F_FPDiv = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));
+
+			u32 ireg_FPMul = pipes::ireg(bitvector(in.begin(), in.begin()+96));
+			u32 ireg_FPAdd = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));
+			u32 ireg_FPDiv = pipes::ireg(bitvector(in.begin()+96*2, in.end()));
+
+			bool is_FPMul = false;
+			bool is_FPAdd = false;
+			bool is_FPDiv = false;
+
+			is_FPMul = !(F_FPMul == 0);
+			is_FPAdd = !(F_FPAdd == 0);
+			offset = is_FPAdd ? 96 : offset;
+			is_FPDiv = !(F_FPDiv == 0);
+			offset = is_FPDiv ? 96 * 2 : offset;
+			assert((int)is_FPMul + (int)is_FPAdd + (int)is_FPDiv <= 1);
+			for (u32 i=0; i<min(m,n); i++) out[i] = in[i+offset];
+			
+			if (is_FPMul)
+				PROC[me()].Pfull[ireg_FPMul] = true;
+			else if (is_FPAdd)
+				PROC[me()].Pfull[ireg_FPAdd] = true;
+			else if (is_FPDiv)
+				PROC[me()].Pfull[ireg_FPDiv] = true;
+
+			rxdone = false; rxready = true;
+			txready = true; txdone = false;
+		}
+	}
+	
+	bool FPstage::RFstage::busy() { return pipes::F(in); }
+
+	bool FPstage::M0stage::busy() { return pipes::F(in); }
+	bool FPstage::M1stage::busy() { return pipes::F(in); }
+	bool FPstage::M2stage::busy() { return pipes::F(in); }
+	bool FPstage::M3stage::busy() { return pipes::F(in); }
+	bool FPstage::M4stage::busy() { return pipes::F(in); }
+	bool FPstage::M5stage::busy() { return pipes::F(in); }
+	bool FPstage::M6stage::busy() { return pipes::F(in); }
+	bool FPstage::M7stage::busy() { return pipes::F(in); }
+
+	bool FPstage::A0stage::busy() { return pipes::F(in); }
+	bool FPstage::A1stage::busy() { return pipes::F(in); }
+	bool FPstage::A2stage::busy() { return pipes::F(in); }
+	bool FPstage::A3stage::busy() { return pipes::F(in); }
+
+	bool FPstage::D0stage::busy() { return pipes::F(in); }
+
+	bool FPstage::WBstage::busy()
+	{
+		u32 F_FPMul = pipes::F(bitvector(in.begin(), in.begin()+96));
+		u32 F_FPAdd = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));
+		u32 F_FPDiv = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));
+		return F_FPMul || F_FPAdd || F_FPDiv;
+	}
+
+	bool STstage::busy()
+	{
+		if(RF.busy()) return true;
+		if(X0.busy()) return true;
+		if(X1.busy()) return true;
+		if(X2.busy()) return true;
+		if(X3.busy()) return true;
+		return pipes::F(in);
+	}
+
+	bool STstage::X0stage::busy() {return pipes::F(in);}
+	bool STstage::X1stage::busy() {return pipes::F(in);}
+	bool STstage::X2stage::busy() {return pipes::F(in);}
+	bool STstage::X3stage::busy() {return pipes::F(in);}
+	bool STstage::RFstage::busy() {return pipes::F(in);}
+
+	bool CQstage::busy()  { return opsq.size(); }
+
 	bool busy()
 	{
 	    if (IF.busy())    return true;
-	    if (IC[0].busy()) return true; 
+	    if (IC[0].busy()) return true;
 	    if (IC[1].busy()) return true;
 	    if (RM.busy())    return true;
 	    if (OD[0].busy()) return true; 
 	    if (OD[1].busy()) return true;
-	    if (IQ[0].busy()) return true; 
+	    if (IQ[0].busy()) return true;
 	    if (IQ[1].busy()) return true;
-	    if (OI[0].busy()) return true; 
+	    if (OI[0].busy()) return true;
 	    if (OI[1].busy()) return true;
-	    if (BR[0].busy()) return true; 
+	    if (BR[0].busy()) return true;
 	    if (BR[1].busy()) return true;
 	    if (FX[0].busy()) return true; 
 	    if (FX[1].busy()) return true;
@@ -990,10 +1767,22 @@ namespace CDC8600
 	{
 	    transfer(96, CQ[0],  0, CO   ,  0);
 	    transfer(96, CQ[1],  0, CO   , 96);
-	    transfer(96, FX[0],  0, CQ[0],  0);
-	    transfer(96, FX[1],  0, CQ[1],  0);
-	    transfer(96, OI[0],  0, OI[0].target(), 0);
-	    transfer(96, OI[1],  0, OI[1].target(), 0);
+	    for (u32 i = 0; i < 2; i++)
+	    {
+		transfer(96, BR[i],  0, CQ[i], 0*96);
+		transfer(96, FX[i],  0, CQ[i], 1*96);
+		transfer(96, FP[i],  0, CQ[i], 2*96);
+		transfer(96, LD[i],  0, CQ[i], 3*96);
+		transfer(96, ST[i],  0, CQ[i], 4*96);
+	    }
+	    for (u32 i = 0; i < 2; i++)
+	    {
+		transfer(96, OI[i],0*96, BR[i], 0);
+		transfer(96, OI[i],1*96, FX[i], 0);
+		transfer(96, OI[i],2*96, FP[i], 0);
+		transfer(96, OI[i],3*96, LD[i], 0);
+		transfer(96, OI[i],4*96, ST[i], 0);
+	    }
 	    transfer(96, IQ[0],  0, OI[0],  0);
 	    transfer(96, IQ[1],  0, OI[1],  0);
 	    transfer(96, OD[0],  0, IQ[0],  0);
@@ -1023,29 +1812,193 @@ namespace CDC8600
 	    }
 	}
 
+	void dump
+	(
+	    const bitvector& v,
+	    u32   first,
+	    u32   len
+	)
+	{
+	    bitvector u(len);
+	    copy(len, v, first, u, 0);
+	    dump(u);
+	}
+
+	void dumpoutop
+	(
+	    const bitvector& out
+	)
+	{
+	    dump(out, 80,16);
+	    cout << ".";
+	    dump(out, 64,16);
+	    cout << ".";
+	    dump(out, 56, 8);
+	    cout << ".";
+	    dump(out, 44,12);
+	    cout << ".";
+	    dump(out, 32,12);
+	    cout << ".";
+	    dump(out, 20,12);
+	    cout << ".";
+	    dump(out,  0,20);
+	}
+
+	void RMstage::dumpout()
+	{
+	    dump(out,176,16);
+	    cout << ".";
+	    dump(out,160,16);
+	    cout << ".";
+	    dump(out,152, 8);
+	    cout << ".";
+	    dump(out,140,12);
+	    cout << ".";
+	    dump(out,128,12);
+	    cout << ".";
+	    dump(out,116,12);
+	    cout << ".";
+	    dump(out, 96,20);
+	    cout << ".";
+	    dump(out, 80,16);
+	    cout << ".";
+	    dump(out, 64,16);
+	    cout << ".";
+	    dump(out, 56, 8);
+	    cout << ".";
+	    dump(out, 44,12);
+	    cout << ".";
+	    dump(out, 32,12);
+	    cout << ".";
+	    dump(out, 20,12);
+	    cout << ".";
+	    dump(out,  0,20);
+	}
+
+	void IFstage::dumpout()
+	{
+	    dump(out, 80, 16);
+	    cout << ".";
+	    dump(out, 48, 32);
+	    cout << ".";
+	    dump(out, 32, 16);
+	    cout << ".";
+	    dump(out,  0, 32);
+	}
+
+	void ICstage::dumpout()
+	{
+	    dump(out, 64, 16);
+	    cout << ".";
+	    dump(out, 56, 8);
+	    cout << ".";
+	    dump(out, 44,12);
+	    cout << ".";
+	    dump(out, 32,12);
+	    cout << ".";
+	    dump(out, 20,12);
+	    cout << ".";
+	    dump(out,  0,20);
+	}
+
+	void FXstage::dumpout()
+	{
+	    dumpoutop(out);
+	}
+
+	void LDstage::dumpout()
+	{
+		dumpoutop(out);
+	}
+	
+	void CQstage::dumpout()
+	{
+	    dumpoutop(out);
+	}
+
+	void BRstage::dumpout()
+	{
+	    dumpoutop(out);
+	}
+
+	void FPstage::dumpout()
+	{
+		/* Can be further improved by dumping the sub stages as well */
+		dumpoutop(out);
+	}
+
+	void STstage::dumpout()
+	{
+	    dumpoutop(out);
+	}
+
 	void run
 	(
 	    const char* filename
 	)
 	{
 	    IF.init(filename);
+	    IC[0].init(); IC[1].init();
 	    RM.init();
+	    IQ[0].init(0); IQ[1].init(1);
 	    OI[0].init(0); OI[1].init(1);
+		FX[0].init(0); FX[1].init(1);
 
 	    cout << "   cycle | "
-		 << "                      IF | "
-		 << "               IC[0] | "
-		 << "                                              RM | "
-		 << "                   FX[0] | "
-		 << "                   CQ[0]"
+		 << "                         IF | "
+		 << "                        IC[0] | "
+		 << "                        IC[1] | "
+		 << "                                                                   RM | "
+		 << "                             BR[0] | "
+		 << "                             FX[0] | "
+		 << "                             ST[0] | "
+		 << "                             LD[0] | "
+		 << "                             FP[0] | "
+		 << "                             CQ[0] | "
+		 << "                             BR[1] | "
+		 << "                             FX[1] | "
+		 << "                             ST[1] | "
+		 << "                             LD[1] | "
+		 << "                             FP[1] | "
+		 << "                             CQ[1]"
+		 << endl;
+
+	    cout << "         | "
+		 << "  fg      hw1   fg      hw0 | "
+		 << "  fg  F    i    j    k      K | "
+		 << "  fg  F    i    j    k      K | "
+		 << " fg1  op1 F1   i1   j1   k1     K1  fg0  op0 F0   i0   j0   k0     K0 | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K | "
+		 << "  fg   op  F    i    j    k      K"
 		 << endl;
 
 	    cout << "---------+-"
-		 << "-------------------------+-"
-		 << "---------------------+-"
-		 << "-------------------------------------------------+-"
-		 << "-------------------------+-"
-		 << "------------------------"
+		 << "----------------------------+-"
+		 << "------------------------------+-"
+		 << "------------------------------+-"
+		 << "----------------------------------------------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "-----------------------------------+-"
+		 << "----------------------------------"
 		 << endl;
 
 	    for (u32 cycle = 0; busy(); cycle++)
@@ -1053,13 +2006,111 @@ namespace CDC8600
 		tick();
 		transfer();
 		cout << setw(8) << cycle << " | ";
-		dump(IF.out)   ; cout << " | ";
-		dump(IC[0].out); cout << " | ";
-		dump(RM.out)   ; cout << " | ";
-		dump(FX[0].out); cout << " | ";
-		dump(CQ[0].out);
+		IF.dumpout();    cout << " | ";
+		IC[0].dumpout(); cout << " | ";
+		IC[1].dumpout(); cout << " | ";
+		RM.dumpout();    cout << " | ";
+		BR[0].dumpout(); cout << " | ";
+		FX[0].dumpout(); cout << " | ";
+		ST[0].dumpout(); cout << " | ";
+		LD[0].dumpout(); cout << " | ";
+		FP[0].dumpout(); cout << " | ";
+		CQ[0].dumpout(); cout << " | ";
+		BR[1].dumpout(); cout << " | ";
+		FX[1].dumpout(); cout << " | ";
+		ST[1].dumpout(); cout << " | ";
+		LD[1].dumpout(); cout << " | ";
+		FP[1].dumpout(); cout << " | ";
+		CQ[1].dumpout();
 		cout << endl;
 	    }
 	}
+
+	namespace pipes
+	{
+	    u32 fg
+	    /*
+	     * Extract the fg field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(16, v, 80, x);
+		return x;
+	    }
+
+	    u32 op
+	    /*
+	     * Extract the op # field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(16, v, 64, x);
+		return x;
+	    }
+
+	    u32 F
+	    /*
+	     * Extract the F field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy( 8, v, 56, x);
+		return x;
+	    }
+
+	    u32 ireg
+	    /*
+	     * Extract the i (target) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 44, x);
+		return x;
+	    }
+
+	    u32 jreg
+	    /*
+	     * Extract the j (source) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 32, x);
+		return x;
+	    }
+
+	    u32 kreg
+	    /*
+	     * Extract the k (source) register field from a 96-bit operation bit vector
+	     */
+	    (
+	        const bitvector& v
+	    )
+	    {
+		assert(96 == v.size());
+		u32 x;
+		copy(12, v, 20, x);
+		return x;
+	    }
+	} // namespace pipes
     } // namespace pipeline
 } // namespace 8600

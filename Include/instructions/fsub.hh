@@ -1,9 +1,8 @@
 class fsub : public Fijk
 {
     public:
-        fsub(u08 i, u08 j, u08 k) : Fijk(0x9, i, j, k){}
-        fsub() : Fijk(0x9, 0, 0, 0){}
-
+        fsub(u08 i, u08 j, u08 k) : Fijk(0x9, i, j, k) {}
+        fsub() : Fijk(0x9, 0, 0, 0) {}
 
         bool execute()
         {
@@ -39,5 +38,12 @@ class fsub : public Fijk
             _i = (code >> 8) & 0xf;     // extract i
             _j = (code >> 4) & 0xf;     // extract j
             _k = code  & 0xf;           // extract k
+        }
+
+        vector<operations::operation*> crack()
+	    {
+            vector<operations::operation*>	ops;
+            ops.push_back(new operations::fsub(_i, _j, _k, 0));
+            return ops;
         }
 };

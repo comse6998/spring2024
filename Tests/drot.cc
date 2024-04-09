@@ -62,6 +62,8 @@ void test_drot(int count)
 
     delete [] X;
     delete [] Y;
+    CDC8600::memfree(y, ny);
+    CDC8600::memfree(x, nx);
 
     cout << "drot [" << setw(2)<< count << "] ";
     cout << "(n = " << setw(3) << n;
@@ -76,7 +78,10 @@ void test_drot(int count)
     else
         cout << "FAIL" << std::endl;
     
-    if (n < 10) dump(PROC[0].trace);
+    if (n < 10) {
+        dump(PROC[0].trace);
+        dump(PROC[0].trace, "drot.tr");
+    }
 }
 
 int main()

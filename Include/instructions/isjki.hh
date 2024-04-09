@@ -3,6 +3,10 @@ class isjki : public Fijk
     public:
 	isjki(u08 i, u08 j, u08 k) : Fijk(0x6, i, j, k) {}
 	isjki() : Fijk(0x6, 0, 0, 0) {}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/main
 	bool execute()
 	{
 	    stringstream ss;
@@ -30,20 +34,19 @@ class isjki : public Fijk
 	return _F == F;
 	}
 
-	void decode(u32 code)
-	{
-	assert(code < 65536);       // 16-bit instruction
-	assert(match(code >> 12));  // we are in the right instruction
-	_i = (code >> 8) & 0xf;     // extract i
-	_j = (code >> 4) & 0xf;     // extract j
-	_k = code  & 0xf;           // extract k
-	}
+        void decode(u32 code)
+        {
+	    assert(code < 65536);       // 16-bit instruction
+	    assert(match(code >> 12));  // we are in the right instruction
+	    _i = (code >> 8) & 0xf;     // extract i
+	    _j = (code >> 4) & 0xf;     // extract j
+	    _k = code  & 0xf;           // extract k
+        }
 
-	vector<operations::operation*> crack()
-	{
-	    vector<operations::operation*>	ops;
-	    ops.push_back(new operations::isjki(_i, _j, _k, 0));
-	    return ops;
-	}
-	
+		vector<operations::operation*> crack()
+         {
+            vector<operations::operation*>	ops;
+            ops.push_back(new operations::isjki(_i, _j, _k, 0));
+            return ops;
+        }
 };

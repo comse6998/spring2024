@@ -1,9 +1,8 @@
 class fadd : public Fijk
 {
     public:
-        fadd(u08 i, u08 j, u08 k) : Fijk(0x8, i, j, k)
-    {
-    }
+        fadd(u08 i, u08 j, u08 k) : Fijk(0x8, i, j, k) {}
+        fadd() : Fijk(0x8, 0, 0, 0) {}
 
         bool execute()
         {
@@ -39,5 +38,11 @@ class fadd : public Fijk
             _i = (code >> 8) & 0xf;     // extract i
             _j = (code >> 4) & 0xf;     // extract j
             _k = code  & 0xf;           // extract k
+        }
+        vector<operations::operation*> crack()
+        {
+            vector<operations::operation*>	ops;
+            ops.push_back(new operations::fadd(_i, _j, _k, 0));
+            return ops;
         }
 };

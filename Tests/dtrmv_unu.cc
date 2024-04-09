@@ -53,6 +53,17 @@ void test_dtrmv_unu(int count)
     delete [] tmp;
     tmp = NULL;
 
+#ifdef DUMP_TR
+    if (count==2)
+    {
+        dump(PROC[0].trace, "dtrmv_unu.tr.0");
+        dump(PROC[1].trace, "dtrmv_unu.tr.1");
+        dump(PROC[2].trace, "dtrmv_unu.tr.2");
+        dump(PROC[3].trace, "dtrmv_unu.tr.3");
+    }
+#endif
+
+
 #ifdef FUNC
     cout << "[" << setw(2) << count << "] ";
     cout << "(lda = " << setw(3) << lda;

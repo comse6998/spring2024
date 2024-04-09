@@ -38,7 +38,6 @@ class xkj : public Fjk
 	    _k = code  & 0xf;           // extract k
         }
 
-
 	vector<operations::operation*> crack()
 	{
 	    vector<operations::operation*>	ops;
