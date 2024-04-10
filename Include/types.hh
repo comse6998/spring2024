@@ -192,6 +192,7 @@ namespace CDC8600
     {
 	typedef enum
 	{
+	    NOP,
 	    BR,
 	    ST,
 	    LD,
