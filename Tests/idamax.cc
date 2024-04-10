@@ -12,21 +12,18 @@ extern "C" i32 idamax_(i32*, double*, i32*);
 
 const int N = 50;
 
-void test_idamax(int count)
+void test_idamax(int count, bool traceon, i32 n, i32 incx)
 {
     reset();
-
-    i32 n = rand() % 256;
-    i32 incx = (rand() % 16)-4;
 
     double *x = (double*)CDC8600::memalloc(n*abs(incx));
 
     for (int i = 0; i < n*abs(incx); i++) { x[i] = double(drand48()); }
 
-    tracing = false; if (n < 10) tracing = true;
+    tracing = traceon;
 
-    i64 index_ = idamax_(&n, x, &incx);		// Reference implementation of DCOPY
-    i64 index = CDC8600::BLAS::idamax(n, x, incx);	// Implementation of DCOPY for the CDC8600
+    i64 index_ = idamax_(&n, x, &incx);		
+    i64 index = CDC8600::BLAS::idamax(n, x, incx);	
     bool pass = true;
     if (index_ != index)
     {
@@ -47,15 +44,35 @@ void test_idamax(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n<10) dump(PROC[0].trace, "idamax.tr");
+    if (traceon) dump(PROC[0].trace, "idamax.tr");
 
 }
 
-int main()
+int main( 
+    int		argc,
+    char	**argv
+    )
 {
-    for (int i = 0; i < N; i++)
+    if (1 == argc)
     {
-        test_idamax(i);
+	for (u32 i = 0; i < N; i++)
+	{
+	    i32 n = rand() % 256;
+	    i32 incx = (rand() % 16) - 8;
+	    i32 incy = (rand() % 16) - 8;
+	    test_idamax(i, false, n, incx);
+	}
+    }
+    else if (3 == argc)
+    {
+	i32 n = atoi(argv[1]);
+	i32 incx = atoi(argv[2]);
+	test_idamax(0, true, n, incx);
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [n incx]" << endl;
+	return -1;
     }
     return 0;
 }
