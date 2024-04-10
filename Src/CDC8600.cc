@@ -1071,6 +1071,7 @@ namespace CDC8600
 													break;
 					case CDC8600::pipes::BR:
 					case CDC8600::pipes::ST:
+					case CDC8600::pipes::NOP:
 					case CDC8600::pipes::LD:		copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 													opsq.erase(opsq.begin() + i);	// dequeue operation i
 													break;
@@ -1104,6 +1105,7 @@ namespace CDC8600
 			case CDC8600::pipes::FPAdd:
 			case CDC8600::pipes::FPMul:
 			case CDC8600::pipes::FPDiv: for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
+			case CDC8600::pipes::NOP: break; // output is already all zeros.
 			default : assert(false); 	// this should not happen
 	      }
 	      rxdone = false; rxready = true;
@@ -1139,6 +1141,7 @@ namespace CDC8600
 			case CDC8600::pipes::FXArith: transfer(96, RF, 0, A0, 0); break;
 			case CDC8600::pipes::FXMul:	  transfer(96, RF, 0, M0, 0); break;
 			case CDC8600::pipes::FXLogic: transfer(96, RF, 0, L0, 0); break;
+			case CDC8600::pipes::NOP: transfer(96, RF, 0, A0, 0); break;
 			default : assert(false); 	// this should not happen
 	    }
 		   
@@ -1577,12 +1580,6 @@ namespace CDC8600
 			transfer(96, A1, 0, A2, 0*96);
 			transfer(96, A0, 0, A1, 0*96);
 
-			// cout << "FPStage::tick(): F for operations: " << endl;
-			// cout << pipes::F(in) << endl;
-
-			// cout << operations::mappers[pipes::F(in)]->pipe();
-			// cout << endl;
-
 			switch(operations::mappers[pipes::F(in)]->pipe())
 			{
 				case CDC8600::pipes::FPMul:
@@ -1591,10 +1588,12 @@ namespace CDC8600
 					transfer(96, RF, 0, A0, 0); break;
 				case CDC8600::pipes::FPDiv:
 					transfer(96, RF, 0, D0, 0); break;
-				default:
+				case  CDC8600::pipes::NOP:
 					// Should not assert false here, since default for no-op is FXArith
-					// Also, shouldn't just break, this will stuck the pipeline
+					// Also, shouldn't just break, this will congest the pipeline
 					transfer(96, RF, 0, M0, 0); break;
+				default:
+					assert(false);
 			}
 
 			copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
@@ -1630,7 +1629,7 @@ namespace CDC8600
 	{
 		// WBstage output size is 96, input size is 96*3 
 		u32 m = in.size();
-	    u32 n = out.size();
+		u32 n = out.size();
 		u32 offset = 0;
 
 		if (txdone && rxdone) {
