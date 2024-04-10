@@ -29,7 +29,7 @@ blasref:
 decode:	decode.cc
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< -o $@
 
-run:	run.cc
+run:	run.cc ${SRC_DEPS}
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< -o $@
 
 # Rule for building BLAS test cases
