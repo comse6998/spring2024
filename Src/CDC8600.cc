@@ -1492,9 +1492,15 @@ namespace CDC8600
 		}
 	}
 
+	bool notzero(bitvector& v)
+	{
+	    for (u32 i=0; i<v.size(); i++) if (v[i]) return true;
+	    return false;
+	}
+
 	bool IFstage::busy()
 	{
-	    return (fetchcount < fetchgroups.size());
+	    return (fetchgroups.size() || fgq.size() || notzero(out));
 	}
 
 	bool ICstage::busy()
@@ -1518,18 +1524,18 @@ namespace CDC8600
 	    if (RF.busy()) return true;
 	    if (L0.busy()) return true;
 	    if (L1.busy()) return true;
-		if (A0.busy()) return true;
-		if (A1.busy()) return true;
-		if (A2.busy()) return true;
-		if (A3.busy()) return true;
-		if (M0.busy()) return true;
-		if (M1.busy()) return true;
-		if (M2.busy()) return true;
-		if (M3.busy()) return true;
-		if (M4.busy()) return true;
-		if (M5.busy()) return true;
-		if (M6.busy()) return true;
-		if (M7.busy()) return true;
+	    if (A0.busy()) return true;
+	    if (A1.busy()) return true;
+	    if (A2.busy()) return true;
+	    if (A3.busy()) return true;
+	    if (M0.busy()) return true;
+	    if (M1.busy()) return true;
+	    if (M2.busy()) return true;
+	    if (M3.busy()) return true;
+	    if (M4.busy()) return true;
+	    if (M5.busy()) return true;
+	    if (M6.busy()) return true;
+	    if (M7.busy()) return true;
 	    if (WB.busy()) return true;
 	    return pipes::F(in);
 	}
