@@ -8,7 +8,7 @@
  using namespace CDC8600;
  extern "C" void dgemv_(char*, i32*, i32*, f64*, f64*, i32*, f64*, i32*, f64*, f64*, i32*);
 
- const int N = 1;
+ const int N = 20;
 
  #define NUM_OF_PROC 4
 
