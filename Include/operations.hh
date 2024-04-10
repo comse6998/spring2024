@@ -413,6 +413,7 @@ namespace CDC8600
 	    public:
 		rdw(u08 j, u08 k, u32 addr) : LDop(j, k, addr) { }
 		rdw(u08 j, u08 k) : LDop(j, k , 0) {}
+		rdw() : LDop(0,0,0) {}
 		u64 ready() const { return max(PROC[me()].Pready[_k], MEMready[_addr]); }
 		void target(u64 cycle) { PROC[me()].Pready[_j] = cycle; }
 		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); }
@@ -423,6 +424,30 @@ namespace CDC8600
 		u64 encode() const { return ((u64)0x25 << 56) | ((u64)0 << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _addr; }
 		pipes::pipe_t pipe() { return pipes::LD; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
+	};
+
+	template<>
+	class mapper<rdw>	: public basemapper
+	{
+	    private:
+		rdw	_op;
+	    public:
+		void map
+		(
+		    u32& i,	// target register
+		    u32& j,	// source register
+		    u32& k,	// source register
+		    u32  op	// operation #
+		)
+		{
+		    j = PROC[me()].mapper[j];
+			k = PROC[me()].mapper[k];
+		}
+
+		pipes::pipe_t pipe()
+		{
+		    return _op.pipe();
+		}
 	};
 
 	template<> void process<rdw>(u08, u08, u32);
@@ -440,8 +465,34 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "stw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
+		u64 encode() const { return ((u64)0xF0 << 56) | ((u64)0 << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _addr; }
 		pipes::pipe_t pipe() { return pipes::ST; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
+	};
+
+
+	template<>
+	class mapper<stw>	: public basemapper
+	{
+	    private:
+		stw	_op;
+	    public:
+		void map
+		(
+		    u32& i,	// target register
+		    u32& j,	// source register
+		    u32& k,	// source register
+		    u32  op	// operation #
+		)
+		{
+		    j = PROC[me()].mapper[j];
+			k = PROC[me()].mapper[k];
+		}
+
+		pipes::pipe_t pipe()
+		{
+		    return _op.pipe();
+		}
 	};
 
 	template<> void process<stw>(u08, u08, u32);
