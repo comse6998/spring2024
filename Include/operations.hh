@@ -403,6 +403,7 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "agen"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0xb3 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
 		pipes::pipe_t pipe() { return pipes::FXArith; }
 
@@ -549,6 +550,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "cmp"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0xb2 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::pipe_t pipe() { return pipes::FXArith; }
 		pipes::dep_t dep() { return pipes::j_dep; }
 	};

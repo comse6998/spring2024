@@ -41,10 +41,10 @@ class idjkj : public Fjk
 		_j = (code >> 4) & 0xf;     // extract the j field
 	}
 
-	//vector<operations::operation*> crack()
-	//{
-	//   vector<operations::operation*>	ops;
-	//    ops.push_back(new operations::idjkj(_j, _j, 0, _k));
-	//    return ops;
-	//}
+	vector<operations::operation*> crack()
+	{
+	   vector<operations::operation*>	ops;
+	    ops.push_back(new operations::idjkj(_j, _j, 0, _k));
+	    return ops;
+	}
 };
