@@ -63,8 +63,8 @@ class rdjki : public Fijk
 
     vector<operations::operation*> crack()
 	{
-        vector<operations::operation*>	ops;
-        ops.push_back(new operations::agen(params::micro::Xs, _j, _k, 0));
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::agen(params::micro::Xs, _j, _k, 0));
 	    ops.push_back(new operations::rdw(_i,  params::micro::Xs));
 	    return ops;
     }
