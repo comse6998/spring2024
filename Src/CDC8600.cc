@@ -661,7 +661,6 @@ namespace CDC8600
 	    makeinstr[0x17] = new maker<idzkj>;
 	    makeinstr[0x13] = new maker<idjkj>;
 	    makeinstr[0x0D] = new maker<ipjkj>;
-	    makeinstr[0x06] = new maker<isjki>;
 	    makeinstr[0x30] = new maker<jmp>;
 	    makeinstr[0x37] = new maker<jmpn>;
 	    makeinstr[0x35] = new maker<jmpnz>;
@@ -674,6 +673,7 @@ namespace CDC8600
 
             /* Deal with instructions with 4-bit codes */
             makeinstr[0xB0] = new maker<bb>;
+            makeinstr[0x60] = new maker<isjki>;
             makeinstr[0x70] = new maker<idjki>;
             makeinstr[0x80] = new maker<fadd>;
             makeinstr[0xA0] = new maker<fmul>;
@@ -683,6 +683,7 @@ namespace CDC8600
             for (u32 i = 0x01; i < 0x10; ++i) 
 	    {
                 makeinstr[0xB0 + i] = makeinstr[0xB0];
+                makeinstr[0x60 + i] = makeinstr[0x60];
                 makeinstr[0x70 + i] = makeinstr[0x70];
                 makeinstr[0x80 + i] = makeinstr[0x80];
                 makeinstr[0xA0 + i] = makeinstr[0xA0];
