@@ -589,6 +589,8 @@ namespace CDC8600
 		mappers[0x3c] = new mapper<jmpk>;
 		mappers[0x35] = new mapper<jmpnz>;
 		mappers[0x36] = new mapper<jmpp>;
+		mappers[0x37] = new mapper<jmpn>;
+		mappers[0xB0] = new mapper<bb>;
 		mappers[0x25] = new mapper<rdw>;
 		mappers[0xF0] = new mapper<stw>;
 	    mappers[0xb1] = new mapper<cmpz>;

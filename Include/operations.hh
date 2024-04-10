@@ -422,9 +422,9 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "rdw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
-		u64 encode() const { return ((u64)0x25 << 56) | ((u64)0 << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _addr; }
+		u64 encode() const { return ((u64)0x25 << 56) | ((u64)_j << 44) | ((u64)_k << 32) | ((u64)0 << 20) | _addr; }
 		pipes::pipe_t pipe() { return pipes::LD; }
-		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::dep_t dep() { return pipes::k_dep; }
 	};
 
 	template<>
@@ -435,14 +435,21 @@ namespace CDC8600
 	    public:
 		void map
 		(
-		    u32& i,	// target register
-		    u32& j,	// source register
+		    u32& i,	// redundant
+		    u32& j,	// target register
 		    u32& k,	// source register
 		    u32  op	// operation #
 		)
 		{
-		    j = PROC[me()].mapper[j];
-			k = PROC[me()].mapper[k];
+		    k = PROC[me()].mapper[k];				// physical register for X(k)
+		    u32 tgtreg = PROC[me()].pfind();			// find next target physical register
+		    PROC[me()].pfree.erase(tgtreg);			// target physical register comes out of the free set
+		    PROC[me()].precycle.insert(PROC[me()].mapper[j]);	// old physical register goes back to the recyclable set
+		    PROC[me()].Plastop[PROC[me()].mapper[j]] = op;	// old physical register will be recycled with this operation finishes
+		    PROC[me()].Pfull[tgtreg] = false;			// the target register is now empty
+		    // cout << "Physical register " << tgtreg << " is now empty" << endl;
+		    PROC[me()].mapper[j] = tgtreg;			// new mapping of target logical register to target physical register
+		    j = PROC[me()].mapper[j];				// physical register for X(i)
 		}
 
 		pipes::pipe_t pipe()
@@ -480,7 +487,7 @@ namespace CDC8600
 	    public:
 		void map
 		(
-		    u32& i,	// target register
+		    u32& i,	// No target register in
 		    u32& j,	// source register
 		    u32& k,	// source register
 		    u32  op	// operation #
@@ -784,7 +791,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "bb"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
-		u64 encode() const { return ((u64)0xB << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		u64 encode() const { return ((u64)0xB0 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
 		pipes::pipe_t pipe() { return pipes::BR; }
 	};
