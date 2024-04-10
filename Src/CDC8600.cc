@@ -1102,21 +1102,21 @@ namespace CDC8600
 													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
-														FX->pipe_traffic += 0x10;
+														FX[_ix].pipe_traffic += 0x10;
 													} 
 													break;
 					case CDC8600::pipes::FXMul:  	if((FX[_ix].pipe_traffic & 0x01) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
-														FX->pipe_traffic += 0x01;
+														FX[_ix].pipe_traffic += 0x01;
 													} 
 													break;
 					case CDC8600::pipes::FXLogic: 	if((FX[_ix].pipe_traffic & 0x40) == 0)
 													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
-														FX->pipe_traffic += 0x40;
+														FX[_ix].pipe_traffic += 0x40;
 													}
 													break;
 					case CDC8600::pipes::FPMul:		if((FP[_ix].pipe_traffic & 0x01) == 0)
