@@ -712,7 +712,7 @@ namespace CDC8600
 	)
 	{
 	    vector<u64> ops;
-
+		
 	    u08 F = code >> 24;				// extract first byte
 	    instruction* instr = makeinstr[F]->make();	// make corresponding instruction
 	    vector<operations::operation*> cracked;	// operations from an instruction
@@ -1586,9 +1586,9 @@ namespace CDC8600
 	bool FXstage::M7stage::busy() { return pipes::F(in); }
 
 	bool FXstage::WBstage::busy() {
-            u32 Fmult = pipes::F(bitvector(in.begin(), in.begin()+96));			// extract F field
-            u32 Farith = pipes::F(bitvector(in.begin()+96, in.begin()+96*2));			// extract F field
-            u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.begin()+3*96));			// extract F field
+            u32 Fmult    = pipes::F(bitvector(in.begin()+96*0, in.begin()+96*1));			// extract F field
+            u32 Farith   = pipes::F(bitvector(in.begin()+96*1, in.begin()+96*2));			// extract F field
+            u32 Flogical = pipes::F(bitvector(in.begin()+96*2, in.begin()+96*3));			// extract F field
             return Fmult || Farith || Flogical;
         }
 
