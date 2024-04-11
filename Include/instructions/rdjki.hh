@@ -65,7 +65,7 @@ class rdjki : public Fijk
 	{
         vector<operations::operation*>	ops;
         ops.push_back(new operations::agen(params::micro::Xs, _j, _k, 0));
-	    ops.push_back(new operations::rdw(_i,  params::micro::Xs));
+	    ops.push_back(new operations::rdw(_i,  params::micro::Xs, _addr));
 	    return ops;
     }
 };

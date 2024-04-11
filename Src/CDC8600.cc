@@ -601,6 +601,7 @@ namespace CDC8600
 	    mappers[0x90] = new mapper<fsub>;
 	    mappers[0x80] = new mapper<fadd>;
 	    mappers[0xA0] = new mapper<fmul>;
+		mappers[0xb3] = new mapper<agen>;
 	}
     } // namespace operations
 
