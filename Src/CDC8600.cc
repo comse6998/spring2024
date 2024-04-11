@@ -552,16 +552,16 @@ namespace CDC8600
 	template<>
 	void process<rdw>
 	(
-	    u08	j, 	// target register
-	    u08	k,	// address register
+	    u08	i, 	// target register
+	    u08	j,	// address register
 	    u32	addr	// compute address
 	)
 	{
 	    u08 tgtreg = PROC[me()].pfind();								// find next target physical register
 	    PROC[me()].pfree.erase(tgtreg);								// target physical register comes out of the free set
-	    PROC[me()].pfree.insert(PROC[me()].mapper[j]);						// old physical register goes back to the free set
-	    PROC[me()].mapper[j] = tgtreg;								// new mapping of target logical register to target physical register
-	    process(new rdw(PROC[me()].mapper[j], PROC[me()].mapper[k], addr));				// process new operation
+	    PROC[me()].pfree.insert(PROC[me()].mapper[i]);						// old physical register goes back to the free set
+	    PROC[me()].mapper[i] = tgtreg;								// new mapping of target logical register to target physical register
+	    process(new rdw(PROC[me()].mapper[i], PROC[me()].mapper[j], addr));				// process new operation
 	}
 
 	template<>
