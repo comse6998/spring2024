@@ -711,7 +711,7 @@ namespace CDC8600
 	)
 	{
 	    vector<u64> ops;
-
+		
 	    u08 F = code >> 24;				// extract first byte
 	    instruction* instr = makeinstr[F]->make();	// make corresponding instruction
 	    vector<operations::operation*> cracked;	// operations from an instruction

@@ -6,7 +6,6 @@ class rdjki : public Fijk
     public:
         rdjki(u08 i, u08 j, u08 k) : Fijk(0xD, i, j, k) {}
         rdjki() : Fijk(0xD, 0, 0, 0) {}
-
         bool execute()
         {
             u64 addr = (PROC[me()].X(_j).i() + PROC[me()].X(_k).i()) & 0xfffff;	// Compute displacement
