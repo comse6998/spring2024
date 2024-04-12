@@ -33,13 +33,21 @@ void test_dasum(int count)
     f64 ans = CDC8600::BLAS::dasum(n, x, incx);
 
     if (std::abs(ans-ref) > epsilon*ref) {pass = false; }
-    cout << "dasum [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", # of instr = " << setw(9) << instructions::count << ") : ";
+
+    cout << "dasum [" << setw(2) << count << "] ";
+    cout << ", n = " << setw(3) << n;
+    cout << ", incx = " << setw(3) << incx;
+    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
+    cout << ") : ";
+
     if (pass)
         std::cout << "PASS" << endl;
     else
         std::cout << "FAIL" << endl;
 
-    if (n<15) dump(trace);
+    // if (n<15) dump(PROC[0].trace);  // dump traces
+    if (n<15) dump(PROC[0].trace, "dasum.tr");
 }
 
 int main()
