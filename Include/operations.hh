@@ -424,7 +424,7 @@ namespace CDC8600
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_addr) + ")"; }
 		u64 encode() const { return ((u64)0x25 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)0 << 20) | _addr; }
 		pipes::pipe_t pipe() { return pipes::LD; }
-		pipes::dep_t dep() { return pipes::k_dep; }
+		pipes::dep_t dep() { return pipes::j_dep; }
 	};
 
 	template<>
