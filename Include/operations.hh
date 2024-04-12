@@ -235,12 +235,12 @@ namespace CDC8600
 	class LDop : public operation			// Load operation
 	{
 	    public:
+		u08	_i;
 		u08	_j;
-		u08	_k;
 		u32	_addr;
 		vector<units::unit>& units() { return PROC[me()].LDUs; }
-		LDop(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
-		u64 tgtused() const { return PROC[me()].Pused[_j]; }
+		LDop(u08 i, u08 j, u32 addr) { _i = i; _j = j; _addr = addr; }
+		u64 tgtused() const { return PROC[me()].Pused[_i]; }
 	};
 
 	class STop : public operation			// Store operation
@@ -412,17 +412,17 @@ namespace CDC8600
 	class rdw : public LDop
 	{
 	    public:
-		rdw(u08 j, u08 k, u32 addr) : LDop(j, k, addr) { }
-		rdw(u08 j, u08 k) : LDop(j, k , 0) {}
+		rdw(u08 i, u08 j, u32 addr) : LDop(i, j, addr) { }
+		rdw(u08 i, u08 j) : LDop(i, j , 0) {}
 		rdw() : LDop(0,0,0) {}
-		u64 ready() const { return max(PROC[me()].Pready[_k], MEMready[_addr]); }
+		u64 ready() const { return max(PROC[me()].Pready[_j], MEMready[_addr]); }
 		void target(u64 cycle) { PROC[me()].Pready[_j] = cycle; }
-		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return PROC[me()].L1D.loadhit(_addr, _issue) ? params::L1::latency : params::MEM::latency; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "rdw"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
-		u64 encode() const { return ((u64)0x25 << 56) | ((u64)_j << 44) | ((u64)_k << 32) | ((u64)0 << 20) | _addr; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_addr) + ")"; }
+		u64 encode() const { return ((u64)0x25 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)0 << 20) | _addr; }
 		pipes::pipe_t pipe() { return pipes::LD; }
 		pipes::dep_t dep() { return pipes::k_dep; }
 	};
@@ -441,15 +441,15 @@ namespace CDC8600
 		    u32  op	// operation #
 		)
 		{
-		    k = PROC[me()].mapper[k];				// physical register for X(k)
+		    j = PROC[me()].mapper[j];				// physical register for X(k)
 		    u32 tgtreg = PROC[me()].pfind();			// find next target physical register
 		    PROC[me()].pfree.erase(tgtreg);			// target physical register comes out of the free set
-		    PROC[me()].precycle.insert(PROC[me()].mapper[j]);	// old physical register goes back to the recyclable set
-		    PROC[me()].Plastop[PROC[me()].mapper[j]] = op;	// old physical register will be recycled with this operation finishes
+		    PROC[me()].precycle.insert(PROC[me()].mapper[i]);	// old physical register goes back to the recyclable set
+		    PROC[me()].Plastop[PROC[me()].mapper[i]] = op;	// old physical register will be recycled with this operation finishes
 		    PROC[me()].Pfull[tgtreg] = false;			// the target register is now empty
 		    // cout << "Physical register " << tgtreg << " is now empty" << endl;
-		    PROC[me()].mapper[j] = tgtreg;			// new mapping of target logical register to target physical register
-		    j = PROC[me()].mapper[j];				// physical register for X(i)
+		    PROC[me()].mapper[i] = tgtreg;			// new mapping of target logical register to target physical register
+		    i = PROC[me()].mapper[i];				// physical register for X(i)
 		}
 
 		pipes::pipe_t pipe()
