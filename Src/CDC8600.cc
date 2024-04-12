@@ -1681,9 +1681,10 @@ namespace CDC8600
 
 			rxdone = false; rxready = true;
 			txready = true; txdone = false;
+			
+			pipe_traffic = pipe_traffic << 1;
+			// printf("Binary pipe_traffic %b \n", pipe_traffic);
 		}
-
-		pipe_traffic = pipe_traffic << 1;
 	}
 
 	bool FPstage::busy()
