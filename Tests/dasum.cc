@@ -27,7 +27,7 @@ void test_dasum(int count)
 
     f64 *x = (f64*)CDC8600::memalloc(nx);
 
-    for (int i = 0; i < nx; i++) {x[i] = drand48(); }
+    for (int i = 0; i < nx; i++) {x[i] = drand48() - 0.5; }
 
     f64 ref = dasum_(&n, x, &incx);
     f64 ans = CDC8600::BLAS::dasum(n, x, incx);
