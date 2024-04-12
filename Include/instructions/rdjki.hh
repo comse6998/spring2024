@@ -6,7 +6,6 @@ class rdjki : public Fijk
     public:
         rdjki(u08 i, u08 j, u08 k) : Fijk(0xD, i, j, k) {}
         rdjki() : Fijk(0xD, 0, 0, 0) {}
-
         bool execute()
         {
             u64 addr = (PROC[me()].X(_j).i() + PROC[me()].X(_k).i()) & 0xfffff;	// Compute displacement
@@ -63,8 +62,8 @@ class rdjki : public Fijk
 
     vector<operations::operation*> crack()
 	{
-        vector<operations::operation*>	ops;
-        ops.push_back(new operations::agen(params::micro::Xs, _j, _k, 0));
+	    vector<operations::operation*>	ops;
+	    ops.push_back(new operations::agen(params::micro::Xs, _j, _k, 0));
 	    ops.push_back(new operations::rdw(_i,  params::micro::Xs));
 	    return ops;
     }

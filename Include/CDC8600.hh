@@ -605,13 +605,19 @@ namespace CDC8600
 	class IFstage : public stage<0,96>
 	{
 	    private:
-		vector<u64> fetchgroups;
-		u32	    fetchcount;
+		vector<u64> 	fetchgroups;		// list of fetch groups
+		vector<u32> 	fetchaddr;		// list of fetch addresses
+		u32	    	fetchcount;		// fetch count
+		vector<u64> 	fgq;			// fetch group queue
+		vector<u32> 	fcq;			// fetch count queus
+		map<u32,u32>	nfap;                   // next fetch address predictor
+		u32		prevaddr;		// previous fetch address
 	    public:
 		void init(const char* filename);
 		void tick();
 		bool busy();
 		void dumpout();
+		bool prediction(u32, u32);		// next instruction address predictor
 	};
 
 	extern IFstage IF;

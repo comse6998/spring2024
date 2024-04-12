@@ -235,12 +235,12 @@ namespace CDC8600
 	class LDop : public operation			// Load operation
 	{
 	    public:
+		u08	_i;
 		u08	_j;
-		u08	_k;
 		u32	_addr;
 		vector<units::unit>& units() { return PROC[me()].LDUs; }
-		LDop(u08 j, u08 k, u32 addr) { _j = j; _k = k; _addr = addr; }
-		u64 tgtused() const { return PROC[me()].Pused[_j]; }
+		LDop(u08 i, u08 j, u32 addr) { _i = i; _j = j; _addr = addr; }
+		u64 tgtused() const { return PROC[me()].Pused[_i]; }
 	};
 
 	class STop : public operation			// Store operation
@@ -403,6 +403,7 @@ namespace CDC8600
 		u64 throughput() const { return 2; }
 		string mnemonic() const { return "agen"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0xb3 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
 		pipes::pipe_t pipe() { return pipes::FXArith; }
 
@@ -411,18 +412,50 @@ namespace CDC8600
 	class rdw : public LDop
 	{
 	    public:
-		rdw(u08 j, u08 k, u32 addr) : LDop(j, k, addr) { }
-		rdw(u08 j, u08 k) : LDop(j, k , 0) {}
-		u64 ready() const { return max(PROC[me()].Pready[_k], MEMready[_addr]); }
+		rdw(u08 i, u08 j, u32 addr) : LDop(i, j, addr) { }
+		rdw(u08 i, u08 j) : LDop(i, j , 0) {}
+		rdw() : LDop(0,0,0) {}
+		u64 ready() const { return max(PROC[me()].Pready[_j], MEMready[_addr]); }
 		void target(u64 cycle) { PROC[me()].Pready[_j] = cycle; }
-		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); }
+		void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
 		u64 latency() const { return PROC[me()].L1D.loadhit(_addr, _issue) ? params::L1::latency : params::MEM::latency; }
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "rdw"; }
-		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
-		u64 encode() const { return ((u64)0x25 << 56) | ((u64)0 << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _addr; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_addr) + ")"; }
+		u64 encode() const { return ((u64)0x25 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)0 << 20) | _addr; }
 		pipes::pipe_t pipe() { return pipes::LD; }
-		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::dep_t dep() { return pipes::k_dep; }
+	};
+
+	template<>
+	class mapper<rdw>	: public basemapper
+	{
+	    private:
+		rdw	_op;
+	    public:
+		void map
+		(
+		    u32& i,	// redundant
+		    u32& j,	// target register
+		    u32& k,	// source register
+		    u32  op	// operation #
+		)
+		{
+		    j = PROC[me()].mapper[j];				// physical register for X(k)
+		    u32 tgtreg = PROC[me()].pfind();			// find next target physical register
+		    PROC[me()].pfree.erase(tgtreg);			// target physical register comes out of the free set
+		    PROC[me()].precycle.insert(PROC[me()].mapper[i]);	// old physical register goes back to the recyclable set
+		    PROC[me()].Plastop[PROC[me()].mapper[i]] = op;	// old physical register will be recycled with this operation finishes
+		    PROC[me()].Pfull[tgtreg] = false;			// the target register is now empty
+		    // cout << "Physical register " << tgtreg << " is now empty" << endl;
+		    PROC[me()].mapper[i] = tgtreg;			// new mapping of target logical register to target physical register
+		    i = PROC[me()].mapper[i];				// physical register for X(i)
+		}
+
+		pipes::pipe_t pipe()
+		{
+		    return _op.pipe();
+		}
 	};
 
 	template<> void process<rdw>(u08, u08, u32);
@@ -440,8 +473,34 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "stw"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_k) + ", " + to_string(_addr) + ")"; }
+		u64 encode() const { return ((u64)0xF0 << 56) | ((u64)0 << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _addr; }
 		pipes::pipe_t pipe() { return pipes::ST; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
+	};
+
+
+	template<>
+	class mapper<stw>	: public basemapper
+	{
+	    private:
+		stw	_op;
+	    public:
+		void map
+		(
+		    u32& i,	// No target register in
+		    u32& j,	// source register
+		    u32& k,	// source register
+		    u32  op	// operation #
+		)
+		{
+		    j = PROC[me()].mapper[j];
+			k = PROC[me()].mapper[k];
+		}
+
+		pipes::pipe_t pipe()
+		{
+		    return _op.pipe();
+		}
 	};
 
 	template<> void process<stw>(u08, u08, u32);
@@ -491,6 +550,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "cmp"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0xb2 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::pipe_t pipe() { return pipes::FXArith; }
 		pipes::dep_t dep() { return pipes::j_dep; }
 	};
@@ -731,7 +791,7 @@ namespace CDC8600
 		u64 throughput() const { return 1; }
 		string mnemonic() const { return "bb"; }
 		string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
-		u64 encode() const { return ((u64)0xB << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		u64 encode() const { return ((u64)0xB0 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
 		pipes::dep_t dep() { return pipes::jk_dep; }
 		pipes::pipe_t pipe() { return pipes::BR; }
 	};
