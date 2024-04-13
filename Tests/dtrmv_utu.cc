@@ -28,6 +28,7 @@ void test_dtrmv_utu(int count)
     incx = (incx == 0) ? 1 : incx;
     i32 n = rand() % 256;
     i32 lda = n + rand() % 256;
+    int flag = 0;
     char UPLO = 'U'; 
     char TRANS = 'T'; 
     char DIAG = 'U';
@@ -68,10 +69,13 @@ void test_dtrmv_utu(int count)
     
     cout << ") : ";
 
-    if(n < 13) dump(PROC[0].trace, "dtrmv_utu.tr.0");
-    if(n < 13) dump(PROC[1].trace, "dtrmv_utu.tr.1");
-    if(n < 13) dump(PROC[2].trace, "dtrmv_utu.tr.2");
-    if(n < 13) dump(PROC[3].trace, "dtrmv_utu.tr.3");
+    if(n < 10 && flag == 0) {
+    dump(PROC[0].trace, "dtrmv_utu.tr.0");
+    dump(PROC[1].trace, "dtrmv_utu.tr.1");
+    dump(PROC[2].trace, "dtrmv_utu.tr.2");
+    dump(PROC[3].trace, "dtrmv_utu.tr.3");
+    flag = 1;
+    }
 
     if (pass)
         cout << "PASS" << std::endl;
