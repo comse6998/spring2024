@@ -1108,6 +1108,7 @@ namespace CDC8600
         {
             public:
                 void tick();
+		bool busy();
         };
 
         extern COstage CO;

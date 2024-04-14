@@ -1860,6 +1860,13 @@ namespace CDC8600
 
         bool CQstage::busy()  { return opsq.size(); }
 
+	bool COstage::busy()
+	{
+            u32 CO0 = pipes::F(bitvector(in.begin()+96*0, in.begin()+96*1));                       // extract F field
+            u32 CO1 = pipes::F(bitvector(in.begin()+96*1, in.begin()+96*2));                       // extract F field
+            return CO0 || CO1;
+	}
+
         bool busy()
         {
             if (IF.busy())    return true;
