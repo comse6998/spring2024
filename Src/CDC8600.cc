@@ -1213,16 +1213,6 @@ namespace CDC8600
 		   WB.tick();
 		   pipe_traffic = pipe_traffic << 1;
 
-		switch(operations::mappers[pipes::F(in)]->pipe())
-	    {
-			case CDC8600::pipes::FXArith: transfer(96, RF, 0, A0, 0); break;
-			case CDC8600::pipes::FXMul:	  transfer(96, RF, 0, M0, 0); break;
-			case CDC8600::pipes::FXLogic: transfer(96, RF, 0, L0, 0); break;
-			case CDC8600::pipes::NOP: transfer(96, RF, 0, A0, 0); break;
-			default : assert(false); 	// this should not happen
-	    }
-		   
-
 	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
 	       transfer(96, M7, 0, WB, 0*96);
@@ -1241,7 +1231,32 @@ namespace CDC8600
 		   	   
 		   transfer(96, L1, 0, WB, 2*96);
 	       transfer(96, L0, 0, L1, 0);
-	       
+
+		switch(operations::mappers[pipes::F(in)]->pipe())
+	    {
+			case CDC8600::pipes::FXArith:
+                            null_transfer(96, M0, 0);
+                            null_transfer(96, L0, 0);
+                            transfer(96, RF, 0, A0, 0);
+                            break;
+			case CDC8600::pipes::FXMul:
+                            null_transfer(96, A0, 0);
+                            null_transfer(96, L0, 0);
+                            transfer(96, RF, 0, M0, 0);
+                            break;
+			case CDC8600::pipes::FXLogic:
+                            null_transfer(96, M0, 0);
+                            null_transfer(96, A0, 0);
+                            transfer(96, RF, 0, L0, 0);
+                            break;
+			case CDC8600::pipes::NOP:
+                            null_transfer(96, A0, 0);
+                            null_transfer(96, L0, 0);
+                            null_transfer(96, M0, 0);
+                            break;
+			default : assert(false); 	// this should not happen
+	    }
+		   
 	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
 	       rxdone = false; rxready = true;
@@ -1643,14 +1658,15 @@ namespace CDC8600
 			D0.tick();
 
 			WB.tick();
+                        pipe_traffic = pipe_traffic << 1;
 
+
+                        
 			copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
 			/* Transfer to 3 channels of WB's input, only one of them should be non-zero */
-			transfer(96, M7, 0, WB, 0*96);
-			transfer(96, A3, 0, WB, 1*96);
-			transfer(96, D0, 0, WB, 2*96);
 
+			transfer(96, M7, 0, WB, 0*96);
 			transfer(96, M6, 0, M7, 0*96);
 			transfer(96, M5, 0, M6, 0*96);
 			transfer(96, M4, 0, M5, 0*96);
@@ -1659,22 +1675,34 @@ namespace CDC8600
 			transfer(96, M1, 0, M2, 0*96);
 			transfer(96, M0, 0, M1, 0*96);
 
+			transfer(96, A3, 0, WB, 1*96);
 			transfer(96, A2, 0, A3, 0*96);
 			transfer(96, A1, 0, A2, 0*96);
 			transfer(96, A0, 0, A1, 0*96);
 
+			transfer(96, D0, 0, WB, 2*96);
+
 			switch(operations::mappers[pipes::F(in)]->pipe())
 			{
 				case CDC8600::pipes::FPMul:
+                                        null_transfer(96, A0, 0);
+                                        null_transfer(96, D0, 0);
 					transfer(96, RF, 0, M0, 0); break;
 				case CDC8600::pipes::FPAdd:
+                                        null_transfer(96, M0, 0);
+                                        null_transfer(96, D0, 0);
 					transfer(96, RF, 0, A0, 0); break;
 				case CDC8600::pipes::FPDiv:
+                                        null_transfer(96, A0, 0);
+                                        null_transfer(96, M0, 0);
 					transfer(96, RF, 0, D0, 0); break;
 				case  CDC8600::pipes::NOP:
 					// Should not assert false here, since default for no-op is FXArith
 					// Also, shouldn't just break, this will congest the pipeline
-					transfer(96, RF, 0, M0, 0); break;
+                                        null_transfer(96, M0, 0);
+                                        null_transfer(96, A0, 0);
+                                        null_transfer(96, D0, 0);
+                                        break;
 				default:
 					assert(false);
 			}
@@ -1726,26 +1754,28 @@ namespace CDC8600
 
 			u32 ireg_FPMul = pipes::ireg(bitvector(in.begin(), in.begin()+96));
 			u32 ireg_FPAdd = pipes::ireg(bitvector(in.begin()+96, in.begin()+96*2));
-			u32 ireg_FPDiv = pipes::ireg(bitvector(in.begin()+96*2, in.end()));
+                        u32 ireg_FPDiv = pipes::ireg(bitvector(in.begin()+96*2, in.end()));
 
-			bool is_FPMul = false;
-			bool is_FPAdd = false;
-			bool is_FPDiv = false;
+                        if(((F_FPMul && F_FPAdd) || (F_FPMul && F_FPDiv) || (F_FPAdd && F_FPDiv))) {
+                            assert(false);
+                        }
+                        
+                        if (F_FPAdd)
+                                offset = 96;
+                        else if (F_FPDiv)
+                                offset = 96 * 2;
 
-			is_FPMul = !(F_FPMul == 0);
-			is_FPAdd = !(F_FPAdd == 0);
-			offset = is_FPAdd ? 96 : offset;
-			is_FPDiv = !(F_FPDiv == 0);
-			offset = is_FPDiv ? 96 * 2 : offset;
-			assert((int)is_FPMul + (int)is_FPAdd + (int)is_FPDiv <= 1);
 			for (u32 i=0; i<min(m,n); i++) out[i] = in[i+offset];
-			
-			if (is_FPMul)
-				PROC[me()].Pfull[ireg_FPMul] = true;
-			else if (is_FPAdd)
-				PROC[me()].Pfull[ireg_FPAdd] = true;
-			else if (is_FPDiv)
-				PROC[me()].Pfull[ireg_FPDiv] = true;
+
+                        if (F_FPMul) {
+                            PROC[me()].Pfull[ireg_FPMul] = true;	// target register is now full
+                        }
+                        else if (F_FPAdd) {
+                            PROC[me()].Pfull[ireg_FPAdd] = true;	// target register is now full
+                        }
+                        else if (F_FPDiv) {
+                            PROC[me()].Pfull[ireg_FPDiv] = true;	// target register is now full
+                        }
 
 			rxdone = false; rxready = true;
 			txready = true; txdone = false;

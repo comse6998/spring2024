@@ -603,6 +603,24 @@ namespace CDC8600
 	    src.txdone = true;
 	}
 
+        // Zero out a stage, this is necessary when there are subpipes
+	template<u32 p, u32 q>
+	void null_transfer(u32 N, stage<p,q>& dst, u32 dstfirst)
+	{
+	    assert(dstfirst < p); assert((dstfirst + N) <= p);
+
+	    if (!dst.rxready) 		// destination ready?
+	    {
+		// destination not ready
+		dst.rxdone = false;
+		return;
+	    }
+
+	    // both source and destination are ready
+	    for (u32 i=0; i<N; i++) dst.in[dstfirst + i] = false;
+	    dst.rxdone = true;
+	}
+
 	class IFstage : public stage<0,96>
 	{
 	    private:
