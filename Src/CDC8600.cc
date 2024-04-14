@@ -1572,6 +1572,8 @@ namespace CDC8600
             return opsq.size();
         }
 
+        bool OIstage::busy() { return pipes::F(in); }
+
         bool FXstage::busy()
         {
             if (RF.busy()) return true;

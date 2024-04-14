@@ -694,6 +694,7 @@ namespace CDC8600
                 void init(u32 ix) { _ix = ix; } // initialize this operation issue stage to a particular index (0/1)
                 stage<96,96>& target();         // target unit for next issue
                 void tick();
+                bool busy();
         };
 
         extern OIstage OI[2];
