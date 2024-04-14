@@ -593,16 +593,28 @@ namespace CDC8600
 	    mappers[0xB0] = new mapper<bb>;
 	    mappers[0x25] = new mapper<rdw>;
 	    mappers[0xF0] = new mapper<stw>;
-	    mappers[0xb1] = new mapper<cmpz>;
+	    /* mappers[0xb1] = new mapper<cmpz>; */
 	    mappers[0x0d] = new mapper<ipjkj>;
 	    mappers[0x13] = new mapper<idjkj>;
 	    mappers[0x70] = new mapper<idjki>;
 	    mappers[0x60] = new mapper<isjki>;
+
 	    mappers[0x90] = new mapper<fsub>;
 	    mappers[0x80] = new mapper<fadd>;
 	    mappers[0xA0] = new mapper<fmul>;
-		mappers[0xb3] = new mapper<agen>;
+		/* mappers[0xb3] = new mapper<agen>; */
 		mappers[0x04] = new mapper<cpkj>;
+            for (u32 i = 0x01; i < 0x10; ++i) 
+	    {
+                mappers[0xB0 + i] = mappers[0xB0];
+                mappers[0x60 + i] = mappers[0x60];
+                mappers[0x70 + i] = mappers[0x70];
+                mappers[0x80 + i] = mappers[0x80];
+                mappers[0xA0 + i] = mappers[0xA0];
+                mappers[0x90 + i] = mappers[0x90];
+                /* mappers[0xD0 + i] = mappers[0xD0]; */
+                mappers[0xF0 + i] = mappers[0xF0];
+            }
 	}
     } // namespace operations
 
