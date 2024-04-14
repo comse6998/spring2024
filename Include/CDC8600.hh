@@ -518,615 +518,614 @@ namespace CDC8600
 
     namespace instructions
     {
-	class basemaker
-	{
-	    public:
-		basemaker() { }
-		virtual instruction* make() = 0;
-	};
+        class basemaker
+        {
+            public:
+                basemaker() { }
+                virtual instruction* make() = 0;
+        };
 
-	template<typename T>
-	class maker : public basemaker
-	{
-	    public:
-		maker() : basemaker() { }
-		virtual instruction* make() { return new T; }
-	};
+        template<typename T>
+        class maker : public basemaker
+        {
+            public:
+                maker() : basemaker() { }
+                virtual instruction* make() { return new T; }
+        };
 
-	extern vector<basemaker*> makeinstr;
+        extern vector<basemaker*> makeinstr;
 
-	extern void initmakers();
+        extern void initmakers();
 
-	extern vector<u64> decode(u32);
+        extern vector<u64> decode(u32);
     } // namespace instructions
 
     namespace pipeline
     {
-	typedef vector<bool> bitvector;
+        typedef vector<bool> bitvector;
 
-	template<u32 m, u32 n>
-	class stage
-	{
-	    public:
-		bitvector in;		// stage inputs  (m bits)
-		bitvector out;		// stage outputs (n bits)
-		bool txready;		// stage outputs are ready
-		bool txdone;		// outputs have been sent to next stage
-		bool rxready;		// stage ready for new inputs
-		bool rxdone;		// inputs have been received from previous stage
+        template<u32 m, u32 n>
+        class stage
+        {
+            public:
+                bitvector in;           // stage inputs  (m bits)
+                bitvector out;          // stage outputs (n bits)
+                bool txready;           // stage outputs are ready
+                bool txdone;            // outputs have been sent to next stage
+                bool rxready;           // stage ready for new inputs
+                bool rxdone;            // inputs have been received from previous stage
 
-		stage() : in(m), out(n) { }
-		virtual void tick() 	
-		{
-		   if (txdone && rxdone)
-		   {
-		      for (u32 i=0; i<n; i++) out[i] = false;
-		      for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
-		      rxdone = false; rxready = true;
-		      txready = true; txdone = false;
-		   }
-		}
-		virtual void tock() 	{ }
-		virtual bool busy()	{ return false; }
-		virtual void reset()	{ rxready = true; rxdone = true; txready = true; txdone = true; }
-	};
+                stage() : in(m), out(n) { }
+                virtual void tick()     
+                {
+                   if (txdone && rxdone)
+                   {
+                      for (u32 i=0; i<n; i++) out[i] = false;
+                      for (u32 i=0; i<min(m,n); i++) out[i] = in[i];
+                      rxdone = false; rxready = true;
+                      txready = true; txdone = false;
+                   }
+                }
+                virtual void tock()     { }
+                virtual bool busy()     { return false; }
+                virtual void reset()    { rxready = true; rxdone = true; txready = true; txdone = true; }
+        };
 
-	void copy(u32 N, u64 u, bitvector& v, u32 first);
-	void copy(u32 N, const bitvector& u, u32 first, u64& v);
-	void copy(u32 N, const bitvector& u, u32 first, u32& v);
-	void copy(u32 N, const bitvector& u, u32 ufirst, bitvector& v, u32 vfirst);
+        void copy(u32 N, u64 u, bitvector& v, u32 first);
+        void copy(u32 N, const bitvector& u, u32 first, u64& v);
+        void copy(u32 N, const bitvector& u, u32 first, u32& v);
+        void copy(u32 N, const bitvector& u, u32 ufirst, bitvector& v, u32 vfirst);
 
-	template<u32 m, u32 n, u32 p, u32 q>
-	void transfer(u32 N, stage<m,n>& src, u32 srcfirst, stage<p,q>& dst, u32 dstfirst)
-	{
-	    assert(srcfirst < n); assert((srcfirst + N) <= n);
-	    assert(dstfirst < p); assert((dstfirst + N) <= p);
+        template<u32 m, u32 n, u32 p, u32 q>
+        void transfer(u32 N, stage<m,n>& src, u32 srcfirst, stage<p,q>& dst, u32 dstfirst)
+        {
+            assert(srcfirst < n); assert((srcfirst + N) <= n);
+            assert(dstfirst < p); assert((dstfirst + N) <= p);
 
-	    if (!dst.rxready) 		// destination ready?
-	    {
-		// destination not ready
-		dst.rxdone = false;
-		src.txdone = false;
-		return;
-	    }
-	    if (!src.txready)		// source ready?
-	    {
-		// source not ready
-		src.txdone = false;
-		dst.rxdone = false;
-		return;
-	    }
+            if (!dst.rxready)           // destination ready?
+            {
+                // destination not ready
+                dst.rxdone = false;
+                src.txdone = false;
+                return;
+            }
+            if (!src.txready)           // source ready?
+            {
+                // source not ready
+                src.txdone = false;
+                dst.rxdone = false;
+                return;
+            }
 
-	    // both source and destination are ready
-	    for (u32 i=0; i<N; i++) dst.in[dstfirst + i] = src.out[srcfirst + i];
-	    dst.rxdone = true;
-	    src.txdone = true;
-	}
+            // both source and destination are ready
+            for (u32 i=0; i<N; i++) dst.in[dstfirst + i] = src.out[srcfirst + i];
+            dst.rxdone = true;
+            src.txdone = true;
+        }
 
         // Zero out a stage, this is necessary when there are subpipes
-	template<u32 p, u32 q>
-	void null_transfer(u32 N, stage<p,q>& dst, u32 dstfirst)
-	{
-	    assert(dstfirst < p); assert((dstfirst + N) <= p);
-
-	    if (!dst.rxready) 		// destination ready?
-	    {
-		// destination not ready
-		dst.rxdone = false;
-		return;
-	    }
-
-	    // both source and destination are ready
-	    for (u32 i=0; i<N; i++) dst.in[dstfirst + i] = false;
-	    dst.rxdone = true;
-	}
-
-	class IFstage : public stage<0,96>
-	{
-	    private:
-		vector<u64> 	fetchgroups;		// list of fetch groups
-		vector<u32> 	fetchaddr;		// list of fetch addresses
-		u32	    	fetchcount;		// fetch count
-		vector<u64> 	fgq;			// fetch group queue
-		vector<u32> 	fcq;			// fetch count queus
-		map<u32,u32>	nfap;                   // next fetch address predictor
-		u32		prevaddr;		// previous fetch address
-	    public:
-		void init(const char* filename);
-		void tick();
-		bool busy();
-		void dumpout();
-		bool prediction(u32, u32);		// next instruction address predictor
-	};
-
-	extern IFstage IF;
-
-	class ICstage : public stage<48,80>
-	{
-	    public:
-		vector<bitvector>	opsq;
-		void tick();
-		void dumpout();
-		void init() { opsq.clear(); }
-		bool busy();
-	};
-
-	extern ICstage IC[2];
-
-	class RMstage : public stage<160,192>
-	{
-	    public:
-		vector<bitvector>	opsq[2];
-		u32  opcount;
-		void tick();
-		void init() { opcount = 0; opsq[0].clear(); opsq[1].clear(); }
-		void dumpout();
-		bool busy();
-	};
-
-	extern RMstage RM;
-
-	class ODstage : public stage<96, 96>
-	{
-	};
-
-	extern ODstage OD[2];
-
-	class IQstage : public stage<96,96>
-	{
-        private:
-        u32 _ix;    
-	    public:
-		vector<bitvector>	opsq;
-		void init(u32 ix) { opsq.clear(); _ix = ix; }
-		void tick();
-		bool busy();
-		void dumpout();
-	};
-	
-	extern IQstage IQ[2];
-
-	class OIstage : public stage<96,5*96>
-	{
-	    private:
-		u32	_ix;			// operation issue index (0/1)
-	    public:
-		void init(u32 ix) { _ix = ix; }	// initialize this operation issue stage to a particular index (0/1)
-		stage<96,96>& target();		// target unit for next issue
-		void tick();
-	};
-
-	extern OIstage OI[2];
-
-	class BRstage : public stage<96,96>
-	{
-        private:
-        class X1stage : public stage<96,96>
+        template<u32 p, u32 q>
+        void null_transfer(u32 N, stage<p,q>& dst, u32 dstfirst)
         {
-            public :
-            bool busy();
+            assert(dstfirst < p); assert((dstfirst + N) <= p);
+
+            if (!dst.rxready)           // destination ready?
+            {
+                // destination not ready
+                dst.rxdone = false;
+                return;
+            }
+
+            // both source and destination are ready
+            for (u32 i=0; i<N; i++) dst.in[dstfirst + i] = false;
+            dst.rxdone = true;
+        }
+
+        class IFstage : public stage<0,96>
+        {
+            private:
+                vector<u64>     fetchgroups;            // list of fetch groups
+                vector<u32>     fetchaddr;              // list of fetch addresses
+                u32             fetchcount;             // fetch count
+                vector<u64>     fgq;                    // fetch group queue
+                vector<u32>     fcq;                    // fetch count queus
+                map<u32,u32>    nfap;                   // next fetch address predictor
+                u32             prevaddr;               // previous fetch address
+            public:
+                void init(const char* filename);
+                void tick();
+                bool busy();
+                void dumpout();
+                bool prediction(u32, u32);              // next instruction address predictor
         };
 
-        class X2stage : public stage<96,96>
+        extern IFstage IF;
+
+        class ICstage : public stage<48,80>
         {
-            public :
-            bool busy();
+            public:
+                vector<bitvector>       opsq;
+                void tick();
+                void dumpout();
+                void init() { opsq.clear(); }
+                bool busy();
         };
 
-        class RFstage : public stage<96,96>
-		{
-		    public:
-			bool busy();
-		};
+        extern ICstage IC[2];
 
-	    public:
-        RFstage RF;
-        X1stage X1;
-        X2stage X2;
-        void tick();
-		void dumpout();
-        bool busy();
-        void reset();
-	};
+        class RMstage : public stage<160,192>
+        {
+            public:
+                vector<bitvector>       opsq[2];
+                u32  opcount;
+                void tick();
+                void init() { opcount = 0; opsq[0].clear(); opsq[1].clear(); }
+                void dumpout();
+                bool busy();
+        };
 
-	extern BRstage BR[2];
+        extern RMstage RM;
 
-	class FXstage : public stage<96,96>
-	{
+        class ODstage : public stage<96, 96>
+        {
+        };
+
+        extern ODstage OD[2];
+
+        class IQstage : public stage<96,96>
+        {
+            private:
+                u32 _ix;    
+            public:
+                vector<bitvector>       opsq;
+                void init(u32 ix) { opsq.clear(); _ix = ix; }
+                void tick();
+                bool busy();
+                void dumpout();
+        };
         
+        extern IQstage IQ[2];
 
-	    private:
-		class RFstage : public stage<96,96>
-		{
-		    public:
-			bool busy();
-		};
-
-		class L0stage : public stage<96,96>
-		{
-		    public:
-			bool busy();
-		};
-
-		class L1stage : public stage<96,96>
-		{
-		    public:
-			bool busy();
-		};
-
-        class A0stage : public stage<96,96>
-		{
+        class OIstage : public stage<96,5*96>
+        {
+            private:
+                u32     _ix;                    // operation issue index (0/1)
             public:
-			bool busy();
-		};
-        class A1stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+                void init(u32 ix) { _ix = ix; } // initialize this operation issue stage to a particular index (0/1)
+                stage<96,96>& target();         // target unit for next issue
+                void tick();
+        };
 
-		class A2stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+        extern OIstage OI[2];
 
-        class A3stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+        class BRstage : public stage<96,96>
+        {
+            private:
+                class X1stage : public stage<96,96>
+                {
+                    public :
+                        bool busy();
+                };
 
-        class M0stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+                class X2stage : public stage<96,96>
+                {
+                    public :
+                        bool busy();
+                };
 
-        class M1stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+                class RFstage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
 
-        class M2stage : public stage<96,96>
-		{
             public:
-			bool busy();
-		};
+                RFstage RF;
+                X1stage X1;
+                X2stage X2;
+                void tick();
+                void dumpout();
+                bool busy();
+                void reset();
+        };
 
-        class M3stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+        extern BRstage BR[2];
 
-        class M4stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+        class FXstage : public stage<96,96>
+        {
+            private:
+                class RFstage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
 
-        class M5stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+                class L0stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
 
-        class M6stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+                class L1stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
 
-        class M7stage : public stage<96,96>
-		{
-            public:
-			bool busy();
-		};
+                class A0stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
 
-		class WBstage : public stage<3*96,96>
-		{
-		    public:
-			void tick();
-			bool busy();
-		};
+                class A1stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class A2stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class A3stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class M0stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class M1stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class M2stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+               class M3stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class M4stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class M5stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class M6stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class M7stage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+                class WBstage : public stage<3*96,96>
+                {
+                    public:
+                        void tick();
+                        bool busy();
+                };
 
         u32 _ix;
 
 
-	    public:
-		RFstage RF;
-		L0stage L0;
-		L1stage L1;
-        A0stage A0;
-        A1stage A1;
-        A2stage A2;
-        A3stage A3;
-        M0stage M0;
-        M1stage M1;
-        M2stage M2;
-        M3stage M3;
-        M4stage M4;
-        M5stage M5;
-        M6stage M6;
-        M7stage M7;
-		WBstage WB;
-        u08 pipe_traffic;               //8 bits to keep track of when new issues to FX are possible 
-        void init(u32 ix) { _ix = ix; pipe_traffic = 0; }
+            public:
+                RFstage RF;
+                L0stage L0;
+                L1stage L1;
+                A0stage A0;
+                A1stage A1;
+                A2stage A2;
+                A3stage A3;
+                M0stage M0;
+                M1stage M1;
+                M2stage M2;
+                M3stage M3;
+                M4stage M4;
+                M5stage M5;
+                M6stage M6;
+                M7stage M7;
+                WBstage WB;
 
-		void tick();
-		void reset();
-		void dumpout();
-		bool busy();
-	};
+                u08 pipe_traffic;               //8 bits to keep track of when new issues to FX are possible 
+                void init(u32 ix) { _ix = ix; pipe_traffic = 0; }
 
-	extern FXstage FX[2];
-
-	class FPstage : public stage<96,96>
-	{
-        private:
-        u32 _ix;    
-
-        class RFstage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class M0stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class M1stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class M2stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class M3stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class M4stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class M5stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class M6stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class M7stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class A0stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class A1stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class A2stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class A3stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class D0stage : public stage<96,96>
-        {
-            public:
-            // Default tick()
-            bool busy();
-        };
-        class WBstage : public stage<96*3,96>
-        {
-            public:
-            void tick();
-            bool busy();
+                void tick();
+                void reset();
+                void dumpout();
+                bool busy();
         };
 
-        public:
-        RFstage RF;
-        M0stage M0;
-        M1stage M1;
-        M2stage M2;
-        M3stage M3;
-        M4stage M4;
-        M5stage M5;
-        M6stage M6;
-        M7stage M7;
+        extern FXstage FX[2];
 
-        A0stage A0;
-        A1stage A1;
-        A2stage A2;
-        A3stage A3;
+        class FPstage : public stage<96,96>
+        {
+            private:
+            u32 _ix;    
 
-        D0stage D0;
+            class RFstage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class M0stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class M1stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class M2stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class M3stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class M4stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class M5stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class M6stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class M7stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class A0stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class A1stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class A2stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class A3stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class D0stage : public stage<96,96>
+            {
+                public:
+                // Default tick()
+                bool busy();
+            };
+            class WBstage : public stage<96*3,96>
+            {
+                public:
+                void tick();
+                bool busy();
+            };
 
-        WBstage WB;
+            public:
+                RFstage RF;
+                M0stage M0;
+                M1stage M1;
+                M2stage M2;
+                M3stage M3;
+                M4stage M4;
+                M5stage M5;
+                M6stage M6;
+                M7stage M7;
 
-        void init(u32 ix) { pipe_traffic = 0; _ix = ix; }
-        u08 pipe_traffic;
+                A0stage A0;
+                A1stage A1;
+                A2stage A2;
+                A3stage A3;
+
+                D0stage D0;
+
+                WBstage WB;
+
+                void init(u32 ix) { pipe_traffic = 0; _ix = ix; }
+                u08 pipe_traffic;
+                void reset();
+                void tick();
+                bool busy();
+                void dumpout();
+        };
+
+        extern FPstage FP[2];
+
+        class LDstage : public stage<96,96>
+        {
+            private:
+                class X0stage : public stage<96,96>
+                {
+                    public :
+                    bool busy();
+                };
+
+                class X1stage : public stage<96,96>
+                {
+                    public :
+                    bool busy();
+                };
+
+                class X2stage : public stage<96,96>
+                {
+                    public :
+                    bool busy();
+                };
+
+                class X3stage : public stage<96,96>
+                {
+                    public :
+                    bool busy();
+                };
+
+
+                class RFstage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+                class WBstage : public stage<96,96>
+                {
+                    public:
+                        void tick();
+                        bool busy();
+                };
+
+            public : 
+                RFstage RF;
+                WBstage WB;
+                X0stage X0;
+                X1stage X1;
+                X2stage X2;
+                X3stage X3;
+
+                void tick();
+                void reset();
+                void dumpout();
+                bool busy();
+        };
+
+        extern LDstage LD[2];
+
+        class STstage : public stage<96,96>
+        {
+            private:
+                class X0stage : public stage<96,96>
+                {
+                    public :
+                    bool busy();
+                };
+
+                class X1stage : public stage<96,96>
+                {
+                    public :
+                    bool busy();
+                };
+
+                class X2stage : public stage<96,96>
+                {
+                    public :
+                    bool busy();
+                };
+
+                class X3stage : public stage<96,96>
+                {
+                    public :
+                    bool busy();
+                };
+
+                class RFstage : public stage<96,96>
+                {
+                    public:
+                        bool busy();
+                };
+
+            public:
+                RFstage RF;
+                X1stage X0;
+                X1stage X1;
+                X2stage X2;
+                X3stage X3;
+                void tick();
+                void dumpout();
+                bool busy();
+                void reset();
+        };
+
+        extern STstage ST[2];
+
+        class CQstage : public stage<5*96,96>
+        {
+            public:
+                vector<bitvector>       opsq;
+                void dumpout();
+                bool busy();
+                void tick();
+        };
+
+        extern CQstage CQ[2];
+
+        class COstage : public stage<192,0>
+        {
+            public:
+                void tick();
+        };
+
+        extern COstage CO;
+
         void reset();
         void tick();
         bool busy();
-        void dumpout();
-    };
+        void transfer();
+        void run(const char* filename);
 
-	extern FPstage FP[2];
-
-	class LDstage : public stage<96,96>
-	{
-        private:
-        class X0stage : public stage<96,96>
+        namespace pipes
         {
-            public :
-            bool busy();
-        };
-
-        class X1stage : public stage<96,96>
-        {
-            public :
-            bool busy();
-        };
-
-        class X2stage : public stage<96,96>
-        {
-            public :
-            bool busy();
-        };
-
-        class X3stage : public stage<96,96>
-        {
-            public :
-            bool busy();
-        };
-
-
-        class RFstage : public stage<96,96>
-		{
-		    public:
-			bool busy();
-		};
-        class WBstage : public stage<96,96>
-		{
-		    public:
-			void tick();
-			bool busy();
-		};
-
-        public : 
-        RFstage RF;
-		WBstage WB;
-        X0stage X0;
-        X1stage X1;
-        X2stage X2;
-        X3stage X3;
-
-		void tick();
-		void reset();
-		void dumpout();
-		bool busy();
-	};
-
-	extern LDstage LD[2];
-
-	class STstage : public stage<96,96>
-	{
-        private:
-        class X0stage : public stage<96,96>
-        {
-            public :
-            bool busy();
-        };
-
-        class X1stage : public stage<96,96>
-        {
-            public :
-            bool busy();
-        };
-
-        class X2stage : public stage<96,96>
-        {
-            public :
-            bool busy();
-        };
-
-        class X3stage : public stage<96,96>
-        {
-            public :
-            bool busy();
-        };
-
-        class RFstage : public stage<96,96>
-		{
-		    public:
-			bool busy();
-		};
-
-	    public:
-        RFstage RF;
-        X1stage X0;
-        X1stage X1;
-        X2stage X2;
-        X3stage X3;
-        void tick();
-		void dumpout();
-        bool busy();
-        void reset();
-
-	};
-
-	extern STstage ST[2];
-
-	class CQstage : public stage<5*96,96>
-	{
-	    public:
-		vector<bitvector>	opsq;
-		void dumpout();
-		bool busy();
-		void tick();
-	};
-
-	extern CQstage CQ[2];
-
-	class COstage : public stage<192,0>
-	{
-	    public:
-		void tick();
-	};
-
-	extern COstage CO;
-
-	void reset();
-	void tick();
-	bool busy();
-	void transfer();
-	void run(const char* filename);
-
-	namespace pipes
-	{
-	    u32 fg  ( const pipeline::bitvector& v);
-	    u32 op  ( const pipeline::bitvector& v);
-	    u32 F   ( const pipeline::bitvector& v);
-	    u32 ireg( const pipeline::bitvector& v);
-	    u32 jreg( const pipeline::bitvector& v);
-	    u32 kreg( const pipeline::bitvector& v);
-	} // namespace pipes
+            u32 fg  ( const pipeline::bitvector& v);
+            u32 op  ( const pipeline::bitvector& v);
+            u32 F   ( const pipeline::bitvector& v);
+            u32 ireg( const pipeline::bitvector& v);
+            u32 jreg( const pipeline::bitvector& v);
+            u32 kreg( const pipeline::bitvector& v);
+        } // namespace pipes
     } // namespace pipeline
 } // namespace CDC8600
 
