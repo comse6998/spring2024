@@ -1292,6 +1292,12 @@ namespace CDC8600
            }
         }
 
+	bool LDstage::cachehit()
+	{
+	    double random = drand48();
+	    return (random < params::MEM::hitrate);
+	}
+
         void LDstage::tick()
         {
            if (txdone && rxdone)
@@ -1299,15 +1305,44 @@ namespace CDC8600
                RF.tick();
                X0.tick();
                X1.tick();
-                   X2.tick();
-                   X3.tick();
+               X2.tick();
+               X3.tick();
+	       LM.tick();
                WB.tick();
 
                copy(96, WB.out, 0, out, 0); WB.txdone = true;
-                   transfer(96, X3, 0, WB, 0);
-                   transfer(96, X2, 0, X3, 0);
+               transfer(96, X3, 0, WB, 0);
+	       if (!(pipes::F(WB.in)))
+	       {
+		   if (pipes::F(LM.out))
+		   {
+		       transfer(96, LM, 0, WB, 0);
+		   }
+		   else
+		   {
+		       LM.txdone = true;
+		   }
+	       }
+               transfer(96, X2, 0, X3, 0);
                transfer(96, X1, 0, X2, 0);
-               transfer(96, X0, 0, X1, 0);
+	       if (pipes::F(X0.out))
+	       {
+		   if (cachehit())
+		   {
+		       transfer(96, X0, 0, X1, 0);
+		       null_transfer(96, LM, 0);
+		   }
+		   else
+		   {
+		       transfer(96, X0, 0, LM, 0);
+		       null_transfer(96, X1, 0);
+		   }
+	       }
+	       else
+	       {
+		   transfer(96, X0, 0, X1, 0);
+		   null_transfer(96, LM, 0);
+	       }
                transfer(96, RF, 0, X0, 0);
                copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
@@ -1370,7 +1405,7 @@ namespace CDC8600
 
         void LDstage::WBstage::tick()
         {
-                if (txdone && rxdone)
+            if (txdone && rxdone)
             {
                 u32 m = in.size();
                 u32 n = out.size();
@@ -1390,55 +1425,93 @@ namespace CDC8600
             }
         }
 
+	void LDstage::LMstage::tick()
+	{
+	    if (rxdone)
+	    {
+		if (pipes::F(in))
+		{
+		    opsq.push_back(in);
+		    waitq.push_back(params::MEM::latency);
+		    cout << "Operation "; dumpoutop(in); cout << " going into the load miss queue" << endl;
+		}
+                rxdone = false; rxready = true;
+	    }
+
+	    for (u32 i = 0; i < waitq.size(); i++)
+	    {
+		if (waitq[i] > 0) waitq[i] -= 1;
+	    }
+
+            if (txdone)
+            {
+		for (u32 i = 0; i < out.size(); i++) out[i] = false;
+		for (u32 i = 0; i < waitq.size(); i++)
+		{
+		    if (0 == waitq[i])
+		    {
+			copy(96, opsq[i], 0, out, 0);
+			opsq.erase(opsq.begin()+i);
+			waitq.erase(waitq.begin()+i);
+			cout << "Operation "; dumpoutop(out); cout << " leaving the load miss queue" << endl;
+			break;
+		    }
+		}
+                txready = true; txdone = false;
+	    }
+	}
+
         void FXstage::reset()
         {
             rxready = true; rxdone = true; txready = true; txdone = true;
             RF.reset();
             L0.reset();
             L1.reset();
-                A0.reset();
-                A1.reset();
-                A2.reset();
-                A3.reset();
-                M0.reset();
-                M1.reset();
-                M2.reset();
-                M3.reset();
-                M4.reset();
-                M5.reset();
-                M6.reset();
-                M7.reset();
+	    A0.reset();
+	    A1.reset();
+	    A2.reset();
+	    A3.reset();
+	    M0.reset();
+	    M1.reset();
+	    M2.reset();
+	    M3.reset();
+	    M4.reset();
+	    M5.reset();
+	    M6.reset();
+	    M7.reset();
             WB.reset();
         }
 
         void LDstage::reset()
         {
-                rxready = true; rxdone = true; txready = true; txdone  = true;
-                RF.reset();
+            rxready = true; rxdone = true; txready = true; txdone  = true;
+            RF.reset();
             X0.reset();
             X1.reset();
-                X2.reset();
-                X3.reset();
+            X2.reset();
+            X3.reset();
             WB.reset();
+	    LM.reset();
         }
 
         void BRstage::reset()
         {
-                rxready = true; rxdone = true; txready = true; txdone = true;
-                RF.reset();
-                X1.reset();
-                X2.reset();
+	    rxready = true; rxdone = true; txready = true; txdone = true;
+	    RF.reset();
+	    X1.reset();
+	    X2.reset();
         }
 
         void STstage::reset()
         {
-                rxready = true; rxdone = true; txready = true; txdone = true;
-                RF.reset();
-                X0.reset();
-                X1.reset();
-                X2.reset();
-                X3.reset();
+	    rxready = true; rxdone = true; txready = true; txdone = true;
+	    RF.reset();
+	    X0.reset();
+	    X1.reset();
+	    X2.reset();
+	    X3.reset();
         }
+
         void CQstage::tick()    
         {
             if (rxdone)
@@ -1597,12 +1670,13 @@ namespace CDC8600
 
         bool LDstage::busy()
         {
-                if (RF.busy()) return true;
+            if (RF.busy()) return true;
             if (X0.busy()) return true;
             if (X1.busy()) return true;
-                if (X2.busy()) return true;
-                if (X3.busy()) return true;
+            if (X2.busy()) return true;
+            if (X3.busy()) return true;
             if (WB.busy()) return true;
+	    if (LM.busy()) return true;
             return pipes::F(in);
         }
 
@@ -1654,6 +1728,8 @@ namespace CDC8600
         bool LDstage::X3stage::busy() { return pipes::F(in); }
 
         bool LDstage::WBstage::busy() { return pipes::F(in); }
+
+	bool LDstage::LMstage::busy() { return (opsq.size() || pipes::F(out)); }
 
         bool BRstage::busy()
         {
@@ -1858,7 +1934,10 @@ namespace CDC8600
         bool STstage::X3stage::busy() {return pipes::F(in);}
         bool STstage::RFstage::busy() {return pipes::F(in);}
 
-        bool CQstage::busy()  { return opsq.size(); }
+        bool CQstage::busy()  
+	{ 
+	    return opsq.size();
+	}
 
 	bool COstage::busy()
 	{
@@ -1881,15 +1960,15 @@ namespace CDC8600
             if (OI[1].busy()) return true;
             if (BR[0].busy()) return true;
             if (BR[1].busy()) return true;
-            if (FX[0].busy()) return true; 
+            if (FX[0].busy()) return true;
             if (FX[1].busy()) return true;
             if (FP[0].busy()) return true; 
             if (FP[1].busy()) return true;
-            if (LD[0].busy()) return true; 
+            if (LD[0].busy()) return true;
             if (LD[1].busy()) return true;
             if (ST[0].busy()) return true; 
             if (ST[1].busy()) return true;
-            if (CQ[0].busy()) return true; 
+            if (CQ[0].busy()) return true;
             if (CQ[1].busy()) return true;
             if (CO.busy())    return true;
             return false;
@@ -2097,7 +2176,9 @@ namespace CDC8600
             RM.init();
             IQ[0].init(0); IQ[1].init(1);
             OI[0].init(0); OI[1].init(1);
-                FX[0].init(0); FX[1].init(1);
+            FX[0].init(0); FX[1].init(1);
+	    LD[0].init(0); LD[1].init(1);
+	    CQ[0].init(0); CQ[1].init(1);
 
             cout << "   cycle | "
                  << "                         IF | "
