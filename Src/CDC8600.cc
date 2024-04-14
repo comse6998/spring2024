@@ -403,14 +403,14 @@ namespace CDC8600
     {
 	cout << "  instr #";
 	cout << " |    line #";
-	cout << " |                   instruction ";
+	cout << " |             instruction ";
 	cout << " |  address";
 	cout << " | encoding ";
 	cout << endl;
 
 	cout << "----------";
 	cout << "+-----------";
-	cout << "+--------------------------------";
+	cout << "+--------------------------";
 	cout << "+----------";
 	cout << "+---------";
 	cout << endl;
@@ -1087,10 +1087,15 @@ namespace CDC8600
 	    return false;
 	}
 
+	void dumpoutop(const bitvector&);
+
 	void IQstage::tick()
 	{
 	    if (rxdone)
 	    {
+		// cout << "IQ[" << _ix << "] receiving operation ";
+		// dumpoutop(in);
+		// cout << endl;
 		if (pipes::F(in)) opsq.push_back(in);			// push input into issue queue
 	        rxdone = false; rxready = true;				// ready to receive more
 	    }
@@ -1098,8 +1103,10 @@ namespace CDC8600
 	    if (opsq.size() && txdone)					// there is at lease one operation in the issue queue
 	    {
 		for (u32 i = 0; i < out.size(); i++) out[i] = false;	// default is to send zeros
+		bool hasissue = false;					// nothing to issue yet
 		for (u32 i = 0; i < opsq.size(); i++)			// traverse issue queue from older to newer
 		{
+		    if (hasissue) break;
 		    if (inputsready(opsq[i]))				// are all inputs for operation i ready?
 		    {
 				switch(operations::mappers[pipes::F(opsq[i])]->pipe())
@@ -1108,7 +1115,8 @@ namespace CDC8600
 													{
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
-														FX[_ix].pipe_traffic += 0x10;
+														FX[_ix].pipe_traffic += 0x10;	// update scoreboard
+														hasissue = true;		// has something to issue
 													} 
 													break;
 					case CDC8600::pipes::FXMul:  	if((FX[_ix].pipe_traffic & 0x01) == 0)
@@ -1116,6 +1124,7 @@ namespace CDC8600
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FX[_ix].pipe_traffic += 0x01;
+														hasissue = true;		// has something to issue
 													} 
 													break;
 					case CDC8600::pipes::FXLogic: 	if((FX[_ix].pipe_traffic & 0x40) == 0)
@@ -1123,6 +1132,7 @@ namespace CDC8600
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FX[_ix].pipe_traffic += 0x40;
+														hasissue = true;		// has something to issue
 													}
 													break;
 					case CDC8600::pipes::FPMul:		if((FP[_ix].pipe_traffic & 0x01) == 0)
@@ -1130,6 +1140,7 @@ namespace CDC8600
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FP[_ix].pipe_traffic += 0x01;
+														hasissue = true;		// has something to issue
 													}
 													break;
 					case CDC8600::pipes::FPAdd:		if((FP[_ix].pipe_traffic & 0x10) == 0)
@@ -1137,6 +1148,7 @@ namespace CDC8600
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FP[_ix].pipe_traffic += 0x10;
+														hasissue = true;		// has something to issue
 													}
 													break;
 					case CDC8600::pipes::FPDiv:		if((FP[_ix].pipe_traffic & 0x80) == 0)
@@ -1144,6 +1156,7 @@ namespace CDC8600
 														copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 														opsq.erase(opsq.begin() + i);	// dequeue operation i
 														FP[_ix].pipe_traffic += 0x80;
+														hasissue = true;		// has something to issue
 													}
 													break;
 					case CDC8600::pipes::BR:
@@ -1151,6 +1164,7 @@ namespace CDC8600
 					case CDC8600::pipes::NOP:
 					case CDC8600::pipes::LD:		copy(96, opsq[i], 0, out, 0);	// copy operation i to output
 													opsq.erase(opsq.begin() + i);	// dequeue operation i
+													hasissue = true;		// has something to issue
 													break;
 					default : assert(false); 	// this should not happen
 				}
@@ -1164,6 +1178,10 @@ namespace CDC8600
 		for (u32 i = 0; i < out.size(); i++) out[i] = false;
 		txready = true; txdone = false;
 	    }
+
+	    // cout << "IQ[" << _ix << "] issuing operation ";
+	    // dumpoutop(out);
+	    // cout << endl;
 	}
 
 	void OIstage::tick() 	
@@ -1195,72 +1213,75 @@ namespace CDC8600
 
 	   if (txdone && rxdone)
 	   {
-	       RF.tick();
-	       L0.tick();
-	       L1.tick();
-		   A0.tick();
-		   A1.tick();
-		   A2.tick();
-		   A3.tick();
-		   M0.tick();
-		   M1.tick();
-		   M2.tick();
-		   M3.tick();
-		   M4.tick();
-		   M5.tick();
-		   M6.tick();
-		   M7.tick();
-		   WB.tick();
-		   pipe_traffic = pipe_traffic << 1;
+		RF.tick();
+		L0.tick();
+		L1.tick();
+		A0.tick();
+		A1.tick();
+		A2.tick();
+		A3.tick();
+		M0.tick();
+		M1.tick();
+		M2.tick();
+		M3.tick();
+		M4.tick();
+		M5.tick();
+		M6.tick();
+		M7.tick();
+		WB.tick();
+		pipe_traffic = pipe_traffic << 1;
 
-	       copy(96, WB.out, 0, out, 0); WB.txdone = true;
+		copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
-	       transfer(96, M7, 0, WB, 0*96);
-		   transfer(96, M6, 0, M7, 0);
-		   transfer(96, M5, 0, M6, 0);
-		   transfer(96, M4, 0, M5, 0);
-		   transfer(96, M3, 0, M4, 0);
-		   transfer(96, M2, 0, M3, 0);
-		   transfer(96, M1, 0, M2, 0);
-		   transfer(96, M0, 0, M1, 0);
+		transfer(96, M7, 0, WB, 0*96);
+		transfer(96, M6, 0, M7, 0);
+		transfer(96, M5, 0, M6, 0);
+		transfer(96, M4, 0, M5, 0);
+		transfer(96, M3, 0, M4, 0);
+		transfer(96, M2, 0, M3, 0);
+		transfer(96, M1, 0, M2, 0);
+		transfer(96, M0, 0, M1, 0);
+
+		transfer(96, A3, 0, WB, 1*96);
+		transfer(96, A2, 0, A3, 0);
+		transfer(96, A1, 0, A2, 0);
+		transfer(96, A0, 0, A1, 0);
 		   
-	       transfer(96, A3, 0, WB, 1*96);
-		   transfer(96, A2, 0, A3, 0);
-		   transfer(96, A1, 0, A2, 0);
-		   transfer(96, A0, 0, A1, 0);
-		   	   
-		   transfer(96, L1, 0, WB, 2*96);
-	       transfer(96, L0, 0, L1, 0);
+		transfer(96, L1, 0, WB, 2*96);
+		transfer(96, L0, 0, L1, 0);
 
 		switch(operations::mappers[pipes::F(in)]->pipe())
-	    {
-			case CDC8600::pipes::FXArith:
-                            null_transfer(96, M0, 0);
-                            null_transfer(96, L0, 0);
-                            transfer(96, RF, 0, A0, 0);
-                            break;
-			case CDC8600::pipes::FXMul:
-                            null_transfer(96, A0, 0);
-                            null_transfer(96, L0, 0);
-                            transfer(96, RF, 0, M0, 0);
-                            break;
-			case CDC8600::pipes::FXLogic:
-                            null_transfer(96, M0, 0);
-                            null_transfer(96, A0, 0);
-                            transfer(96, RF, 0, L0, 0);
-                            break;
-			case CDC8600::pipes::NOP:
-                            null_transfer(96, A0, 0);
-                            null_transfer(96, L0, 0);
-                            null_transfer(96, M0, 0);
-                            break;
-			default : assert(false); 	// this should not happen
-	    }
+		{
+		    case CDC8600::pipes::FXArith:
+			null_transfer(96, M0, 0);
+			null_transfer(96, L0, 0);
+			transfer(96, RF, 0, A0, 0);
+			break;
+		    case CDC8600::pipes::FXMul:
+			null_transfer(96, A0, 0);
+			null_transfer(96, L0, 0);
+			transfer(96, RF, 0, M0, 0);
+			break;
+		    case CDC8600::pipes::FXLogic:
+			null_transfer(96, M0, 0);
+			null_transfer(96, A0, 0);
+			transfer(96, RF, 0, L0, 0);
+			break;
+		    case CDC8600::pipes::NOP:
+			null_transfer(96, A0, 0);
+			null_transfer(96, L0, 0);
+			null_transfer(96, M0, 0);
+			break;
+		    default : assert(false); 	// this should not happen
+		}
 		   
-	       copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
+		// cout << "FX[" << _ix << "] receiving operation ";
+		// dumpoutop(in);
+		// cout << endl;
+	        copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
-	       rxdone = false; rxready = true;
-	       txready = true; txdone = false;
+	        rxdone = false; rxready = true;
+	        txready = true; txdone = false;
 	   }
 	}
 
@@ -1536,7 +1557,11 @@ namespace CDC8600
 
 	bool IQstage::busy()
 	{
-	    return false;
+	    // cout << "IQ[" << _ix << "] : " << opsq.size() << " entries, head = ";
+	    // if (opsq.size()) dumpoutop(opsq[0]);
+	    // else cout << "<nil>";
+	    // cout << endl;
+	    // return false;
 	    return opsq.size();
 	}
 
@@ -1942,6 +1967,7 @@ namespace CDC8600
 	    const bitvector& out
 	)
 	{
+	    assert(96 == out.size());
 	    dump(out, 80,16);
 	    cout << ".";
 	    dump(out, 64,16);
