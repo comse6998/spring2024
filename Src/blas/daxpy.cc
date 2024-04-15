@@ -72,12 +72,12 @@ namespace CDC8600
                         
                         //idjkj(0, 1)         // X0 (n) = X0 (n) - 1
 
-            rdjk(6, 0)           // initiate M = 0
-            rdjk(7, 0)           // the tmp number of M, initial as n
+            cpkj(6, 0)           // initiate M = 0
+            cpkj(7, 0)           // the tmp number of M, initial as n
 
 
-LABEL(MOD) rdjk(6, 7)          // assign tem M to M
-            rdjk(8, 7)          // another tem M[10] for M
+LABEL(MOD) cpkj(6, 7)          // assign tem M to M
+            cpkj(8, 7)          // another tem M[10] for M
             idjkj(7, 4)         // tem - 4 = tmp
                         pass()
                         pass()

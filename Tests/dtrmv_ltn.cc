@@ -10,7 +10,7 @@ using namespace CDC8600;
 extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *);
 
 // set the value of iteration and the error 
-const int N = 5;
+const int N = 20;
 const double Epsilon = 1e-9;
 
 // set the prameter
@@ -54,7 +54,7 @@ void test_dtrmv_ltn(int count)
     cout << ", nways = "<< params::L1::nways << ", latency = " << params::L1::latency << ")" << std::endl;
 
     cout << "# of instr  = ";
-    if (n<100)
+    if (n<10)
     {
        for (u32 p = 0; p < params::Proc::N; p++) {
         cout << "PROC[" << p << "], # of instruction = " << setw(9) << PROC[p].instr_count << endl;

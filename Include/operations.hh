@@ -409,6 +409,24 @@ namespace CDC8600
 
 	};
 
+	class cpkj : public FXop
+	{
+	    public:
+		cpkj(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+		cpkj() : FXop(0, 0, 0, 0) { }
+		u64 ready() const { return max(max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]), max(PROC[me()].Pready[PROC[me()].mapper[params::micro::RA]], PROC[me()].Pready[PROC[me()].mapper[params::micro::FL]])); }
+		void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
+		void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
+		u64 latency() const { return 2; }
+		u64 throughput() const { return 1; }
+		string mnemonic() const { return "cpkj"; }
+		string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
+		u64 encode() const { return ((u64)0x04 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
+		pipes::dep_t dep() { return pipes::jk_dep; }
+		pipes::pipe_t pipe() { return pipes::FXArith; }
+
+	};
+
 	class rdw : public LDop
 	{
 	    public:
