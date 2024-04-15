@@ -253,16 +253,17 @@ namespace CDC8600
         niap.clear();                                                                                           // Clear next instruction address predictor
     }
 
-    u32 Processor::pfind
+    bool Processor::pfind
     (
+        u32& idx
     )
     {
-        u32 idx = 0;
+        idx = 0;
         u64 lrutime = UINT64_MAX;
         for (u32 i : pfree)     // look for the earliest available physical register
             if (Pused[i] < lrutime) { idx = i; lrutime = Pused[i]; }
-        assert(lrutime < UINT64_MAX);
-        return idx;
+        if (lrutime == UINT64_MAX) return false;
+        return true;
     }
 
     void *memalloc
@@ -557,7 +558,7 @@ namespace CDC8600
             u32 addr    // compute address
         )
         {
-            u08 tgtreg = PROC[me()].pfind();                                                            // find next target physical register
+            u32 tgtreg; if (!PROC[me()].pfind(tgtreg)) return;                                          // find next target physical register
             PROC[me()].pfree.erase(tgtreg);                                                             // target physical register comes out of the free set
             PROC[me()].pfree.insert(PROC[me()].mapper[i]);                                              // old physical register goes back to the free set
             PROC[me()].mapper[i] = tgtreg;                                                              // new mapping of target logical register to target physical register
@@ -1026,16 +1027,21 @@ namespace CDC8600
                    copy(12, opsq[1][0], 32, jreg[1]);   // extract j field from IC[1]
                    copy(12, opsq[1][0], 20, kreg[1]);   // extract k field from IC[1]
 
-                   operations::mappers[F[1]]->map(ireg[1], jreg[1], kreg[1], opcount);  // architected -> physical register mapping
+                   if (operations::mappers[F[1]]->map(ireg[1], jreg[1], kreg[1], opcount))  // architected -> physical register mapping
+		   {
+		       copy(12, ireg[1], out,140);          // pass physical i register from IC[1]
+		       copy(12, jreg[1], out,128);          // pass physical j register from IC[1]
+		       copy(12, kreg[1], out,116);          // pass physical k register from IC[1]
 
-                   copy(12, ireg[1], out,140);          // pass physical i register from IC[1]
-                   copy(12, jreg[1], out,128);          // pass physical j register from IC[1]
-                   copy(12, kreg[1], out,116);          // pass physical k register from IC[1]
+		       copy(16, opcount, out,160);          // pass operation count from IC[1]
+		       opcount++;
 
-                   copy(16, opcount, out,160);          // pass operation count from IC[1]
-                   opcount++;
-
-                   opsq[1].erase(opsq[1].begin());      // pop this operation from the queue
+		       opsq[1].erase(opsq[1].begin());      // pop this operation from the queue
+		   }
+		   else
+		   {
+		       for (u32 i = 96; i < 192; i++) out[i] = false;
+		   }
                }
                else if (F[0])
                {
@@ -1049,16 +1055,21 @@ namespace CDC8600
                    copy(12, opsq[0][0], 32, jreg[0]);   // extract j field from IC[0]
                    copy(12, opsq[0][0], 20, kreg[0]);   // extract k field from IC[0]
 
-                   operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0], opcount);  // architected -> physical register mapping
+                   if (operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0], opcount))  // architected -> physical register mapping
+		   {
+		       copy(12, ireg[0], out, 44);          // pass physical i register from IC[0]
+		       copy(12, jreg[0], out, 32);          // pass physical j register from IC[0]
+		       copy(12, kreg[0], out, 20);          // pass physical k register from IC[0]
 
-                   copy(12, ireg[0], out, 44);          // pass physical i register from IC[0]
-                   copy(12, jreg[0], out, 32);          // pass physical j register from IC[0]
-                   copy(12, kreg[0], out, 20);          // pass physical k register from IC[0]
+		       copy(16, opcount, out, 64);          // pass operation count from IC[0]
+		       opcount++;
 
-                   copy(16, opcount, out, 64);          // pass operation count from IC[0]
-                   opcount++;
-
-                   opsq[0].erase(opsq[0].begin());      // pop this operation from the queue
+		       opsq[0].erase(opsq[0].begin());      // pop this operation from the queue
+		   }
+		   else
+		   {
+		       for (u32 i = 0; i < 96; i++) out[i] = false;
+		   }
                }
            }
 
@@ -1822,8 +1833,6 @@ namespace CDC8600
                         rxdone = false; rxready = true;
                         txready = true; txdone = false;
                         
-                        pipe_traffic = pipe_traffic << 1;
-                        // printf("Binary pipe_traffic %b \n", pipe_traffic);
                 }
         }
 

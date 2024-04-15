@@ -101,7 +101,7 @@ namespace CDC8600
 	class basemapper
 	{
 	    public:
-		virtual void map
+		virtual bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register 
@@ -112,6 +112,8 @@ namespace CDC8600
 		    j = 0;
 		    k = 0;
 		    i = 0;
+
+		    return true;
 		}
 
 		virtual pipes::pipe_t pipe
@@ -137,7 +139,7 @@ namespace CDC8600
 	    private:
 		T	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register 
@@ -147,7 +149,7 @@ namespace CDC8600
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
 		    k = PROC[me()].mapper[k];				// physical register for X(k)
-		    u32 tgtreg = PROC[me()].pfind();			// find next target physical register
+		    u32 tgtreg; if(!PROC[me()].pfind(tgtreg)) return false;	// find next target physical register
 		    PROC[me()].pfree.erase(tgtreg);			// target physical register comes out of the free set
 		    PROC[me()].precycle.insert(PROC[me()].mapper[i]);	// old physical register goes back to the recyclable set
 		    PROC[me()].Plastop[PROC[me()].mapper[i]] = op;	// old physical register will be recycled with this operation finishes
@@ -155,6 +157,7 @@ namespace CDC8600
 		    // cout << "Physical register " << tgtreg << " is now empty" << endl;
 		    PROC[me()].mapper[i] = tgtreg;			// new mapping of target logical register to target physical register
 		    i = PROC[me()].mapper[i];				// physical register for X(i)
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -179,7 +182,7 @@ namespace CDC8600
 	{
 	    j = PROC[me()].mapper[j];									// physical register for X(j)
 	    k = PROC[me()].mapper[k];									// physical register for X(k)
-	    u08 tgtreg = PROC[me()].pfind();								// find next target physical register
+	    u32 tgtreg; if(!PROC[me()].pfind(tgtreg)) return;						// find next target physical register
 	    PROC[me()].pfree.erase(tgtreg);								// target physical register comes out of the free set
 	    PROC[me()].pfree.insert(PROC[me()].mapper[i]);						// old physical register goes back to the free set
 	    PROC[me()].mapper[i] = tgtreg;								// new mapping of target logical register to target physical register
@@ -451,7 +454,7 @@ namespace CDC8600
 	    private:
 		rdw	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// redundant
 		    u32& j,	// target register
@@ -460,7 +463,7 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(k)
-		    u32 tgtreg = PROC[me()].pfind();			// find next target physical register
+		    u32 tgtreg; if(!PROC[me()].pfind(tgtreg)) return false;	// find next target physical register
 		    PROC[me()].pfree.erase(tgtreg);			// target physical register comes out of the free set
 		    PROC[me()].precycle.insert(PROC[me()].mapper[i]);	// old physical register goes back to the recyclable set
 		    PROC[me()].Plastop[PROC[me()].mapper[i]] = op;	// old physical register will be recycled with this operation finishes
@@ -468,6 +471,7 @@ namespace CDC8600
 		    // cout << "Physical register " << tgtreg << " is now empty" << endl;
 		    PROC[me()].mapper[i] = tgtreg;			// new mapping of target logical register to target physical register
 		    i = PROC[me()].mapper[i];				// physical register for X(i)
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -503,7 +507,7 @@ namespace CDC8600
 	    private:
 		stw	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// No target register in
 		    u32& j,	// source register
@@ -512,7 +516,8 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];
-			k = PROC[me()].mapper[k];
+		    k = PROC[me()].mapper[k];
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -669,7 +674,7 @@ namespace CDC8600
 	    private:
 		jmpz	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register
@@ -677,6 +682,7 @@ namespace CDC8600
 		    u32  op	// operation #
 		)
 		{
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -691,7 +697,7 @@ namespace CDC8600
 	    private:
 		jmpz	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register
@@ -700,6 +706,7 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -714,7 +721,7 @@ namespace CDC8600
 	    private:
 		jmpz	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register
@@ -723,6 +730,7 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -738,7 +746,7 @@ namespace CDC8600
 	    private:
 		jmpz	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register
@@ -747,6 +755,7 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -761,7 +770,7 @@ namespace CDC8600
 	    private:
 		jmpp	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register
@@ -770,6 +779,7 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -820,7 +830,7 @@ namespace CDC8600
 	    private:
 		jmpp	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register
@@ -829,6 +839,7 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
@@ -843,7 +854,7 @@ namespace CDC8600
 	    private:
 		jmpp	_op;
 	    public:
-		void map
+		bool map
 		(
 		    u32& i,	// target register
 		    u32& j,	// source register
@@ -852,7 +863,8 @@ namespace CDC8600
 		)
 		{
 		    j = PROC[me()].mapper[j];				// physical register for X(j)
-			k = PROC[me()].mapper[k];
+		    k = PROC[me()].mapper[k];
+		    return true;
 		}
 
 		pipes::pipe_t pipe()
