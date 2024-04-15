@@ -7,6 +7,11 @@
 
 using namespace CDC8600;
 
+//IMPORTANT: FUNC is for demo only, comment these lines if not needed
+#ifndef FUNC
+#define FUNC
+#endif
+
 extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *);
 
 const int N = 20;
