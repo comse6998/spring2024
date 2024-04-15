@@ -170,7 +170,7 @@ namespace CDC8600
 	    vector<u64>			Plastop;		// last operation before physical register can be recycled
 	    vector<bool>		Pfull;			// full/empty bits for the physical registers
             u32                         pnext;                  // next physical register to use
-            u32                         pfind();                // find a physical register to use
+            bool                        pfind(u32&);            // find a physical register to use
             set<u32>                    pfree;                  // set of free physical registers
 	    set<u32>			precycle;		// set of physical registers that can be recycled
             map<u32,u32>                mapper;                 // logical -> physical register mapping
