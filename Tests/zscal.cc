@@ -5,6 +5,11 @@
 #include <iostream>
 #include <iomanip>
 
+//IMPORTANT: FUNC_TEST is for demo only, comment these lines if not needed
+#ifndef FUNC_TEST
+#define FUNC_TEST
+#endif
+
 using namespace CDC8600;
 
 extern "C" void zscal_(i64*, c128*, c128*, i64*);
