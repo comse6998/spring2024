@@ -13,25 +13,19 @@ extern "C" i32 daxpy_(int32_t *, double *, double *, int32_t *, double *, int32_
 const int N = 20;
 const double EPSILON = 1e-9;
 
-void test_daxpy(int count, i32 incx, i32 incy)
+void test_daxpy(int count, bool traceon, i32 n, i32 incx, i32 incy)
 {
     reset();
 
-    i32 n = rand() % 256;
-    //i32 incx = (rand() % 16) - 8;
-    //i32 incy = (rand() % 16) - 8;
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
     f64 a = f64(drand48());
-
-
 
     f64 *x = (f64*)CDC8600::memalloc(nx);
     f64 *y = (f64*)CDC8600::memalloc(ny);
     f64 *Y = new f64[ny];
 
-    tracing = false; if (n < 10) tracing = true;
-
+    tracing = traceon;
 
     for (u32 i = 0; i < nx; i++) { x[i] = f64(drand48()); }
     for (u32 i = 0; i < ny; i++) { y[i] = f64(drand48()); }
@@ -67,27 +61,41 @@ void test_daxpy(int count, i32 incx, i32 incy)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
-    /*
-    if (n < 10) {
-        dump(PROC[0].trace);
-        dump(PROC[0].trace, "daxpy.tr");
-    }
-    */
-     if (incx==1 && incy == 1 && n < 10){
-        dump(PROC[0].trace);
-        dump(PROC[0].trace, "daxpy.tr");
-    }
 
+    if (traceon)
+    {
+        dump(PROC[0].trace);
+        dump(PROC[0].trace, "daxpy.tr");
+    }
 }
 
-int main()
+int main
+(
+    int		argc,
+    char	**argv
+)
 {
-    for (int i = 0; i < N; i++)
+    if (1 == argc)
     {
-        test_daxpy(i, (rand() % 16) - 8, (rand() % 16) - 8);
+	for (int i = 0; i < N; i++)
+	{
+	    test_daxpy(i, false, rand() % 256, (rand() % 16) - 8, (rand() % 16) - 8);
+	}
+	for (int i = 0; i < N; i++) test_daxpy(1*N+i, false, rand() % 256,                 1,                 1);
+	for (int i = 0; i < N; i++) test_daxpy(2*N+i, false, rand() % 256,                 1, (rand() % 16) - 8);
+	for (int i = 0; i < N; i++) test_daxpy(3*N+i, false, rand() % 256, (rand() % 16) - 8,                 1);
     }
-    for (int i = 0; i < N; i++) test_daxpy(N+i, 1, 1);
-    for (int i = 0; i < N; i++) test_daxpy(2*N+i, 1, (rand() % 16) - 8);
-    for (int i = 0; i < N; i++) test_daxpy(3*N+i, (rand() % 16) - 8, 1);
+    else if (4 == argc)
+    {
+	i32 n = atoi(argv[1]);
+	i32 incx = atoi(argv[2]);
+	i32 incy = atoi(argv[3]);
+	test_daxpy(0, true, n, incx, incy);
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [n incx incy]" << endl;
+	return -1;
+    }
     return 0;
 }

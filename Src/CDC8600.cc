@@ -1028,20 +1028,20 @@ namespace CDC8600
                    copy(12, opsq[1][0], 20, kreg[1]);   // extract k field from IC[1]
 
                    if (operations::mappers[F[1]]->map(ireg[1], jreg[1], kreg[1], opcount))  // architected -> physical register mapping
-		   {
-		       copy(12, ireg[1], out,140);          // pass physical i register from IC[1]
-		       copy(12, jreg[1], out,128);          // pass physical j register from IC[1]
-		       copy(12, kreg[1], out,116);          // pass physical k register from IC[1]
+                   {
+                       copy(12, ireg[1], out,140);          // pass physical i register from IC[1]
+                       copy(12, jreg[1], out,128);          // pass physical j register from IC[1]
+                       copy(12, kreg[1], out,116);          // pass physical k register from IC[1]
 
-		       copy(16, opcount, out,160);          // pass operation count from IC[1]
-		       opcount++;
+                       copy(16, opcount, out,160);          // pass operation count from IC[1]
+                       opcount++;
 
-		       opsq[1].erase(opsq[1].begin());      // pop this operation from the queue
-		   }
-		   else
-		   {
-		       for (u32 i = 96; i < 192; i++) out[i] = false;
-		   }
+                       opsq[1].erase(opsq[1].begin());      // pop this operation from the queue
+                   }
+                   else
+                   {
+                       for (u32 i = 96; i < 192; i++) out[i] = false;
+                   }
                }
                else if (F[0])
                {
@@ -1056,26 +1056,28 @@ namespace CDC8600
                    copy(12, opsq[0][0], 20, kreg[0]);   // extract k field from IC[0]
 
                    if (operations::mappers[F[0]]->map(ireg[0], jreg[0], kreg[0], opcount))  // architected -> physical register mapping
-		   {
-		       copy(12, ireg[0], out, 44);          // pass physical i register from IC[0]
-		       copy(12, jreg[0], out, 32);          // pass physical j register from IC[0]
-		       copy(12, kreg[0], out, 20);          // pass physical k register from IC[0]
+                   {
+                       copy(12, ireg[0], out, 44);          // pass physical i register from IC[0]
+                       copy(12, jreg[0], out, 32);          // pass physical j register from IC[0]
+                       copy(12, kreg[0], out, 20);          // pass physical k register from IC[0]
 
-		       copy(16, opcount, out, 64);          // pass operation count from IC[0]
-		       opcount++;
+                       copy(16, opcount, out, 64);          // pass operation count from IC[0]
+                       opcount++;
 
-		       opsq[0].erase(opsq[0].begin());      // pop this operation from the queue
-		   }
-		   else
-		   {
-		       for (u32 i = 0; i < 96; i++) out[i] = false;
-		   }
+                       opsq[0].erase(opsq[0].begin());      // pop this operation from the queue
+                   }
+                   else
+                   {
+                       for (u32 i = 0; i < 96; i++) out[i] = false;
+                   }
                }
            }
 
            rxdone = false; rxready = true;
            txready = true; txdone = false;
         }
+
+        void dumpoutop(const bitvector&);
 
         bool inputsready
         (
@@ -1097,8 +1099,6 @@ namespace CDC8600
 
             return false;
         }
-
-        void dumpoutop(const bitvector&);
 
         void IQstage::tick()
         {
@@ -1209,17 +1209,17 @@ namespace CDC8600
               for (u32 i=0; i<out.size(); i++) out[i] = false;
               switch(operations::mappers[pipes::F(in)]->pipe())
               {
-                        case CDC8600::pipes::BR : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
-                        case CDC8600::pipes::ST : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
-                        case CDC8600::pipes::LD : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
-                        case CDC8600::pipes::FXArith:
-                        case CDC8600::pipes::FXMul:
-                        case CDC8600::pipes::FXLogic: for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
-                        case CDC8600::pipes::FPAdd:
-                        case CDC8600::pipes::FPMul:
-                        case CDC8600::pipes::FPDiv: for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
-                        case CDC8600::pipes::NOP: break; // output is already all zeros.
-                        default : assert(false);        // this should not happen
+		  case CDC8600::pipes::BR      : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
+		  case CDC8600::pipes::ST      : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
+		  case CDC8600::pipes::LD      : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
+		  case CDC8600::pipes::FXArith :
+		  case CDC8600::pipes::FXMul   :
+		  case CDC8600::pipes::FXLogic : for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
+		  case CDC8600::pipes::FPAdd   :
+		  case CDC8600::pipes::FPMul   :
+		  case CDC8600::pipes::FPDiv   : for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
+		  case CDC8600::pipes::NOP     : break;                // output is already all zeros.
+		  default                      : assert(false);        // this should not happen
               }
               rxdone = false; rxready = true;
               txready = true; txdone = false;
@@ -1268,7 +1268,7 @@ namespace CDC8600
                 transfer(96, L1, 0, WB, 2*96);
                 transfer(96, L0, 0, L1, 0);
 
-                switch(operations::mappers[pipes::F(in)]->pipe())
+                switch(operations::mappers[pipes::F(RF.out)]->pipe())
                 {
                     case CDC8600::pipes::FXArith:
                         null_transfer(96, M0, 0);
@@ -1289,6 +1289,7 @@ namespace CDC8600
                         null_transfer(96, A0, 0);
                         null_transfer(96, L0, 0);
                         null_transfer(96, M0, 0);
+                        RF.txdone = true;
                         break;
                     default : assert(false);    // this should not happen
                 }
@@ -1303,11 +1304,11 @@ namespace CDC8600
            }
         }
 
-	bool LDstage::cachehit()
-	{
-	    double random = drand48();
-	    return (random < params::MEM::hitrate);
-	}
+        bool LDstage::cachehit()
+        {
+            double random = drand48();
+            return (random < params::MEM::hitrate);
+        }
 
         void LDstage::tick()
         {
@@ -1318,42 +1319,42 @@ namespace CDC8600
                X1.tick();
                X2.tick();
                X3.tick();
-	       LM.tick();
+               LM.tick();
                WB.tick();
 
                copy(96, WB.out, 0, out, 0); WB.txdone = true;
                transfer(96, X3, 0, WB, 0);
-	       if (!(pipes::F(WB.in)))
-	       {
-		   if (pipes::F(LM.out))
-		   {
-		       transfer(96, LM, 0, WB, 0);
-		   }
-		   else
-		   {
-		       LM.txdone = true;
-		   }
-	       }
+               if (!(pipes::F(WB.in)))
+               {
+                   if (pipes::F(LM.out))
+                   {
+                       transfer(96, LM, 0, WB, 0);
+                   }
+                   else
+                   {
+                       LM.txdone = true;
+                   }
+               }
                transfer(96, X2, 0, X3, 0);
                transfer(96, X1, 0, X2, 0);
-	       if (pipes::F(X0.out))
-	       {
-		   if (cachehit())
-		   {
-		       transfer(96, X0, 0, X1, 0);
-		       null_transfer(96, LM, 0);
-		   }
-		   else
-		   {
-		       transfer(96, X0, 0, LM, 0);
-		       null_transfer(96, X1, 0);
-		   }
-	       }
-	       else
-	       {
-		   transfer(96, X0, 0, X1, 0);
-		   null_transfer(96, LM, 0);
-	       }
+               if (pipes::F(X0.out))
+               {
+                   if (cachehit())
+                   {
+                       transfer(96, X0, 0, X1, 0);
+                       null_transfer(96, LM, 0);
+                   }
+                   else
+                   {
+                       transfer(96, X0, 0, LM, 0);
+                       null_transfer(96, X1, 0);
+                   }
+               }
+               else
+               {
+                   transfer(96, X0, 0, X1, 0);
+                   null_transfer(96, LM, 0);
+               }
                transfer(96, RF, 0, X0, 0);
                copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
@@ -1426,51 +1427,51 @@ namespace CDC8600
                 txready = true; txdone = false;
 
                 u32 F = pipes::F(in);                   // extract F field
-                u32 jreg = pipes::jreg(in);             // extract i register field
+                u32 ireg = pipes::ireg(in);             // extract i register field
 
                 if (F)
                 {
-                    PROC[me()].Pfull[jreg] = true;      // target register is now full
+                    PROC[me()].Pfull[ireg] = true;      // target register is now full
                     // cout << "Physical register " << ireg << " is now full" << endl;
                 }
             }
         }
 
-	void LDstage::LMstage::tick()
-	{
-	    if (rxdone)
-	    {
-		if (pipes::F(in))
-		{
-		    opsq.push_back(in);
-		    waitq.push_back(params::MEM::latency);
-		    cout << "Operation "; dumpoutop(in); cout << " going into the load miss queue" << endl;
-		}
+        void LDstage::LMstage::tick()
+        {
+            if (rxdone)
+            {
+                if (pipes::F(in))
+                {
+                    opsq.push_back(in);
+                    waitq.push_back(params::MEM::latency);
+                    cout << "Operation "; dumpoutop(in); cout << " going into the load miss queue" << endl;
+                }
                 rxdone = false; rxready = true;
-	    }
+            }
 
-	    for (u32 i = 0; i < waitq.size(); i++)
-	    {
-		if (waitq[i] > 0) waitq[i] -= 1;
-	    }
+            for (u32 i = 0; i < waitq.size(); i++)
+            {
+                if (waitq[i] > 0) waitq[i] -= 1;
+            }
 
             if (txdone)
             {
-		for (u32 i = 0; i < out.size(); i++) out[i] = false;
-		for (u32 i = 0; i < waitq.size(); i++)
-		{
-		    if (0 == waitq[i])
-		    {
-			copy(96, opsq[i], 0, out, 0);
-			opsq.erase(opsq.begin()+i);
-			waitq.erase(waitq.begin()+i);
-			cout << "Operation "; dumpoutop(out); cout << " leaving the load miss queue" << endl;
-			break;
-		    }
-		}
+                for (u32 i = 0; i < out.size(); i++) out[i] = false;
+                for (u32 i = 0; i < waitq.size(); i++)
+                {
+                    if (0 == waitq[i])
+                    {
+                        copy(96, opsq[i], 0, out, 0);
+                        opsq.erase(opsq.begin()+i);
+                        waitq.erase(waitq.begin()+i);
+                        cout << "Operation "; dumpoutop(out); cout << " leaving the load miss queue" << endl;
+                        break;
+                    }
+                }
                 txready = true; txdone = false;
-	    }
-	}
+            }
+        }
 
         void FXstage::reset()
         {
@@ -1478,18 +1479,18 @@ namespace CDC8600
             RF.reset();
             L0.reset();
             L1.reset();
-	    A0.reset();
-	    A1.reset();
-	    A2.reset();
-	    A3.reset();
-	    M0.reset();
-	    M1.reset();
-	    M2.reset();
-	    M3.reset();
-	    M4.reset();
-	    M5.reset();
-	    M6.reset();
-	    M7.reset();
+            A0.reset();
+            A1.reset();
+            A2.reset();
+            A3.reset();
+            M0.reset();
+            M1.reset();
+            M2.reset();
+            M3.reset();
+            M4.reset();
+            M5.reset();
+            M6.reset();
+            M7.reset();
             WB.reset();
         }
 
@@ -1502,25 +1503,25 @@ namespace CDC8600
             X2.reset();
             X3.reset();
             WB.reset();
-	    LM.reset();
+            LM.reset();
         }
 
         void BRstage::reset()
         {
-	    rxready = true; rxdone = true; txready = true; txdone = true;
-	    RF.reset();
-	    X1.reset();
-	    X2.reset();
+            rxready = true; rxdone = true; txready = true; txdone = true;
+            RF.reset();
+            X1.reset();
+            X2.reset();
         }
 
         void STstage::reset()
         {
-	    rxready = true; rxdone = true; txready = true; txdone = true;
-	    RF.reset();
-	    X0.reset();
-	    X1.reset();
-	    X2.reset();
-	    X3.reset();
+            rxready = true; rxdone = true; txready = true; txdone = true;
+            RF.reset();
+            X0.reset();
+            X1.reset();
+            X2.reset();
+            X3.reset();
         }
 
         void CQstage::tick()    
@@ -1687,7 +1688,7 @@ namespace CDC8600
             if (X2.busy()) return true;
             if (X3.busy()) return true;
             if (WB.busy()) return true;
-	    if (LM.busy()) return true;
+            if (LM.busy()) return true;
             return pipes::F(in);
         }
 
@@ -1740,7 +1741,7 @@ namespace CDC8600
 
         bool LDstage::WBstage::busy() { return pipes::F(in); }
 
-	bool LDstage::LMstage::busy() { return (opsq.size() || pipes::F(out)); }
+        bool LDstage::LMstage::busy() { return (opsq.size() || pipes::F(out)); }
 
         bool BRstage::busy()
         {
@@ -1760,9 +1761,9 @@ namespace CDC8600
         {
             rxready = true; rxdone = true; txready = true; txdone = true;
             RF.reset(); D0.reset(); A0.reset(); A1.reset();
-                A2.reset(); A3.reset(); M0.reset(); M1.reset();
-                M2.reset(); M3.reset(); M4.reset(); M5.reset();
-                M6.reset(); M7.reset(); WB.reset();
+            A2.reset(); A3.reset(); M0.reset(); M1.reset();
+            M2.reset(); M3.reset(); M4.reset(); M5.reset();
+            M6.reset(); M7.reset(); WB.reset();
         }
 
         /* tick() keeps the pipeline flowing */
@@ -1781,8 +1782,6 @@ namespace CDC8600
                         WB.tick();
                         pipe_traffic = pipe_traffic << 1;
 
-
-                        
                         copy(96, WB.out, 0, out, 0); WB.txdone = true;
 
                         /* Transfer to 3 channels of WB's input, only one of them should be non-zero */
@@ -1803,7 +1802,7 @@ namespace CDC8600
 
                         transfer(96, D0, 0, WB, 2*96);
 
-                        switch(operations::mappers[pipes::F(in)]->pipe())
+                        switch(operations::mappers[pipes::F(RF.out)]->pipe())
                         {
                                 case CDC8600::pipes::FPMul:
                                         null_transfer(96, A0, 0);
@@ -1823,6 +1822,7 @@ namespace CDC8600
                                         null_transfer(96, M0, 0);
                                         null_transfer(96, A0, 0);
                                         null_transfer(96, D0, 0);
+                                        RF.txdone = true;
                                         break;
                                 default:
                                         assert(false);
@@ -1944,16 +1944,16 @@ namespace CDC8600
         bool STstage::RFstage::busy() {return pipes::F(in);}
 
         bool CQstage::busy()  
-	{ 
-	    return opsq.size();
-	}
+        { 
+            return opsq.size();
+        }
 
-	bool COstage::busy()
-	{
+        bool COstage::busy()
+        {
             u32 CO0 = pipes::F(bitvector(in.begin()+96*0, in.begin()+96*1));                       // extract F field
             u32 CO1 = pipes::F(bitvector(in.begin()+96*1, in.begin()+96*2));                       // extract F field
             return CO0 || CO1;
-	}
+        }
 
         bool busy()
         {
@@ -2177,17 +2177,23 @@ namespace CDC8600
 
         void run
         (
-            const char* filename
+            const char* filename,
+            u32         maxcycles
         )
         {
             IF.init(filename);
             IC[0].init(); IC[1].init();
             RM.init();
+            OD[0].init(0); OD[1].init(1);
             IQ[0].init(0); IQ[1].init(1);
             OI[0].init(0); OI[1].init(1);
             FX[0].init(0); FX[1].init(1);
-	    LD[0].init(0); LD[1].init(1);
-	    CQ[0].init(0); CQ[1].init(1);
+            FP[0].init(0); FP[1].init(1);
+            LD[0].init(0); LD[1].init(1);
+            ST[0].init(0); ST[1].init(1);
+            BR[0].init(0); BR[1].init(1);
+            CQ[0].init(0); CQ[1].init(1);
+            CO.init();
 
             cout << "   cycle | "
                  << "                         IF | "
@@ -2246,7 +2252,7 @@ namespace CDC8600
                  << "----------------------------------"
                  << endl;
 
-            for (u32 cycle = 0; busy(); cycle++)
+            for (u32 cycle = 0; busy() && (cycle < maxcycles); cycle++)
             {
                 tick();
                 transfer();
