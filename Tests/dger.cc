@@ -12,14 +12,10 @@ extern "C" void dger_(i32*, i32*, f64*, f64*, i32*, f64*, i32*, f64*, i32*);
 
 const int N = 20;
 
-void test_dger(int count)
+void test_dger(int count, bool traceon, i32 n, i32 m, i32 incx, i32 incy, f64 alpha)
 {
     reset();
-    i32 m = rand() % 100;
-    i32 n = rand() % 100;
-    f64 alpha = 2.67;
-    i32 incx = (rand() % 16 - 8) ;
-    i32 incy = (rand() % 16 - 8) ;
+    tracing = traceon;
     if (incx == 0) incx = 1;
     if (incy == 0) incy = 1;
     f64 *x = (f64*)CDC8600::memalloc( m * abs( incx ));
@@ -33,7 +29,7 @@ void test_dger(int count)
     for (int i = 0; i < n*lda; i++) { A[i] = a[i]; }
 
 
-    tracing = false;
+    
 
     // Call the dger function
     CDC8600::BLAS::dger(m, n, alpha, x, incx, y, incy, a, lda);
@@ -76,18 +72,45 @@ void test_dger(int count)
         cout << "FAIL" << std::endl;
 
     //if (n < 10) dump(PROC[0].trace);
-    if (n < 10) dump(PROC[0].trace, "dger.tr.1");
-    if (n < 10) dump(PROC[1].trace, "dger.tr.2");
-    if (n < 10) dump(PROC[2].trace, "dger.tr.3");
-    if (n < 10) dump(PROC[3].trace, "dger.tr.4");
+    if (traceon) dump(PROC[0].trace, "dger.tr.1");
+    if (traceon) dump(PROC[1].trace, "dger.tr.2");
+    if (traceon) dump(PROC[2].trace, "dger.tr.3");
+    if (traceon) dump(PROC[3].trace, "dger.tr.4");
 
 }
 
-int main()
+int main
+(
+    int		argc,
+    char	**argv
+)
 {
-    for (int i = 0; i < N; i++)
+    if (1 == argc)
     {
-        test_dger(i);
+	for (u32 i = 0; i < N; i++)
+	{
+	    i32 m = rand() % 100;
+        i32 n = rand() % 100;
+        i32 incx = (rand() % 16 - 8) ;
+        i32 incy = (rand() % 16 - 8) ;
+        f64 alpha = 2.67;
+	    test_dger(i, false, n, m, incx, incy, alpha);
+	}
+    }
+    else if (6 == argc)
+    {
+	    i32 n = atoi(argv[1]);
+        i32 m = atoi(argv[2]);
+	    i32 incx = atoi(argv[3]);
+	    i32 incy = atoi(argv[4]);
+        i32 alpha = atof(argv[4]);
+	    test_dger(0, false, n, m, incx, incy, alpha);
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [n m incx incy alpha]" << endl;
+	return -1;
     }
     return 0;
 }
+
