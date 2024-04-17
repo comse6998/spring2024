@@ -668,6 +668,10 @@ namespace CDC8600
 
         class ODstage : public stage<96, 96>
         {
+            private:
+                u32     _ix;                    // operation issue index (0/1)
+            public:
+                void init(u32 ix) { _ix = ix; } // initialize this operation issue stage to a particular index (0/1)
         };
 
         extern ODstage OD[2];
@@ -695,6 +699,7 @@ namespace CDC8600
                 stage<96,96>& target();         // target unit for next issue
                 void tick();
                 bool busy();
+                void dumpout();
         };
 
         extern OIstage OI[2];
@@ -702,6 +707,7 @@ namespace CDC8600
         class BRstage : public stage<96,96>
         {
             private:
+                u32     _ix;                    // operation issue index (0/1)
                 class X1stage : public stage<96,96>
                 {
                     public :
@@ -728,6 +734,7 @@ namespace CDC8600
                 void dumpout();
                 bool busy();
                 void reset();
+                void init(u32 ix) { _ix = ix; } // initialize this operation issue stage to a particular index (0/1)
         };
 
         extern BRstage BR[2];
@@ -1064,6 +1071,7 @@ namespace CDC8600
         class STstage : public stage<96,96>
         {
             private:
+                u32     _ix;                    // operation issue index (0/1)
                 class X0stage : public stage<96,96>
                 {
                     public :
@@ -1100,6 +1108,7 @@ namespace CDC8600
                 X1stage X1;
                 X2stage X2;
                 X3stage X3;
+                void init(u32 ix) { _ix = ix; } // initialize this operation issue stage to a particular index (0/1)
                 void tick();
                 void dumpout();
                 bool busy();
@@ -1128,6 +1137,7 @@ namespace CDC8600
             public:
                 void tick();
 		bool busy();
+		void init() { }
         };
 
         extern COstage CO;
@@ -1136,7 +1146,7 @@ namespace CDC8600
         void tick();
         bool busy();
         void transfer();
-        void run(const char* filename);
+        void run(const char* filename, u32 maxcycles);
 
         namespace pipes
         {
