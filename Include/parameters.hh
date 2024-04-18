@@ -6,6 +6,7 @@ using namespace std;
 namespace CDC8600
 {
     extern bool tracing;		// run-time tracing
+    extern bool debugging;		// run-time debugging
 
     namespace params
     {
