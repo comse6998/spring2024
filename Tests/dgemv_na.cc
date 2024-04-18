@@ -94,7 +94,7 @@
     }
     else if (7 == argc)
     {
-	i32 m = NUM_OF_PROC*atoi(argv[1]);
+	i32 m = atoi(argv[1]);
 	i32 n = atoi(argv[2]);
     f64 alpha = atof(argv[3]);
     f64 beta = atof(argv[4]);
