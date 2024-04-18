@@ -29,7 +29,7 @@ namespace CDC8600
 		return z; 
         }
 
-	c128 zdotc_asm
+	void zdotc_asm
 	(
 	    // u64 n,		[ X0 ]
 	    // c128 *x,		[ X1 ]
@@ -66,6 +66,8 @@ LABEL(loop) jmpz(0, end)	// if X0 (n) = 0 goto end
 	    isjkj(3, 1)		// X3 (y) = X3 (y) + 1
         rdjki(11, 1, 5)	// X11 = MEM[X1 (x) + X5 (ix)] (x imag)
 	    rdjki(12,3,6)	// X12 = MEM[X3(y) + X6 (iy)] (y imag)
+		idjkj(1, 1)		// X1 (x) = X1 (x) - 1
+	    idjkj(3, 1)		// X3 (y) = X3 (y) - 1
 		fmul(13,9,10) // X13 = X9 * X10
 		fadd(7,7,13)     // X7 = X7 + X13
 		fmul(13,11,12) // X13 = X11 * X12
@@ -74,8 +76,6 @@ LABEL(loop) jmpz(0, end)	// if X0 (n) = 0 goto end
 		fadd(8,8,13)     // X8 = X8 + X13
 		fmul(13,10,11) // x13 = x10*X11
 		fsub(8,8,13)   // X8 = X8 - X13
-	    idjkj(1, 1)		// X1 (x) = X1 (x) - 1
-	    idjkj(3, 1)		// X3 (y) = X3 (y) - 1
         isjki(5, 5, 2)	// X5 (ix) = X5 (ix) + X2 (incx)
 	    isjki(6, 6, 4)	// X6 (iy) = X6 (iy) + X4 (incy)
 	    idjkj(0, 1)		// X0 (n) = X0 (n) - 1
@@ -85,11 +85,11 @@ LABEL(loop) jmpz(0, end)	// if X0 (n) = 0 goto end
         jmp(loop)
 		pass()
 		pass()
-LABEL(end)	xkj(1, 0) // X1 = 0
-			xkj(0, 0) // X0 = 0
-			fadd(0,0,7) // X0 = X0 + X7 (z real)
-			fadd(1,1,8) // X1 = X1 + X8 (z imaginary)
-		jmpk0(15, 1)		// return to X15 (calling address) + 1
+LABEL(end)	isjki(0,7,1)
+			isjki(1,8,1)
+			// fadd(0,0,7) // X0 = X0 + X7 (z real)
+			// fadd(1,1,8) // X1 = X1 + X8 (z imaginary)
+		jmpk(15,1)		// return to X15 (calling address) + 1
 	}
     } // namespace BLAS
 } // namespace CDC8600
