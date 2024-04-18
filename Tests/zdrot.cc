@@ -12,17 +12,12 @@ extern "C" i32 zdrot_(i32 *, c128 *, i32 *, c128 *, i32 *, f64 *, f64 *);
 
 const int N = 20;
 
-void test_zdrot(int count)
+void test_zdrot(int count, bool traceon, i32 n, i32 incx, i32 incy)
 {
     reset();
-    i32 n = rand() % 256;
-    i32 incx = (rand() % 16) - 8;
-    i32 incy = (rand() % 16) - 8;
-    if( count == 19 ){
-        n = 3;
-        incx = 1;
-        incy = 1;
-    }
+
+    tracing = traceon;
+
     if (incx == 0) incx = 1;
     if (incy == 0) incy = 1;
 
@@ -37,10 +32,6 @@ void test_zdrot(int count)
     for (int i = 0; i < n*abs(incy); i++) { y[i] = c128(drand48(), drand48()); }
     for (int i = 0; i < n*abs(incx); i++) { X[i] = x[i]; }
     for (int i = 0; i < n*abs(incy); i++) { Y[i] = y[i]; }
-
-    tracing = false;
-    if (n < 10) tracing = true;
-
  
     CDC8600::BLAS::zdrot(n, x, incx, y, incy, c, s);	// Implementation of ZDROT for the CDC8600
     zdrot_(&n, X, &incx, Y, &incy, &c, &s);		// Reference implementation of ZDROT
@@ -76,15 +67,39 @@ void test_zdrot(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(PROC[0].trace);
-    if (n < 10) dump(PROC[0].trace, "zdrot.tr");
+
+    if (traceon) dump(PROC[0].trace);
+    if (traceon) dump(PROC[0].trace, "zdrot.tr");
+    cout << traceon << endl;
 }
 
-int main()
+int main
+(
+    int		argc,
+    char	**argv
+)
 {
-    for (int i = 0; i < N; i++)
+    if (1 == argc)
     {
-        test_zdrot(i);
+	for (u32 i = 0; i < N; i++)
+	{
+	    i32 n = rand() % 256;
+	    i32 incx = (rand() % 16) - 8;
+	    i32 incy = (rand() % 16) - 8;
+	    test_zdrot(i, false, n, incx, incy);
+	}
+    }
+    else if (4 == argc)
+    {
+	i32 n = atoi(argv[1]);
+	i32 incx = atoi(argv[2]);
+	i32 incy = atoi(argv[3]);
+    test_zdrot(0, true, n, incx, incy);
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [tracing n incx incy]" << endl;
+	return -1;
     }
     return 0;
 }
