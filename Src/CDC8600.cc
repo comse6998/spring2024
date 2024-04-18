@@ -1121,8 +1121,8 @@ namespace CDC8600
                         break;
                     default                     : assert(false);                                            // should not happen
                 }
+                cout << endl;
             }
-            cout << endl;
             switch(operations::mappers[F]->dep())
             {
                 case CDC8600::pipes::k_dep  : return (PROC[me()].Pfull[kreg]);                          // depends on k register
@@ -2331,8 +2331,8 @@ namespace CDC8600
                 FP[1].dumpout(); cout << " | ";
                 CQ[1].dumpout();
                 cout << endl;
-                PROC[me()].cycle_count = cycle;
-                cout << "cycle " << setw(9) << cycle << " : (# of instr = " << PROC[me()].instr_count << ")" << endl;
+                PROC[me()].cycle_count = cycle + 1;
+                if (debugging) { cout << "cycle " << setw(9) << cycle << " : (# of instr = " << PROC[me()].instr_count << ")" << endl; }
             }
         }
 
