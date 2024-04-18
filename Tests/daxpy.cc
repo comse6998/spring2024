@@ -53,7 +53,8 @@ void test_daxpy(int count, bool traceon, i32 n, i32 incx, i32 incy)
     cout << ", a = " << setw(20) << a;
     cout << ", incx = " << setw(2) << incx;
     cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of instr = "  << setw(9) << PROC[0].instr_count;
+    cout << ", # of ops = "    << setw(9) << PROC[0].op_count;
     cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
     cout << ") : ";
     
