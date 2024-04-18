@@ -53,126 +53,139 @@ namespace CDC8600
                         // i64 incy         [ X5 ]
                 )
                 {
-                        jmpn(0, end)        // if n <= 0 goto end
+                        pass()
+                        pass()
+                        jmpn(0, end)            // if n <= 0 goto end
+                        pass()
+                        pass()
                         jmpz(0, end)        
+                        pass()
+                        pass()
+                        jmpz(1, end)            // if a == 0 goto end
+                                                // check if incx == 0
+                        xkj(6, 0)               // X6 (tmp) = 0
+                        idjkj(6, 1)             // X6 (tmp) = -1
+                        isjki(6, 6, 3)          // X6 (tmp) = X6 (-1) + X4 (incx)
+                        pass()
+                        pass()
+                        pass()
+                        jmpnz(6, Common)        // if X4 (incx) != 1 goto general
+                        idjkj(7, 1)             // X7 (tmp) = -1
+                        isjki(7, 7, 5)          // X7 (tmp) = X7 (-1) + X5 (incy)
+                        jmpnz(7, Common)        // if X6 (incy) != 1 goto general
                         
-            jmpz(1, end)        // if a == 0 goto end
-            // check if incx == 0
-                        xkj(6, 0)           // X6 (tmp) = 0
-                        idjkj(6, 1)         // X6 (tmp) = -1
-                        isjki(6, 6, 3)      // X6 (tmp) = X6 (-1) + X4 (incx)
+                        cpkj(6, 0)              // initiate M = 0
+                        cpkj(7, 0)              // the tmp number of M, initial as n
                         pass()
                         pass()
-                        pass()
-                        jmpnz(6, Common)   // if X4 (incx) != 1 goto general
-                        idjkj(7, 1)         // X7 (tmp) = -1
-                        isjki(7, 7, 5)      // X7 (tmp) = X7 (-1) + X5 (incy)
-                        jmpnz(7, Common)   // if X6 (incy) != 1 goto general
 
+LABEL(MOD)              cpkj(6, 7)              // assign tem M to M
+                        cpkj(8, 7)              // another tem M[10] for M
+                        idjkj(7, 4)             // tem - 4 = tmp
+                        pass()
+                        pass()
+                        pass()
+                        jmpn(7, Loop_M)         // if tem < 0, M != 0, do the loop
+                        pass()
+                        pass()
+                        jmpz(7, equal_0)        // when M = 0, move to loop chunk_4
+                        pass()
+                        pass()
+                        jmp(MOD)
                         
-                        //idjkj(0, 1)         // X0 (n) = X0 (n) - 1
-
-            rdjk(6, 0)           // initiate M = 0
-            rdjk(7, 0)           // the tmp number of M, initial as n
-
-
-LABEL(MOD) rdjk(6, 7)          // assign tem M to M
-            rdjk(8, 7)          // another tem M[10] for M
-            idjkj(7, 4)         // tem - 4 = tmp
+LABEL(Loop_M)           pass()
                         pass()
-                        pass()
-                        pass()
-            jmpn(7, Loop_M)     // if tem < 0, M != 0, do the loop
-            jmpz(7, equal_0)        //when M = 0, move to loop chunk_4
-            jmp(MOD)
-                        
-                        
-
-LABEL(Loop_M) jmpz(6, Loop_chunk4)  // when M is 0, jump to Loop_chunk4
+                        jmpz(6, Loop_chunk4) // when M is 0, jump to Loop_chunk4
             
-            idjkj(6, 1)             // M = M - 1
-                        idjkj(0, 1)                             // X[0] = X[0] - 1
-            rdjki(10, 2, 6)                     // X[tmp1] = MEM[X[2] + X[6]]
-                        rdjki(11, 4, 6)                 // X[tmp2] = MEM[X[4](y) + X[6](M)]
-                        fmul(10,10,1)                   // X[tmp1] = X[10](x) * a
-                        fadd(11, 10, 11)                // X[tmp2] = X[tmp1] + X[tmp2]
-                        sdjki(11, 4, 6)                 // MEM[X[4] + X[6](M)] = X[tmp2]
+                        idjkj(6, 1)             // M = M - 1
+                        idjkj(0, 1)             // X[0] = X[0] - 1
+                        rdjki(10, 2, 6)         // X[tmp1] = MEM[X[2] + X[6]]
+                        rdjki(11, 4, 6)         // X[tmp2] = MEM[X[4](y) + X[6](M)]
+                        fmul(10,10,1)           // X[tmp1] = X[10](x) * a
+                        fadd(11, 10, 11)        // X[tmp2] = X[tmp1] + X[tmp2]
+                        sdjki(11, 4, 6)         // MEM[X[4] + X[6](M)] = X[tmp2]
+                        pass()
+                        pass()
                         pass()
                         jmp(Loop_M)
 
-LABEL(equal_0) xkj(8, 0)                        // when n mod 4 == 0, we could directly deal with this problem
-                                pass()
-                                pass()
-                                pass()
-                                
+LABEL(equal_0)          xkj(8, 0)               // when n mod 4 == 0, we could directly deal with this problem
+                        pass()
+                        pass()
+                        pass()
 
-LABEL(Loop_chunk4) jmpz(0, end)                 // if n<4 return or complete the loop
-                        idjkj(0, 4)                             // // X[0] = X[0] - 4
-                        rdjki(9, 4, 8)      // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
-                        rdjki(10, 2, 8)     // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
-                        fmul(10, 10, 1)     // X10 (tmp2) = X[10] * X[1](a)
-                        fadd(9, 9, 10)      // X9 (tmp1) = X[9] + X[10]
-                        sdjki(9, 4, 8)      // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
+LABEL(Loop_chunk4)      pass()
+                        pass()
+                        jmpz(0, end)            // if n<4 return or complete the loop
+                        idjkj(0, 4)             // X[0] = X[0] - 4
+                        rdjki(9, 4, 8)          // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
+                        rdjki(10, 2, 8)         // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
+                        fmul(10, 10, 1)         // X10 (tmp2) = X[10] * X[1](a)
+                        fadd(9, 9, 10)          // X9 (tmp1) = X[9] + X[10]
+                        sdjki(9, 4, 8)          // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
 
-                        isjkj(8, 1)                     // M = M+1
-                        rdjki(9, 4, 8)      // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
-                        rdjki(10, 2, 8)     // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
-                        fmul(10, 10, 1)     // X10 (tmp2) = X[10] * X[1](a)
-                        fadd(9, 9, 10)      // X9 (tmp1) = X[9] + X[10]
-                        sdjki(9, 4, 8)      // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
+                        isjkj(8, 1)             // M = M+1
+                        rdjki(9, 4, 8)          // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
+                        rdjki(10, 2, 8)         // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
+                        fmul(10, 10, 1)         // X10 (tmp2) = X[10] * X[1](a)
+                        fadd(9, 9, 10)          // X9 (tmp1) = X[9] + X[10]
+                        sdjki(9, 4, 8)          // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
 
-                        isjkj(8, 1)                     // M = M+1
-                        rdjki(9, 4, 8)      // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
-                        rdjki(10, 2, 8)     // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
-                        fmul(10, 10, 1)     // X10 (tmp2) = X[10] * X[1](a)
-                        fadd(9, 9, 10)      // X9 (tmp1) = X[9] + X[10]
-                        sdjki(9, 4, 8)      // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
+                        isjkj(8, 1)             // M = M+1
+                        rdjki(9, 4, 8)          // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
+                        rdjki(10, 2, 8)         // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
+                        fmul(10, 10, 1)         // X10 (tmp2) = X[10] * X[1](a)
+                        fadd(9, 9, 10)          // X9 (tmp1) = X[9] + X[10]
+                        sdjki(9, 4, 8)          // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
 
-                        isjkj(8, 1)                     // M = M+1
-                        rdjki(9, 4, 8)      // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
-                        rdjki(10, 2, 8)     // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
-                        fmul(10, 10, 1)     // X10 (tmp2) = X[10] * X[1](a)
-                        fadd(9, 9, 10)      // X9 (tmp1) = X[9] + X[10]
-                        sdjki(9, 4, 8)      // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
+                        isjkj(8, 1)             // M = M+1
+                        rdjki(9, 4, 8)          // X9 (tmp1) = MEM[X4 (y) + X8 (M)]
+                        rdjki(10, 2, 8)         // X10 (tmp2) = MEM[X3 (x) + X8 (M)]
+                        fmul(10, 10, 1)         // X10 (tmp2) = X[10] * X[1](a)
+                        fadd(9, 9, 10)          // X9 (tmp1) = X[9] + X[10]
+                        sdjki(9, 4, 8)          // MEM[X4 (y) + X8 (M)]= X9 (tmp1)
 
-                        isjkj(8, 1)                     // M = M+4 (next location)
+                        isjkj(8, 1)             // M = M+4 (next location)
                         pass()
                         jmp(Loop_chunk4)
-                        pass()
-                        pass()
-                        
 
-LABEL(Common) xkj(7, 0)           // X7 (ix) = 0
-                        xkj(8, 0)           // X8 (iy) = 0
-                        jmpp(3, L_Y)         // if X4 (incx) > 0 goto L_Y
-                        idzkj(7, 0)         // X7 (ix) = -X0 (n)
-                        isjkj(7, 1)         // X7 (ix) = X7(-n) + 1
-                        ipjkj(7, 3)         // X7 (ix) = X7 (-n+1) * X3 (incx)
+LABEL(Common)           xkj(7, 0)               // X7 (ix) = 0
+                        xkj(8, 0)               // X8 (iy) = 0
+                        jmpp(3, L_Y)            // if X4 (incx) > 0 goto L_Y
+                        idzkj(7, 0)             // X7 (ix) = -X0 (n)
+                        isjkj(7, 1)             // X7 (ix) = X7(-n) + 1
+                        ipjkj(7, 3)             // X7 (ix) = X7 (-n+1) * X3 (incx)
                         pass()
 
 
-LABEL(L_Y)      jmpp(5, Main_loop)       // if X5 (incy) > 0 goto Main_loop
-                        idzkj(8, 0)         // X8 (iy) = -X0 (n)
-                        isjkj(8, 1)         // X8 (iy) = X8(-n) + 1
-                        ipjkj(8, 5)         // X8 (iy) = X8 (-n+1) * X5 (incy)
+LABEL(L_Y)              pass()
                         pass()
-			pass()
-			pass()
+                        jmpp(5, Main_loop)      // if X5 (incy) > 0 goto Main_loop
+                        idzkj(8, 0)             // X8 (iy) = -X0 (n)
+                        isjkj(8, 1)             // X8 (iy) = X8(-n) + 1
+                        ipjkj(8, 5)             // X8 (iy) = X8 (-n+1) * X5 (incy)
+                        pass()
 
+LABEL(Main_loop)        pass()
+                        pass()
+                        jmpz(0, end)            // if X0 (n) = 0 goto end
+                        rdjki(9, 4, 8)          // X9 (tmp1) = MEM[X4 (y) + X8 (iy)]
+                        rdjki(10, 2, 7)         // X10 (tmp2) = MEM[X3 (x) + X7 (ix)]
+                        fmul(10, 10, 1)         // X10 (tmp2) = X[10] * X[1](a)
+                        fadd(9, 9, 10)          // X9 (tmp1) = X[9] + X[10]
+                        sdjki(9, 4, 8)          // MEM[X4 (y) + X8 (iy)]= X9 (tmp1)
 
-LABEL(Main_loop) jmpz(0, end)        // if X0 (n) = 0 goto end
-                        rdjki(9, 4, 8)      // X9 (tmp1) = MEM[X4 (y) + X8 (iy)]
-                        rdjki(10, 2, 7)     // X10 (tmp2) = MEM[X3 (x) + X7 (ix)]
-                        fmul(10, 10, 1)     // X10 (tmp2) = X[10] * X[1](a)
-                        fadd(9, 9, 10)      // X9 (tmp1) = X[9] + X[10]
-                        sdjki(9, 4, 8)      // MEM[X4 (y) + X8 (iy)]= X9 (tmp1)
-
-                        isjki(7, 7, 3)      // X7 (ix) = X7 (ix) + X3 (incx)
-                        isjki(8, 8, 5)      // X8 (iy) = X8 (iy) + X5 (incy)
-                        idjkj(0, 1)         // X0 (n) = X0 (n) - 1
+                        isjki(7, 7, 3)          // X7 (ix) = X7 (ix) + X3 (incx)
+                        isjki(8, 8, 5)          // X8 (iy) = X8 (iy) + X5 (incy)
+                        idjkj(0, 1)             // X0 (n) = X0 (n) - 1
+                        pass()
+                        pass()
                         jmp(Main_loop)
 
-LABEL(end)      jmpk(15, 1)         // return to X15 (calling address) + 1
+LABEL(end)              pass()
+                        pass()
+                        pass()
+                        jmpk(15, 1)             // return to X15 (calling address) + 1
                 }
         } // namespace BLAS
 } // namespace CDC8600

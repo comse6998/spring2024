@@ -66,6 +66,9 @@
 #define ipjkj(Xj, Xk)		process(new instructions::ipjkj(Xj, Xk), __LINE__);
 
 #define lpjkj(Xj, Xk)           process(new instructions::lpjkj(Xj, Xk), __LINE__);
+
+#define cpkj(Xj, Xk)            process(new instructions::cpkj(Xj, Xk), __LINE__);
+
 // 4. Floating-point facility
 
 #define fmul(Xi, Xj, Xk)	process(new instructions::fmul(Xi, Xj, Xk), __LINE__);

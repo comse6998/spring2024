@@ -28,7 +28,7 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
     if (incy > 0) {
         int jy = me() * incy;
 
-        for (int j = me(); j < n; j += nump()) {
+        for (u32 j = me(); j < n; j += nump()) {
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];
@@ -38,7 +38,7 @@ void dger_cpp(u64 m, u64 n, f64 alpha, f64* x, i64 incx, f64* y, i64 incy, f64* 
         }
     } else {
         int jy = (1 - n) * incy + me() * incy;
-        for (int j = me(); j < n; j += nump()) {
+        for (u32 j = me(); j < n; j += nump()) {
             if (y[jy] != 0.0)
             {
                 double temp = alpha * y[jy];

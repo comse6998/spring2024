@@ -6,6 +6,7 @@ using namespace std;
 namespace CDC8600
 {
     extern bool tracing;		// run-time tracing
+    extern bool debugging;		// run-time debugging
 
     namespace params
     {
@@ -50,6 +51,7 @@ namespace CDC8600
 	{
 	    const u32	N = 262144;	// Memory size = 256Ki words
 	    const u32	latency = 30;	// Memory latency
+	    const float	hitrate = 1.0;	// Cache hit rate
 	} // namespace MEM
 
 	namespace Proc
