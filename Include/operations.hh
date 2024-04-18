@@ -478,6 +478,11 @@ namespace CDC8600
 		{
 		    return _op.pipe();
 		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
+		}
 	};
 
 	template<> void process<rdw>(u08, u08, u32);
@@ -523,6 +528,11 @@ namespace CDC8600
 		pipes::pipe_t pipe()
 		{
 		    return _op.pipe();
+		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
 		}
 	};
 
@@ -672,7 +682,7 @@ namespace CDC8600
 	class mapper<jmp>	: public basemapper
 	{
 	    private:
-		jmpz	_op;
+		jmp	_op;
 	    public:
 		bool map
 		(
@@ -688,6 +698,11 @@ namespace CDC8600
 		pipes::pipe_t pipe()
 		{
 		    return _op.pipe();
+		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
 		}
 	};
 
@@ -695,7 +710,7 @@ namespace CDC8600
 	class mapper<jmpnz>	: public basemapper
 	{
 	    private:
-		jmpz	_op;
+		jmpnz	_op;
 	    public:
 		bool map
 		(
@@ -712,6 +727,11 @@ namespace CDC8600
 		pipes::pipe_t pipe()
 		{
 		    return _op.pipe();
+		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
 		}
 	};
 
@@ -719,7 +739,7 @@ namespace CDC8600
 	class mapper<jmpk>	: public basemapper
 	{
 	    private:
-		jmpz	_op;
+		jmpk	_op;
 	    public:
 		bool map
 		(
@@ -736,6 +756,11 @@ namespace CDC8600
 		pipes::pipe_t pipe()
 		{
 		    return _op.pipe();
+		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
 		}
 	};
 
@@ -762,6 +787,11 @@ namespace CDC8600
 		{
 		    return _op.pipe();
 		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
+		}
 	};
 
 	template<>
@@ -785,6 +815,11 @@ namespace CDC8600
 		pipes::pipe_t pipe()
 		{
 		    return _op.pipe();
+		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
 		}
 	};
 
@@ -828,7 +863,7 @@ namespace CDC8600
 	class mapper<jmpn>	: public basemapper
 	{
 	    private:
-		jmpp	_op;
+		jmpn	_op;
 	    public:
 		bool map
 		(
@@ -846,13 +881,18 @@ namespace CDC8600
 		{
 		    return _op.pipe();
 		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
+		}
 	};
 
 	template<>
 	class mapper<bb>	: public basemapper
 	{
 	    private:
-		jmpp	_op;
+		bb	_op;
 	    public:
 		bool map
 		(
@@ -870,6 +910,11 @@ namespace CDC8600
 		pipes::pipe_t pipe()
 		{
 		    return _op.pipe();
+		}
+
+		pipes::dep_t dep()
+		{
+		    return _op.dep();
 		}
 	};
 
