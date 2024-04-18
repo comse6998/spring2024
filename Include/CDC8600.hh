@@ -568,7 +568,7 @@ namespace CDC8600
                 }
                 virtual void tock()     { }
                 virtual bool busy()     { return false; }
-                virtual void reset()    { rxready = true; rxdone = true; txready = true; txdone = true; }
+                virtual void reset()    { rxready = true; rxdone = false; txready = true; txdone = true; }
         };
 
         void copy(u32 N, u64 u, bitvector& v, u32 first);
