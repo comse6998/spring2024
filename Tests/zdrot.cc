@@ -98,7 +98,7 @@ int main
     }
     else
     {
-	cerr << "Usage : " << argv[0] << " [tracing n incx incy]" << endl;
+	cerr << "Usage : " << argv[0] << " [n incx incy]" << endl;
 	return -1;
     }
     return 0;
