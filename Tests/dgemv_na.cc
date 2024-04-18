@@ -71,8 +71,6 @@
             dump(PROC[3].trace, "dgemv_na.tr.3");
 
         }
-
-
 }
 
  int main( 
@@ -80,13 +78,12 @@
     char	**argv
     )
  {
-
     if (1 == argc)
     {
 	for (u32 i = 0; i < N; i++)
 	{
-	    i32 m = 240;
-        i32 n = 240;
+	    i32 m = rand()%256;
+        i32 n = rand()%256;
         f64 alpha = (float)rand()/(float)(RAND_MAX/1);
         f64 beta = (float)rand()/(float)(RAND_MAX/1);
         i32 incx = (rand() % 16) -4;
