@@ -44,12 +44,18 @@ namespace CDC8600
             // i64 incy         [ X6 ]
         )
         {
+            pass()              // padding
+            pass()              // padding
             jmpn(0, end)        // if n < 0 goto end
+            pass()              // padding
+            pass()              // padding
             jmpz(0, end)        // if n == 0 goto end
 
             xkj(7, 0)           // X7 (tmp) = 0
             idjkj(7, 1)         // X7 (tmp) = -1
             isjki(7, 7, 4)      // X7 (tmp) = X7 (-1) + X4 (incx)
+            pass()              // padding
+            pass()              // padding
             pass()              // padding
             jmpnz(7, gen)       // if X4 (incx) != 1 goto general
             idjkj(7, 1)         // X7 (tmp) = -1
@@ -60,8 +66,6 @@ namespace CDC8600
             isjki(0, 0, 0)      // X0 (n) = X(0) * 2
             isjki(4, 4, 3)      // X4 (xbase.imag) = X3 (xbase.real) + X4 (1)
             isjki(6, 6, 5)      // X6 (ybase.imag) = X5 (ybase.real) + X6 (1)
-            pass()              // padding
-            pass()              // padding
             pass()              // padding
 
 LABEL(opt)  rdjki(9, 5, 7)      // X9 (tmp1) = MEM[X5 (yb.real) + X7 (i)] (y.real)
@@ -83,7 +87,11 @@ LABEL(opt)  rdjki(9, 5, 7)      // X9 (tmp1) = MEM[X5 (yb.real) + X7 (i)] (y.rea
             sdjki(9, 6, 7)      // MEM[X5 (yb.imag) + X7 (i)] (y.imag) = X9 (tmp1)
 
             isjkj(7, 2)         // X7 (i) = X7 (i) + 2
+            pass()              // padding
+            pass()              // padding
             bb(7, 0, opt)
+            pass()              // padding
+            pass()              // padding
             jmp(end)
 
 LABEL(gen)  isjki(4, 4, 4)      // X4 (incx) = 2 * X4 (incx)
@@ -95,23 +103,25 @@ LABEL(gen)  isjki(4, 4, 4)      // X4 (incx) = 2 * X4 (incx)
             isjki(9, 9, 3)      // X9 (xb.imag) = X3 (xb.real) + X9 (1)
             isjki(10, 10, 5)    // X10 (yb.imag) = X10 (yb.real) + X10 (1)
 
+            pass()              // padding
+            pass()              // padding
             jmpp(4, L1)         // if X4 (incx) > 0 goto L1
             idzkj(7, 0)         // X7 (ix) = -X0 (n)
             isjkj(7, 1)         // X7 (ix) = X7(-n) + 1
             ipjkj(7, 4)         // X7 (ix) = X7 (-n+1) * X4 (incx)
             pass()              // padding
-            pass()              // padding
-            pass()              // padding
 
-LABEL(L1)   jmpp(6, loop)       // if X6 (incy) > 0 goto loop
+LABEL(L1)   pass()              // padding
+            pass()              // padding
+            jmpp(6, loop)       // if X6 (incy) > 0 goto loop
             idzkj(8, 0)         // X8 (iy) = -X0 (n)
             isjkj(8, 1)         // X8 (iy) = X8(-n) + 1
             ipjkj(8, 6)         // X8 (iy) = X8 (-n+1) * X6 (incy)
             pass()              // padding
+            
+LABEL(loop) pass()              // padding
             pass()              // padding
-            pass()              // padding
-
-LABEL(loop) jmpz(0, end)        // if X0 (n) = 0 goto end
+            jmpz(0, end)        // if X0 (n) = 0 goto end
             rdjki(11, 5, 8)     // X11 (tmp1) = MEM[X5 (yb.real) + X8 (iy)] (y.real)
             rdjki(12, 3, 7)     // X12 (tmp2) = MEM[X3 (xb.real) + X7 (ix)] (x.real)
             fmul(12, 12, 1)     // X12 (tmp2) = X12 (x.real) * X1 (a.real)
@@ -134,9 +144,14 @@ LABEL(loop) jmpz(0, end)        // if X0 (n) = 0 goto end
             isjki(8, 8, 6)      // X8 (iy) = X8 (iy) + X6 (incy)
             idjkj(0, 1)         // X0 (n) = X0 (n) - 1
             pass()              // padding
+            pass()              // padding
+            pass()              // padding
             jmp(loop)
 
-LABEL(end)  jmpk(15, 1)         // return to X15 (calling address) + 1
+LABEL(end)  pass()              // padding
+            pass()              // padding
+            pass()              // padding
+            jmpk(15, 1)         // return to X15 (calling address) + 1
         }
     } // namespace BLAS
 } // namespace CDC8600
