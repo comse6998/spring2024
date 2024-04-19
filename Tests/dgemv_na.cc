@@ -60,19 +60,18 @@
     cout << ", # of cycles = ";
     for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
-    if (pass)
+    if (pass){
         cout << "PASS" << std::endl;
-    else
+    }
+    else{
         cout << "FAIL" << std::endl;
-        if (traceon){
-            dump(PROC[0].trace, "dgemv_na.tr.0");
-            dump(PROC[1].trace, "dgemv_na.tr.1");
-            dump(PROC[2].trace, "dgemv_na.tr.2");
-            dump(PROC[3].trace, "dgemv_na.tr.3");
-
-        }
-
-
+    }
+    if (traceon){
+        dump(PROC[0].trace, "dgemv_na.tr.0");
+        dump(PROC[1].trace, "dgemv_na.tr.1");
+        dump(PROC[2].trace, "dgemv_na.tr.2");
+        dump(PROC[3].trace, "dgemv_na.tr.3");
+    }
 }
 
  int main( 
@@ -80,13 +79,12 @@
     char	**argv
     )
  {
-
     if (1 == argc)
     {
 	for (u32 i = 0; i < N; i++)
 	{
-	    i32 m = 240;
-        i32 n = 240;
+	    i32 m = rand()%256;
+        i32 n = rand()%256;
         f64 alpha = (float)rand()/(float)(RAND_MAX/1);
         f64 beta = (float)rand()/(float)(RAND_MAX/1);
         i32 incx = (rand() % 16) -4;
@@ -97,7 +95,7 @@
     }
     else if (7 == argc)
     {
-	i32 m = NUM_OF_PROC*atoi(argv[1]);
+	i32 m = atoi(argv[1]);
 	i32 n = atoi(argv[2]);
     f64 alpha = atof(argv[3]);
     f64 beta = atof(argv[4]);

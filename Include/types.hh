@@ -176,11 +176,15 @@ namespace CDC8600
             map<u32,u32>                mapper;                 // logical -> physical register mapping
             map<u32,u32>                niap;                   // next instruction address predictor
             u64                         op_count;               // operation count
+            u64                         ops_issued;             // operations issued count
+            u64                         ops_completed;          // operations completed count
             u64                         op_nextdispatch;        // next operation dispatch cycle
             u64                         op_lastdispatch;        // last operation dispatch cycle
             u64                         dispatched;             // count of dispatched operations in a cycle
             u64                         op_maxcycle;            // maximum observed completion cycle
-            u32                         instr_count;            // Current instruction count
+	    u64				cycle_count;		// number of cycles in pipeline simulator
+            u32                         instr_count;            // Current architected instruction count
+            u32                         specinstr_count;        // Current speculative instruction count
             bool                        instr_target;           // Is the current instruction the target of a branch?
             u32                         instr_forcealign;       // Align this instruction at a word boundary
             bool                        labeling;               // In instruction address labeling mode

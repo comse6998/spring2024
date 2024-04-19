@@ -221,10 +221,14 @@ namespace CDC8600
         _XA = 4 + id;                                                                                           // User context for PROC[0] is in frame 4
         FL() = (u64)(29 * 8192 / 256);                                                                          // User data memory is 29 pages
         RA() = (u64)( 3 * 8192 / 256);                                                                          // User data memory begins in page 3
+        cycle_count = 0;                                                                                        // Cycle count starts at 0
         instr_count = 0;                                                                                        // Instruction count starts at 0
+        specinstr_count = 0;                                                                                    // Speculative instruction count starts at 0
         instr_target = true;                                                                                    // First instruction is target of a branch
         instr_forcealign = 0;                                                                                   // Force instruction address to align to word boundary
         op_count = 0;                                                                                           // Operation count starts at 0
+        ops_issued = 0;                                                                                         // Number of operations issued starts at 0
+        ops_completed = 0;                                                                                      // Number of operations completed starts at 0
         op_lastdispatch = 0;                                                                                    // Cycle of last dispatch = 0
         op_nextdispatch = 0;                                                                                    // Start dispatching operations at cycle 0
         dispatched = 0;                                                                                         // Dispatched operations in cycle = 0
@@ -302,6 +306,7 @@ namespace CDC8600
     template class reg<20>;
 
     bool                        tracing = false;                // Trace during the simulation?
+    bool                        debugging = false;              // Debug during the simulation?
 
     void addlabel
     (
@@ -602,8 +607,8 @@ namespace CDC8600
             mappers[0x90] = new mapper<fsub>;
             mappers[0x80] = new mapper<fadd>;
             mappers[0xA0] = new mapper<fmul>;
-                mappers[0xb3] = new mapper<agen>;
-                mappers[0x04] = new mapper<cpkj>;
+            mappers[0xb3] = new mapper<agen>;
+            mappers[0x04] = new mapper<cpkj>;
         }
     } // namespace operations
 
@@ -726,6 +731,7 @@ namespace CDC8600
                     instr->decode(code >> 16);
                     cracked = instr->crack();
                     for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+                    PROC[me()].op_count += cracked.size();
                     // decode second instruction
                     code = code & 0xffff;
                     F = code >> 8;
@@ -734,12 +740,16 @@ namespace CDC8600
                     instr->decode(code);
                     cracked = instr->crack();
                     for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+                    PROC[me()].op_count += cracked.size();
+                    PROC[me()].instr_count += 2;
                     break;
                 case 4:                 // one 32-bit instruction
                     // decode single instruction
                     instr->decode(code);
                     cracked = instr->crack();
                     for (u32 i=0; i<cracked.size(); i++) ops.push_back(cracked[i]->encode());
+                    PROC[me()].op_count += cracked.size();
+                    PROC[me()].instr_count += 1;
                     break;
                 default:                // should not happen
                     assert(false);
@@ -931,6 +941,8 @@ namespace CDC8600
                         fgq.push_back(0x0f000f000f000f00);
                         fcq.push_back(fetchcount);
                         fetchcount++;
+                        PROC[me()].specinstr_count += 4;
+                        PROC[me()].instr_count -= 4;
                     }
                 }
             }
@@ -1088,6 +1100,29 @@ namespace CDC8600
             u32 jreg = pipes::jreg(v);
             u32 kreg = pipes::kreg(v);
 
+            if (debugging)
+            {
+                cout << "Testing inputs for operation ";
+                dumpoutop(v);
+                cout << ", F = " << F;
+                switch(operations::mappers[F]->dep())
+                {
+                    case CDC8600::pipes::k_dep  :
+                        cout << ", k = " << kreg << " (" << PROC[me()].Pfull[kreg] << ")";
+                        break;
+                    case CDC8600::pipes::j_dep  :
+                        cout << ", j = " << jreg << " (" << PROC[me()].Pfull[jreg] << ")";
+                        break;
+                    case CDC8600::pipes::jk_dep :
+                        cout << ", j = " << jreg << " (" << PROC[me()].Pfull[jreg] << ")";
+                        cout << ", k = " << kreg << " (" << PROC[me()].Pfull[kreg] << ")";
+                        break;
+                    case CDC8600::pipes::no_dep :
+                        break;
+                    default                     : assert(false);                                            // should not happen
+                }
+                cout << endl;
+            }
             switch(operations::mappers[F]->dep())
             {
                 case CDC8600::pipes::k_dep  : return (PROC[me()].Pfull[kreg]);                          // depends on k register
@@ -1207,19 +1242,29 @@ namespace CDC8600
            if (txdone && rxdone)
            {
               for (u32 i=0; i<out.size(); i++) out[i] = false;
+              if (pipes::F(in))
+              {
+                  PROC[me()].ops_issued += 1;
+                  if (debugging)
+                  {
+                      cout << "OI[" << _ix << "] : issuing operation ";
+                      dumpoutop(in);
+                      cout << endl;
+                  }
+              }
               switch(operations::mappers[pipes::F(in)]->pipe())
               {
-		  case CDC8600::pipes::BR      : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
-		  case CDC8600::pipes::ST      : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
-		  case CDC8600::pipes::LD      : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
-		  case CDC8600::pipes::FXArith :
-		  case CDC8600::pipes::FXMul   :
-		  case CDC8600::pipes::FXLogic : for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
-		  case CDC8600::pipes::FPAdd   :
-		  case CDC8600::pipes::FPMul   :
-		  case CDC8600::pipes::FPDiv   : for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
-		  case CDC8600::pipes::NOP     : break;                // output is already all zeros.
-		  default                      : assert(false);        // this should not happen
+                  case CDC8600::pipes::BR      : for (u32 i=0; i<in.size(); i++) out[0*96 + i] = in[i]; break;
+                  case CDC8600::pipes::ST      : for (u32 i=0; i<in.size(); i++) out[4*96 + i] = in[i]; break;
+                  case CDC8600::pipes::LD      : for (u32 i=0; i<in.size(); i++) out[3*96 + i] = in[i]; break;
+                  case CDC8600::pipes::FXArith :
+                  case CDC8600::pipes::FXMul   :
+                  case CDC8600::pipes::FXLogic : for (u32 i=0; i<in.size(); i++) out[1*96 + i] = in[i]; break;
+                  case CDC8600::pipes::FPAdd   :
+                  case CDC8600::pipes::FPMul   :
+                  case CDC8600::pipes::FPDiv   : for (u32 i=0; i<in.size(); i++) out[2*96 + i] = in[i]; break;
+                  case CDC8600::pipes::NOP     : break;                // output is already all zeros.
+                  default                      : assert(false);        // this should not happen
               }
               rxdone = false; rxready = true;
               txready = true; txdone = false;
@@ -1540,7 +1585,14 @@ namespace CDC8600
              if (opsq.size() && txdone)
              {
                copy(96, opsq[0], 0, out, 0);
+               if (debugging)
+               {
+                   cout << "CQ[" << _ix << "] : completing operation ";
+                   dumpoutop(out);
+                   cout << endl;
+               }
                opsq.erase(opsq.begin());
+               PROC[me()].ops_completed += 1;
                txready = true; txdone = false;
              }
              else
@@ -1677,6 +1729,7 @@ namespace CDC8600
             if (M6.busy()) return true;
             if (M7.busy()) return true;
             if (WB.busy()) return true;
+            if (pipes::F(out)) return true;
             return pipes::F(in);
         }
 
@@ -1689,6 +1742,7 @@ namespace CDC8600
             if (X3.busy()) return true;
             if (WB.busy()) return true;
             if (LM.busy()) return true;
+            if (pipes::F(out)) return true;
             return pipes::F(in);
         }
 
@@ -1748,6 +1802,7 @@ namespace CDC8600
                 if(RF.busy()) return true;
                 if(X1.busy()) return true;
                 if(X2.busy()) return true;
+                if (pipes::F(out)) return true;
                 return pipes::F(in);
         }
 
@@ -1853,6 +1908,7 @@ namespace CDC8600
                 if (M6.busy()) return true;
                 if (M7.busy()) return true;
                 if (WB.busy()) return true;
+                if (pipes::F(out)) return true;
                 return pipes::F(in);
         }
 
@@ -1934,6 +1990,7 @@ namespace CDC8600
                 if(X1.busy()) return true;
                 if(X2.busy()) return true;
                 if(X3.busy()) return true;
+                if (pipes::F(out)) return true;
                 return pipes::F(in);
         }
 
@@ -1945,7 +2002,7 @@ namespace CDC8600
 
         bool CQstage::busy()  
         { 
-            return opsq.size();
+            return (opsq.size() || pipes::F(out));
         }
 
         bool COstage::busy()
@@ -2274,6 +2331,8 @@ namespace CDC8600
                 FP[1].dumpout(); cout << " | ";
                 CQ[1].dumpout();
                 cout << endl;
+                PROC[me()].cycle_count = cycle + 1;
+                if (debugging) { cout << "cycle " << setw(9) << cycle << " : (# of instr = " << PROC[me()].instr_count << ")" << endl; }
             }
         }
 
