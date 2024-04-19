@@ -1569,6 +1569,13 @@ namespace CDC8600
             X3.reset();
         }
 
+        void COstage::reset()
+        {
+            rxready = true; rxdone = true; txready = true; txdone = true;
+            opsq.clear();
+            nextcommit = 0;
+        }
+
         void CQstage::tick()    
         {
             if (rxdone)
@@ -1606,35 +1613,44 @@ namespace CDC8600
         {
             if (rxdone)
             {
-
-                u32 op[2];
-                u32 F[2];
-
-                copy( 8, in, 56, F[0]);
-                copy(16, in, 64, op[0]);
-
-                copy( 8, in,152, F[1]);
-                copy(16, in,160, op[1]);
+                bitvector v[2];
 
                 for (u32 j = 0; j < 2; j++)
                 {
-                    if (F[j])
-                    {
-                        for (u32 i : PROC[me()].precycle)               // for all recyclable physical registers
-                            if (PROC[me()].Plastop[i] == op[j])         // is this the last op for that registers?
-                            {
-                                // cout << "recycling physical register " << i << endl;
-                                PROC[me()].pfree.insert(i);             // return register to free list
-                                PROC[me()].precycle.erase(i);           // register has been recycled
-                                break;
-                            }
-                    }
+                    v[j].resize(96);
+                    copy(96, in, j*96 , v[j], 0);
+                    if (pipes::F(v[j])) opsq.push_back(v[j]);
                 }
 
                 rxready = true;
                 rxdone = false;
                 txready = false;
                 txdone = true;
+            }
+
+            bool commit = false;
+            for (u32 j = 0; j < opsq.size(); j++)                               // look in the commit queue for next to commit
+            {
+                if (commit) break;                                              // exit if already found one
+
+                if (pipes::op(opsq[j]) == nextcommit)
+                {
+                    for (u32 i : PROC[me()].precycle)                           // for all recyclable physical registers
+                    {
+                        if (PROC[me()].Plastop[i] == pipes::op(opsq[j]))        // is this the last op for that registers?
+                        {
+                            cout << "Commiting operation ";
+                            dumpoutop(opsq[j]);
+                            cout << ", recycling physical register " << i << endl;
+                            PROC[me()].pfree.insert(i);                         // return register to free list
+                            PROC[me()].precycle.erase(i);                       // register has been recycled
+                            break;
+                        }
+                    }
+                    opsq.erase(opsq.begin() + j);
+                    nextcommit++;
+                    commit = true;
+                }
             }
         }
 
@@ -2007,9 +2023,7 @@ namespace CDC8600
 
         bool COstage::busy()
         {
-            u32 CO0 = pipes::F(bitvector(in.begin()+96*0, in.begin()+96*1));                       // extract F field
-            u32 CO1 = pipes::F(bitvector(in.begin()+96*1, in.begin()+96*2));                       // extract F field
-            return CO0 || CO1;
+            return opsq.size();
         }
 
         bool busy()

@@ -1036,18 +1036,18 @@ namespace CDC8600
                         bool busy();
                 };
 
-		class LMstage : public stage<96,96>
-		{
-		    private:
-			vector<bitvector>	opsq;
-			vector<u32>		waitq;
+                class LMstage : public stage<96,96>
+                {
+                    private:
+                        vector<bitvector>       opsq;
+                        vector<u32>             waitq;
 
-		    public:
-			void tick();
-			bool busy();
-		};
+                    public:
+                        void tick();
+                        bool busy();
+                };
 
-		u32	_ix;
+                u32     _ix;
 
             public : 
                 RFstage RF;
@@ -1056,14 +1056,14 @@ namespace CDC8600
                 X1stage X1;
                 X2stage X2;
                 X3stage X3;
-		LMstage	LM;
+                LMstage LM;
 
                 void tick();
                 void reset();
                 void dumpout();
                 bool busy();
-		void init(u32 ix) { _ix = ix; }
-		bool cachehit();
+                void init(u32 ix) { _ix = ix; }
+                bool cachehit();
         };
 
         extern LDstage LD[2];
@@ -1119,25 +1119,30 @@ namespace CDC8600
 
         class CQstage : public stage<5*96,96>
         {
-	    private:
-		u32	_ix;
+            private:
+                u32     _ix;
 
             public:
                 vector<bitvector>       opsq;
                 void dumpout();
                 bool busy();
                 void tick();
-		void init(u32 ix) { _ix = ix; }
+                void init(u32 ix) { _ix = ix; }
         };
 
         extern CQstage CQ[2];
 
         class COstage : public stage<192,0>
         {
+            private:
+                vector<bitvector>       opsq;
+                u64                     nextcommit;
+
             public:
                 void tick();
-		bool busy();
-		void init() { }
+                bool busy();
+                void init() { }
+                void reset();
         };
 
         extern COstage CO;
