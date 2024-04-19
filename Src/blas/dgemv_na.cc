@@ -15,11 +15,8 @@ namespace CDC8600
 void dgemv_na_cpp(u64 m, u64 n, f64 alpha, f64* A, u64 lda, f64* x, i64 incx, f64 beta, f64* y, i64 incy) {
 
     i32 M = m;
-    i32 N = n;
-    i32 INCX = incx;
     i32 INCY = incy;
     i32 one = 1;
-    f64 fone = 1.0;
     f64* temp1 = (f64*)memalloc(m);
     f64* temp2 = (f64*)memalloc(m);
 
@@ -28,7 +25,7 @@ void dgemv_na_cpp(u64 m, u64 n, f64 alpha, f64* A, u64 lda, f64* x, i64 incx, f6
     if (incy <= 0) iy = (-m+1)*incy;    // If incy <= 0, start with last element of y
     if (incx <= 0) ix = (-n+1)*incx; 
 
-    for (int i = 0; i<m;i++ ){
+    for (u64 i = 0; i<m;i++ ){
     temp1[i] = 0;
     temp2[i] = 0;
     }
@@ -48,21 +45,21 @@ void dgemv_na_cpp(u64 m, u64 n, f64 alpha, f64* A, u64 lda, f64* x, i64 incx, f6
         if (incx <= 0) ix = (-n+1)*incx;    // If incx <= 0, start with last element of x
         thread_num = me();
         start_index = thread_num * chunk_size;
-    for (int i = 0; i<n; i++){
+    for (u64 i = 0; i<n; i++){
             daxpy(chunk_size, x[ix], &A[start_index + i*m], one,  &temp2[start_index], one);
             ix += incx;
     }
     }
     u64 r = m % num_threads;
     start_index = num_threads * chunk_size;
-    for (int i = 0; i<n; i++){
+    for (u64 i = 0; i<n; i++){
             daxpy(r, x[ix], &A[start_index + i*m], one,  &temp2[start_index], one);
             ix += incx;
     }
     daxpy(M, alpha, temp2, one,  temp1, one);
     daxpy(M, beta, y, 
     INCY,  temp1, one);
-    for (int i = 0; i<m; i++){
+    for (u64 i = 0; i<m; i++){
         y[iy] = temp1[i];
         iy += incy;
     }

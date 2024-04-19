@@ -60,17 +60,18 @@
     cout << ", # of cycles = ";
     for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
-    if (pass)
+    if (pass){
         cout << "PASS" << std::endl;
-    else
+    }
+    else{
         cout << "FAIL" << std::endl;
-        if (traceon){
-            dump(PROC[0].trace, "dgemv_na.tr.0");
-            dump(PROC[1].trace, "dgemv_na.tr.1");
-            dump(PROC[2].trace, "dgemv_na.tr.2");
-            dump(PROC[3].trace, "dgemv_na.tr.3");
-
-        }
+    }
+    if (traceon){
+        dump(PROC[0].trace, "dgemv_na.tr.0");
+        dump(PROC[1].trace, "dgemv_na.tr.1");
+        dump(PROC[2].trace, "dgemv_na.tr.2");
+        dump(PROC[3].trace, "dgemv_na.tr.3");
+    }
 }
 
  int main( 
