@@ -44,23 +44,25 @@ namespace CDC8600
         xkj(8, 0)                                       // X8 (iy) = 0                              //  8/4/4 format
         xkj(11, 0)                                      // X11 (result) = 0.0                       //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
-        jmpp(2, MATRIX_COMPUTE_START)                   // if X2 (incx) > 0 goto START              //  8/4/4 format
+        pass()                                                                                      //  8/4/4 format
+        pass()                                                                                      //  8/4/4 format
+        jmpp(2, MATRIX_COMPUTE_START)                   // if X2 (incx) > 0 goto START              //  8/4/20 format
         idzkj(7, 0)                                     // X7 (ix) = -X0 (n)                        //  8/4/4 format
         isjkj(7, 1)                                     // X7 (ix) = X7(-n) + 1                     //  8/4/4 format
         ipjkj(7, 2)                                     // X7 (ix) = X7 (-n+1) * X2 (incx)          //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
+LABEL(MATRIX_COMPUTE_START) pass()                                                                  //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
-        pass()                                                                                      //  8/4/4 format
-LABEL(MATRIX_COMPUTE_START) jmpp(4, MATRIX_COMPUTE_END) // if X4 (incy) > 0 goto MATRIX_COMPUTE_END //  8/4/4 format
+        jmpp(4, MATRIX_COMPUTE_END)                     // if X4 (incy) > 0 goto MATRIX_COMPUTE_END //  8/4/20 format
         idzkj(8, 0)                                     // X8 (iy) = -X0 (n)                        //  8/4/4 format
         isjkj(8, 1)                                     // X8 (iy) = X8(-n) + 1                     //  8/4/4 format
         ipjkj(8, 4)                                     // X8 (iy) = X8 (-n+1) * X4 (incy)          //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
+LABEL(MATRIX_COMPUTE_END) pass()                                                                    //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
-        pass()                                                                                      //  8/4/4 format
-LABEL(MATRIX_COMPUTE_END) jmpz(0, end)                  // if X0 (n) = 0 goto end                   //  8/4/4 format
-        rdjki(9, 1, 7)                                  // X9 (dx value) = MEM[X1 (dx) + X7 (ix)]   //  4/4/4/20 format
-        rdjki(10, 3, 8)                                 // X10 (dy value) = MEM[X3 (dy) + X8 (iy)]  //  4/4/4/20 format
+        jmpz(0, end)                                    // if X0 (n) = 0 goto end                   //  8/4/20 format
+        rdjki(9, 1, 7)                                  // X9 (dx value) = MEM[X1 (dx) + X7 (ix)]   //  4/4/4/4 format
+        rdjki(10, 3, 8)                                 // X10 (dy value) = MEM[X3 (dy) + X8 (iy)]  //  4/4/4/4 format
         fmul(12, 9, 10)                                 // X12 = X9 * X10                           //  4/4/4/4 format
         fadd(11, 11, 12)                                // X11 (result) += X12                      //  4/4/4/4 format
         isjki(7, 7, 2)                                  // X7 (ix) += X2 (incx)                     //  8/4/4 format
@@ -69,11 +71,11 @@ LABEL(MATRIX_COMPUTE_END) jmpz(0, end)                  // if X0 (n) = 0 goto en
         pass()                                                                                      //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
-        jmp(MATRIX_COMPUTE_END)                                                                     //  8/4/4 format
+        jmp(MATRIX_COMPUTE_END)                                                                     //  8/4/20 format
+LABEL(end) isjki(0, 11, 0)                              // X0 = X11 + 0                             //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
         pass()                                                                                      //  8/4/4 format
-LABEL(end) isjki(0, 11, 0)     // X0 = X11 + 0                                                      //  8/4/4 format
-        jmpk(15, 1)      // return to calling address                                               //  8/4/4 format
+        jmpk(15, 1)                                     // return to calling address                //  8/4/4 format
         // clang-format on
 
         }
