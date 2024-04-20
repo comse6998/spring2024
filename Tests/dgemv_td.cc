@@ -13,18 +13,12 @@ extern "C" i32 dgemv_(char *, i32 *, i32 *, f64 *, f64 *, i32 *, f64 *, i32 *,
 const int N = 20;
 const double epsilon = 1e-9;
 
-void test_dgemv_td(int count)
+void test_dgemv_td(int count, bool traceon, i32 m, i32 n, i32 lda, i32 incx, i32 incy)
 {
     reset();
 
-    i32 m = rand() % 256;
-    i32 n = rand() % 256;
-    i32 lda = m + rand() % 256;
-
-    i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
     u32 nx = m*abs(incx); if (0 == nx) nx = 1;
 
-    i32 incy = (rand() % 16) - 8; if (incy == 0) incy = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
 
     f64 alpha = drand48();
@@ -75,18 +69,43 @@ void test_dgemv_td(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) {
+    if (traceon) {
         for (u32 p = 0; p < params::Proc::N; ++p) {
             dump(PROC[p].trace, (char *) ("dgemv_td.tr." + to_string(p)).c_str());
         }
     }
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    for (int i = 0; i < N; i++)
+    if (argc == 1)
     {
-        test_dgemv_td(i);
+	for (u32 i = 0; i < N; i++)
+	{
+            i32 m = rand() % 256;
+            i32 n = rand() % 256;
+            i32 lda = m + rand() % 256;
+            i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
+            i32 incy = (rand() % 16) - 8; if (incy == 0) incy = 1;
+	    test_dgemv_td(i, false, m, n, lda, incx, incy);
+	}
     }
-    return 0;
+    else if (argc == 6)
+    {
+        i32 m = atoi(argv[1]);
+	i32 n = atoi(argv[2]);
+        i32 lda = atoi(argv[3]);
+	i32 incx = atoi(argv[4]);
+	i32 incy = atoi(argv[5]);
+        if (lda < m) {
+            cerr << "lda must be larger than m" << endl;
+            exit(1);
+        }
+        test_dgemv_td(0, true, m, n, lda, incx, incy);
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [m n lda incx incy]" << endl;
+	exit(1);
+    }
 }
