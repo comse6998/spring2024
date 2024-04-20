@@ -23,8 +23,8 @@ void test_zdotu(int count, bool traceon, i32 n, i32 incx, i32 incy)
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
 
-    for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
-    for (int i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
+    for (u32 i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
+    for (u32 i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
 
     tracing = false;
 
@@ -70,24 +70,24 @@ int main(int argc, char **argv)
 {
     if (argc == 1)
     {
-	for (u32 i = 0; i < N; i++)
-	{
-	    i32 n = rand() % 256;
-	    i32 incx = (rand() % 16) - 8;
-	    i32 incy = (rand() % 16) - 8;
-	    test_zdotu(i, false, n, incx, incy);
-	}
+        for (u32 i = 0; i < N; i++)
+        {
+            i32 n = rand() % 256;
+            i32 incx = (rand() % 16) - 8;
+            i32 incy = (rand() % 16) - 8;
+            test_zdotu(i, false, n, incx, incy);
+        }
     }
     else if (argc == 4)
     {
-	i32 n = atoi(argv[1]);
-	i32 incx = atoi(argv[2]);
-	i32 incy = atoi(argv[3]);
+        i32 n = atoi(argv[1]);
+        i32 incx = atoi(argv[2]);
+        i32 incy = atoi(argv[3]);
         test_zdotu(0, true, n, incx, incy);
     }
     else
     {
-	cerr << "Usage : " << argv[0] << " [n incx incy]" << endl;
-	exit(1);
+        cerr << "Usage : " << argv[0] << " [n incx incy]" << endl;
+        exit(1);
     }
 }
