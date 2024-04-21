@@ -639,8 +639,6 @@ namespace CDC8600
                 bool prediction(u32, u32);              // next instruction address predictor
         };
 
-        extern IFstage IF;
-
         class ICstage : public stage<48,80>
         {
             public:
@@ -650,8 +648,6 @@ namespace CDC8600
                 void init() { opsq.clear(); }
                 bool busy();
         };
-
-        extern ICstage IC[2];
 
         class RMstage : public stage<160,192>
         {
@@ -664,8 +660,6 @@ namespace CDC8600
                 bool busy();
         };
 
-        extern RMstage RM;
-
         class ODstage : public stage<96, 96>
         {
             private:
@@ -673,8 +667,6 @@ namespace CDC8600
             public:
                 void init(u32 ix) { _ix = ix; } // initialize this operation issue stage to a particular index (0/1)
         };
-
-        extern ODstage OD[2];
 
         class IQstage : public stage<96,96>
         {
@@ -688,8 +680,6 @@ namespace CDC8600
                 void dumpout();
         };
         
-        extern IQstage IQ[2];
-
         class OIstage : public stage<96,5*96>
         {
             private:
@@ -701,8 +691,6 @@ namespace CDC8600
                 bool busy();
                 void dumpout();
         };
-
-        extern OIstage OI[2];
 
         class BRstage : public stage<96,96>
         {
@@ -736,8 +724,6 @@ namespace CDC8600
                 void reset();
                 void init(u32 ix) { _ix = ix; } // initialize this operation issue stage to a particular index (0/1)
         };
-
-        extern BRstage BR[2];
 
         class FXstage : public stage<96,96>
         {
@@ -868,8 +854,6 @@ namespace CDC8600
                 bool busy();
         };
 
-        extern FXstage FX[2];
-
         class FPstage : public stage<96,96>
         {
             private:
@@ -994,8 +978,6 @@ namespace CDC8600
                 void dumpout();
         };
 
-        extern FPstage FP[2];
-
         class LDstage : public stage<96,96>
         {
             private:
@@ -1066,8 +1048,6 @@ namespace CDC8600
                 bool cachehit();
         };
 
-        extern LDstage LD[2];
-
         class STstage : public stage<96,96>
         {
             private:
@@ -1115,8 +1095,6 @@ namespace CDC8600
                 void reset();
         };
 
-        extern STstage ST[2];
-
         class CQstage : public stage<5*96,96>
         {
             private:
@@ -1129,8 +1107,6 @@ namespace CDC8600
                 void tick();
                 void init(u32 ix) { _ix = ix; }
         };
-
-        extern CQstage CQ[2];
 
         class COstage : public stage<192,0>
         {
@@ -1145,12 +1121,34 @@ namespace CDC8600
                 void reset();
         };
 
-        extern COstage CO;
+	class pipe
+	{
+	    public:
+		IFstage IF;
+		ICstage IC[2];
+		RMstage RM;
+		ODstage OD[2];
+		IQstage IQ[2];
+		OIstage OI[2];
+		BRstage BR[2];
+		FXstage FX[2];
+		FPstage FP[2];
+		LDstage LD[2];
+		STstage ST[2];
+		CQstage CQ[2];
+		COstage CO;
 
-        void reset();
-        void tick();
-        bool busy();
-        void transfer();
+		void reset();
+		void tick();
+		bool busy();
+		void transfer();
+		void init(const char*);
+		void dumpheader();
+		void dumpout(u32);
+	};
+
+	extern pipe PIPE;
+
         void run(const char* filename, u32 maxcycles);
 
         namespace pipes
