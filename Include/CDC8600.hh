@@ -1147,7 +1147,7 @@ namespace CDC8600
 		void dumpout(u32);
 	};
 
-	extern pipe PIPE;
+	extern vector<pipe> PIPE;
 
         void run(const char* filename, u32 maxcycles);
 

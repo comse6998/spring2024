@@ -23,7 +23,10 @@ int main
     reset();                                                    // reset the entire computer
     instructions::initmakers();                                 // initialize the instruction makers
     operations::initmappers();                                  // initialize the register mappers
-    pipeline::PIPE.reset();                                     // reset the simulated pipeline
+    for (u32 i = 0; i < params::Proc::N; i++)
+    {
+	pipeline::PIPE[i].reset();                              // reset the simulated pipeline
+    }
     if (2 == argc) pipeline::run(argv[1], UINT32_MAX);          // run the trace through the pipeline until completion
     if (3 == argc) pipeline::run(argv[1], atoi(argv[2]));       // run the trace through the pipeline for a maximum of argv[2] cycles
 
