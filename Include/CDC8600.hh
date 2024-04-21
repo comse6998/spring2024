@@ -8,6 +8,7 @@
 #include<map>
 #include<set>
 #include<iostream>
+#include<fstream>
 #include<sstream>
 #include<iomanip>
 #include<complex>
@@ -632,7 +633,7 @@ namespace CDC8600
                 map<u32,u32>    nfap;                   // next fetch address predictor
                 u32             prevaddr;               // previous fetch address
             public:
-                void init(const char* filename);
+                void init(const string&);
                 void tick();
                 bool busy();
                 void dumpout();
@@ -1123,6 +1124,10 @@ namespace CDC8600
 
         class pipe
         {
+	    private:
+		string	_inputname;
+		string	_outputname;
+
             public:
                 IFstage IF;
                 ICstage IC[2];
@@ -1143,8 +1148,12 @@ namespace CDC8600
                 bool busy();
                 void transfer();
                 void init(const char*);
+		void fini();
                 void dumpheader();
                 void dumpout(u32);
+                ofstream _out;
+
+		pipe() : _out() { }
         };
 
         extern vector<pipe> PIPE;
