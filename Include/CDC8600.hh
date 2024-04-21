@@ -26,7 +26,7 @@ namespace CDC8600
     void memfree(void*, u64);
 
     template<typename T> void label(T (*f)());
-    void addlabel(string, u32);
+    void addlabel(string, u32, const string&);
 
     class call0
     {
@@ -510,7 +510,7 @@ namespace CDC8600
 
     extern bool                 tracing;
 
-    extern bool process(instruction*, u32);
+    extern bool process(instruction*, u32, const string&);
 
     extern void dump(vector<instruction*>&);
 
