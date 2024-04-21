@@ -2381,11 +2381,11 @@ namespace CDC8600
 
         void run
         (
-            const char* filename,
+            const char* testcase,
             u32         maxcycles
         )
         {
-            PIPE[me()].init(filename);
+            PIPE[me()].init(testcase);
             PIPE[me()].dumpheader();
 
             for (u32 cycle = 0; PIPE[me()].busy() && (cycle < maxcycles); cycle++)
@@ -2396,6 +2396,15 @@ namespace CDC8600
                 PROC[me()].cycle_count = cycle + 1;
                 if (debugging) { PIPE[me()]._out << "cycle " << setw(9) << cycle << " : (# of instr = " << PROC[me()].instr_count << ")" << endl; }
             }
+
+	    PIPE[me()]._out << testcase;
+	    PIPE[me()]._out << " (# of architected instr = " << setw(9) << PROC[me()].instr_count;
+	    PIPE[me()]._out << ", # of speculative instr = " << setw(9) << PROC[me()].specinstr_count;
+	    PIPE[me()]._out << ", # of operations duspatched = " << setw(9) << PROC[me()].op_count;
+	    PIPE[me()]._out << ", # of operations issued = " << setw(9) << PROC[me()].ops_issued;
+	    PIPE[me()]._out << ", # of operations completed = " << setw(9) << PROC[me()].ops_completed;
+	    PIPE[me()]._out << ", # of cycles = " << setw(9) << PROC[me()].cycle_count;
+	    PIPE[me()]._out << ")" << endl;
 
 	    PIPE[me()].fini();
         }
