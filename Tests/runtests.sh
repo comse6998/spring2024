@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-set -A BLAS1 "daxpy dcopy ddot zaxpy zdotc zdotu"
+set -A BLAS1 "daxpy dcopy ddot zaxpy zdotc zdotu zdrot"
 
 make clean && clear
 make run
