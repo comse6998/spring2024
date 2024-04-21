@@ -311,7 +311,8 @@ namespace CDC8600
     void addlabel
     (
         string label,
-        u32    line
+        u32    line,
+        const string& file
     )
     {
         if (PROC[me()].label2line.count(label)) return;
@@ -505,7 +506,8 @@ namespace CDC8600
     bool process
     (
         instruction*    instr,
-        u32             line
+        u32             line,
+        const string&   file
     )
     {
         if (PROC[me()].labeling)
@@ -600,6 +602,7 @@ namespace CDC8600
             mappers[0x25] = new mapper<rdw>;
             mappers[0xF0] = new mapper<stw>;
             mappers[0xb1] = new mapper<cmpz>;
+            mappers[0xb2] = new mapper<cmp>;
             mappers[0x0d] = new mapper<ipjkj>;
             mappers[0x13] = new mapper<idjkj>;
             mappers[0x70] = new mapper<idjki>;
@@ -1619,7 +1622,16 @@ namespace CDC8600
                 {
                     v[j].resize(96);
                     copy(96, in, j*96 , v[j], 0);
-                    if (pipes::F(v[j])) opsq.push_back(v[j]);
+                    if (pipes::F(v[j]))
+                    {
+                        opsq.push_back(v[j]);
+                        if (debugging)
+                        {
+                            cout << "CO stage receiving operation ";
+                            dumpoutop(v[j]);
+                            cout << endl;
+                        }
+                    }
                 }
 
                 rxready = true;
@@ -1639,9 +1651,12 @@ namespace CDC8600
                     {
                         if (PROC[me()].Plastop[i] == pipes::op(opsq[j]))        // is this the last op for that registers?
                         {
-                            cout << "Commiting operation ";
-                            dumpoutop(opsq[j]);
-                            cout << ", recycling physical register " << i << endl;
+                            if (debugging)
+                            {
+                                cout << "Commiting operation ";
+                                dumpoutop(opsq[j]);
+                                cout << ", recycling physical register " << i << endl;
+                            }
                             PROC[me()].pfree.insert(i);                         // return register to free list
                             PROC[me()].precycle.erase(i);                       // register has been recycled
                             break;

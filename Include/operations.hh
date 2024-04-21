@@ -576,6 +576,7 @@ namespace CDC8600
         {
             public:
                 cmp(u08 i, u08 j, u08 k, u32 K) : FXop(i, j, k, K) { }
+                cmp() : FXop(0, 0, 0, 0) { }
                 u64 ready() const { return max(PROC[me()].Pready[_j], PROC[me()].Pready[_k]); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -585,7 +586,7 @@ namespace CDC8600
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
                 u64 encode() const { return ((u64)0xb2 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
                 pipes::pipe_t pipe() const { return pipes::FXArith; }
-                pipes::dep_t dep() const { return pipes::j_dep; }
+                pipes::dep_t dep() const { return pipes::jk_dep; }
         };
 
         class jmp : public BRop
