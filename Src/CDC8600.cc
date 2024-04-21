@@ -785,7 +785,7 @@ namespace CDC8600
 
         void IFstage::init
         (
-            const char* filename
+            const string& filename
         )
         {
             fetchgroups.clear();
@@ -834,8 +834,8 @@ namespace CDC8600
             // dump the fetch history
             for (u32 i=0; i<fetchgroups.size(); i++)
             {
-                cout << setfill('0') << setw(5)  << hex << fetchaddr[i]   << dec << setfill(' ') << " ";
-                cout << setfill('0') << setw(16) << hex << fetchgroups[i] << dec << setfill(' ') << endl;
+                PIPE[me()]._out << setfill('0') << setw(5)  << hex << fetchaddr[i]   << dec << setfill(' ') << " ";
+                PIPE[me()]._out << setfill('0') << setw(16) << hex << fetchgroups[i] << dec << setfill(' ') << endl;
             }
 
             // initialize fetch count
@@ -1093,26 +1093,26 @@ namespace CDC8600
 
             if (debugging)
             {
-                cout << "Testing inputs for operation ";
+                PIPE[me()]._out << "Testing inputs for operation ";
                 dumpoutop(v);
-                cout << ", F = " << F;
+                PIPE[me()]._out << ", F = " << F;
                 switch(operations::mappers[F]->dep())
                 {
                     case CDC8600::pipes::k_dep  :
-                        cout << ", k = " << kreg << " (" << PROC[me()].Pfull[kreg] << ")";
+                        PIPE[me()]._out << ", k = " << kreg << " (" << PROC[me()].Pfull[kreg] << ")";
                         break;
                     case CDC8600::pipes::j_dep  :
-                        cout << ", j = " << jreg << " (" << PROC[me()].Pfull[jreg] << ")";
+                        PIPE[me()]._out << ", j = " << jreg << " (" << PROC[me()].Pfull[jreg] << ")";
                         break;
                     case CDC8600::pipes::jk_dep :
-                        cout << ", j = " << jreg << " (" << PROC[me()].Pfull[jreg] << ")";
-                        cout << ", k = " << kreg << " (" << PROC[me()].Pfull[kreg] << ")";
+                        PIPE[me()]._out << ", j = " << jreg << " (" << PROC[me()].Pfull[jreg] << ")";
+                        PIPE[me()]._out << ", k = " << kreg << " (" << PROC[me()].Pfull[kreg] << ")";
                         break;
                     case CDC8600::pipes::no_dep :
                         break;
                     default                     : assert(false);                                            // should not happen
                 }
-                cout << endl;
+                PIPE[me()]._out << endl;
             }
             switch(operations::mappers[F]->dep())
             {
@@ -1130,9 +1130,12 @@ namespace CDC8600
         {
             if (rxdone)
             {
-                // cout << "IQ[" << _ix << "] receiving operation ";
-                // dumpoutop(in);
-                // cout << endl;
+		if (debugging)
+		{
+		    PIPE[me()]._out << "IQ[" << _ix << "] receiving operation ";
+		    dumpoutop(in);
+		    PIPE[me()]._out << endl;
+		}
                 if (pipes::F(in)) opsq.push_back(in);                   // push input into issue queue
                 rxdone = false; rxready = true;                         // ready to receive more
             }
@@ -1212,7 +1215,10 @@ namespace CDC8600
 
                             default : assert(false);    // this should not happen
                         }
-                        // cout << "Selecting operation " << pipes::op(out) << " from position " << i << " in issue queue" << endl;
+			if (debugging)
+			{
+			    PIPE[me()]._out << "Selecting operation " << pipes::op(out) << " from position " << i << " in issue queue" << endl;
+			}
                     }
                 }
                 txready = true; txdone = false;
@@ -1223,9 +1229,12 @@ namespace CDC8600
                 txready = true; txdone = false;
             }
 
-            // cout << "IQ[" << _ix << "] issuing operation ";
-            // dumpoutop(out);
-            // cout << endl;
+	    if (debugging)
+	    {
+		PIPE[me()]._out << "IQ[" << _ix << "] issuing operation ";
+		dumpoutop(out);
+		PIPE[me()]._out << endl;
+	    }
         }
 
         void OIstage::tick()    
@@ -1238,9 +1247,9 @@ namespace CDC8600
                   PROC[me()].ops_issued += 1;
                   if (debugging)
                   {
-                      cout << "OI[" << _ix << "] : issuing operation ";
+                      PIPE[me()]._out << "OI[" << _ix << "] : issuing operation ";
                       dumpoutop(in);
-                      cout << endl;
+                      PIPE[me()]._out << endl;
                   }
               }
               switch(operations::mappers[pipes::F(in)]->pipe())
@@ -1330,9 +1339,12 @@ namespace CDC8600
                     default : assert(false);    // this should not happen
                 }
                    
-                // cout << "FX[" << _ix << "] receiving operation ";
-                // dumpoutop(in);
-                // cout << endl;
+		if (debugging)
+		{
+		    PIPE[me()]._out << "FX[" << _ix << "] receiving operation ";
+		    dumpoutop(in);
+		    PIPE[me()]._out << endl;
+		}
                 copy(96, in, 0, RF.in, 0);   RF.rxdone = true;
 
                 rxdone = false; rxready = true;
@@ -1447,7 +1459,6 @@ namespace CDC8600
                         PROC[me()].Pfull[iregarith] = true;     // target register is now full
                 else if (Flogical)
                         PROC[me()].Pfull[ireglogical] = true;   // target register is now full
-                // cout << "Physical register " << ireg << " is now full" << endl;
             }
         }
 
@@ -1468,7 +1479,10 @@ namespace CDC8600
                 if (F)
                 {
                     PROC[me()].Pfull[ireg] = true;      // target register is now full
-                    // cout << "Physical register " << ireg << " is now full" << endl;
+                    if (debugging)
+		    {
+			PIPE[me()]._out << "Physical register " << ireg << " is now full" << endl;
+		    }
                 }
             }
         }
@@ -1481,7 +1495,10 @@ namespace CDC8600
                 {
                     opsq.push_back(in);
                     waitq.push_back(params::MEM::latency);
-                    cout << "Operation "; dumpoutop(in); cout << " going into the load miss queue" << endl;
+                    if (debugging)
+		    {
+			PIPE[me()]._out << "Operation "; dumpoutop(in); cout << " going into the load miss queue" << endl;
+		    }
                 }
                 rxdone = false; rxready = true;
             }
@@ -1501,7 +1518,10 @@ namespace CDC8600
                         copy(96, opsq[i], 0, out, 0);
                         opsq.erase(opsq.begin()+i);
                         waitq.erase(waitq.begin()+i);
-                        cout << "Operation "; dumpoutop(out); cout << " leaving the load miss queue" << endl;
+			if (debugging)
+			{
+			    PIPE[me()]._out << "Operation "; dumpoutop(out); cout << " leaving the load miss queue" << endl;
+			}
                         break;
                     }
                 }
@@ -1585,9 +1605,9 @@ namespace CDC8600
                copy(96, opsq[0], 0, out, 0);
                if (debugging)
                {
-                   cout << "CQ[" << _ix << "] : completing operation ";
+                   PIPE[me()]._out << "CQ[" << _ix << "] : completing operation ";
                    dumpoutop(out);
-                   cout << endl;
+                   PIPE[me()]._out << endl;
                }
                opsq.erase(opsq.begin());
                PROC[me()].ops_completed += 1;
@@ -1615,9 +1635,9 @@ namespace CDC8600
                         opsq.push_back(v[j]);
                         if (debugging)
                         {
-                            cout << "CO stage receiving operation ";
+                            PIPE[me()]._out << "CO stage receiving operation ";
                             dumpoutop(v[j]);
-                            cout << endl;
+                            PIPE[me()]._out << endl;
                         }
                     }
                 }
@@ -1641,9 +1661,9 @@ namespace CDC8600
                         {
                             if (debugging)
                             {
-                                cout << "Commiting operation ";
+                                PIPE[me()]._out << "Commiting operation ";
                                 dumpoutop(opsq[j]);
-                                cout << ", recycling physical register " << i << endl;
+                                PIPE[me()]._out << ", recycling physical register " << i << endl;
                             }
                             PROC[me()].pfree.insert(i);                         // return register to free list
                             PROC[me()].precycle.erase(i);                       // register has been recycled
@@ -1720,11 +1740,6 @@ namespace CDC8600
 
         bool IQstage::busy()
         {
-            // cout << "IQ[" << _ix << "] : " << opsq.size() << " entries, head = ";
-            // if (opsq.size()) dumpoutop(opsq[0]);
-            // else cout << "<nil>";
-            // cout << endl;
-            // return false;
             return opsq.size();
         }
 
@@ -2117,7 +2132,7 @@ namespace CDC8600
                 acc = (acc << 1) | ((u08)v[i] & 0x1);
                 if (0 == (i % 8))
                 {
-                    cout << setfill('0') << setw(2) << hex << acc << dec << setfill(' ');
+                    PIPE[me()]._out << setfill('0') << setw(2) << hex << acc << dec << setfill(' ');
                     acc = 0;
                 }
             }
@@ -2142,74 +2157,74 @@ namespace CDC8600
         {
             assert(96 == out.size());
             dump(out, 80,16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 64,16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 56, 8);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 44,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 32,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 20,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,  0,20);
         }
 
         void RMstage::dumpout()
         {
             dump(out,176,16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,160,16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,152, 8);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,140,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,128,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,116,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 96,20);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 80,16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 64,16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 56, 8);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 44,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 32,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 20,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,  0,20);
         }
 
         void IFstage::dumpout()
         {
             dump(out, 80, 16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 48, 32);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 32, 16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,  0, 32);
         }
 
         void ICstage::dumpout()
         {
             dump(out, 64, 16);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 56, 8);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 44,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 32,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out, 20,12);
-            cout << ".";
+            PIPE[me()]._out << ".";
             dump(out,  0,20);
         }
 
@@ -2249,7 +2264,15 @@ namespace CDC8600
             const char* filename
         )
         {
-            IF.init(filename);
+	    _inputname  = filename; _inputname  += ".tr";
+	    _outputname = filename; _outputname += ".pipe";
+
+#ifdef _OPENMP
+	    _inputname  += to_string(me());
+	    _outputname += to_string(me());
+#endif
+
+            IF.init(_inputname);
             IC[0].init(); IC[1].init();
             RM.init();
             OD[0].init(0); OD[1].init(1);
@@ -2262,11 +2285,13 @@ namespace CDC8600
             BR[0].init(0); BR[1].init(1);
             CQ[0].init(0); CQ[1].init(1);
             CO.init();
+
+	    _out.open(_outputname);
         }
 
         void pipe::dumpheader()
         {
-            cout << "   cycle | "
+            _out << "   cycle | "
                  << "                         IF | "
                  << "                        IC[0] | "
                  << "                        IC[1] | "
@@ -2285,7 +2310,7 @@ namespace CDC8600
                  << "                             CQ[1]"
                  << endl;
 
-            cout << "         | "
+            _out << "         | "
                  << "  fg      hw1   fg      hw0 | "
                  << "  fg  F    i    j    k      K | "
                  << "  fg  F    i    j    k      K | "
@@ -2304,7 +2329,7 @@ namespace CDC8600
                  << "  fg   op  F    i    j    k      K"
                  << endl;
 
-            cout << "---------+-"
+            _out << "---------+-"
                  << "----------------------------+-"
                  << "------------------------------+-"
                  << "------------------------------+-"
@@ -2329,25 +2354,30 @@ namespace CDC8600
             u32 cycle
         )
         {
-            cout << setw(8) << cycle << " | ";
-            IF.dumpout();    cout << " | ";
-            IC[0].dumpout(); cout << " | ";
-            IC[1].dumpout(); cout << " | ";
-            RM.dumpout();    cout << " | ";
-            BR[0].dumpout(); cout << " | ";
-            FX[0].dumpout(); cout << " | ";
-            ST[0].dumpout(); cout << " | ";
-            LD[0].dumpout(); cout << " | ";
-            FP[0].dumpout(); cout << " | ";
-            CQ[0].dumpout(); cout << " | ";
-            BR[1].dumpout(); cout << " | ";
-            FX[1].dumpout(); cout << " | ";
-            ST[1].dumpout(); cout << " | ";
-            LD[1].dumpout(); cout << " | ";
-            FP[1].dumpout(); cout << " | ";
+            _out << setw(8) << cycle << " | ";
+            IF.dumpout();    _out << " | ";
+            IC[0].dumpout(); _out << " | ";
+            IC[1].dumpout(); _out << " | ";
+            RM.dumpout();    _out << " | ";
+            BR[0].dumpout(); _out << " | ";
+            FX[0].dumpout(); _out << " | ";
+            ST[0].dumpout(); _out << " | ";
+            LD[0].dumpout(); _out << " | ";
+            FP[0].dumpout(); _out << " | ";
+            CQ[0].dumpout(); _out << " | ";
+            BR[1].dumpout(); _out << " | ";
+            FX[1].dumpout(); _out << " | ";
+            ST[1].dumpout(); _out << " | ";
+            LD[1].dumpout(); _out << " | ";
+            FP[1].dumpout(); _out << " | ";
             CQ[1].dumpout();
-            cout << endl;
+            _out << endl;
         }
+
+	void pipe::fini()
+	{
+	    _out.close();
+	}
 
         void run
         (
@@ -2364,8 +2394,10 @@ namespace CDC8600
                 PIPE[me()].transfer();
                 PIPE[me()].dumpout(cycle);
                 PROC[me()].cycle_count = cycle + 1;
-                if (debugging) { cout << "cycle " << setw(9) << cycle << " : (# of instr = " << PROC[me()].instr_count << ")" << endl; }
+                if (debugging) { PIPE[me()]._out << "cycle " << setw(9) << cycle << " : (# of instr = " << PROC[me()].instr_count << ")" << endl; }
             }
+
+	    PIPE[me()].fini();
         }
 
         namespace pipes
