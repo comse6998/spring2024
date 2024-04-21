@@ -1121,33 +1121,33 @@ namespace CDC8600
                 void reset();
         };
 
-	class pipe
-	{
-	    public:
-		IFstage IF;
-		ICstage IC[2];
-		RMstage RM;
-		ODstage OD[2];
-		IQstage IQ[2];
-		OIstage OI[2];
-		BRstage BR[2];
-		FXstage FX[2];
-		FPstage FP[2];
-		LDstage LD[2];
-		STstage ST[2];
-		CQstage CQ[2];
-		COstage CO;
+        class pipe
+        {
+            public:
+                IFstage IF;
+                ICstage IC[2];
+                RMstage RM;
+                ODstage OD[2];
+                IQstage IQ[2];
+                OIstage OI[2];
+                BRstage BR[2];
+                FXstage FX[2];
+                FPstage FP[2];
+                LDstage LD[2];
+                STstage ST[2];
+                CQstage CQ[2];
+                COstage CO;
 
-		void reset();
-		void tick();
-		bool busy();
-		void transfer();
-		void init(const char*);
-		void dumpheader();
-		void dumpout(u32);
-	};
+                void reset();
+                void tick();
+                bool busy();
+                void transfer();
+                void init(const char*);
+                void dumpheader();
+                void dumpout(u32);
+        };
 
-	extern vector<pipe> PIPE;
+        extern vector<pipe> PIPE;
 
         void run(const char* filename, u32 maxcycles);
 

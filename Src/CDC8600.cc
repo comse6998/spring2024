@@ -1150,55 +1150,55 @@ namespace CDC8600
                         {
                             case CDC8600::pipes::FXArith:       if((PIPE[me()].FX[_ix].pipe_traffic & 0x10) == 0)
                                                                 {
-                                                                        copy(96, opsq[i], 0, out, 0);       	// copy operation i to output
-                                                                        opsq.erase(opsq.begin() + i);        	// dequeue operation i
-                                                                        PIPE[me()].FX[_ix].pipe_traffic += 0x10;   	// update scoreboard
-                                                                        hasissue = true;                     	// has something to issue
+                                                                        copy(96, opsq[i], 0, out, 0);                   // copy operation i to output
+                                                                        opsq.erase(opsq.begin() + i);                   // dequeue operation i
+                                                                        PIPE[me()].FX[_ix].pipe_traffic += 0x10;        // update scoreboard
+                                                                        hasissue = true;                                // has something to issue
                                                                 } 
                                                                 break;
 
                             case CDC8600::pipes::FXMul:         if((PIPE[me()].FX[_ix].pipe_traffic & 0x01) == 0)
                                                                 {
-                                                                        copy(96, opsq[i], 0, out, 0);   	// copy operation i to output
-                                                                        opsq.erase(opsq.begin() + i);   	// dequeue operation i
-                                                                        PIPE[me()].FX[_ix].pipe_traffic += 0x01;	// update scoreboard
-                                                                        hasissue = true;                	// has something to issue
+                                                                        copy(96, opsq[i], 0, out, 0);                   // copy operation i to output
+                                                                        opsq.erase(opsq.begin() + i);                   // dequeue operation i
+                                                                        PIPE[me()].FX[_ix].pipe_traffic += 0x01;        // update scoreboard
+                                                                        hasissue = true;                                // has something to issue
                                                                 } 
                                                                 break;
 
                             case CDC8600::pipes::FXLogic:       if((PIPE[me()].FX[_ix].pipe_traffic & 0x40) == 0)
                                                                 {
-                                                                        copy(96, opsq[i], 0, out, 0);   	// copy operation i to output
-                                                                        opsq.erase(opsq.begin() + i);   	// dequeue operation i
-                                                                        PIPE[me()].FX[_ix].pipe_traffic += 0x40;	// update scoreboard
-                                                                        hasissue = true;                	// has something to issue
+                                                                        copy(96, opsq[i], 0, out, 0);                   // copy operation i to output
+                                                                        opsq.erase(opsq.begin() + i);                   // dequeue operation i
+                                                                        PIPE[me()].FX[_ix].pipe_traffic += 0x40;        // update scoreboard
+                                                                        hasissue = true;                                // has something to issue
                                                                 }
                                                                 break;
 
                             case CDC8600::pipes::FPMul:         if((PIPE[me()].FP[_ix].pipe_traffic & 0x01) == 0)
                                                                 {
-                                                                        copy(96, opsq[i], 0, out, 0);   	// copy operation i to output
-                                                                        opsq.erase(opsq.begin() + i);  		// dequeue operation i
-                                                                        PIPE[me()].FP[_ix].pipe_traffic += 0x01;	// update scoreboard
-                                                                        hasissue = true;                	// has something to issue
+                                                                        copy(96, opsq[i], 0, out, 0);                   // copy operation i to output
+                                                                        opsq.erase(opsq.begin() + i);                   // dequeue operation i
+                                                                        PIPE[me()].FP[_ix].pipe_traffic += 0x01;        // update scoreboard
+                                                                        hasissue = true;                                // has something to issue
                                                                 }
                                                                 break;
 
                             case CDC8600::pipes::FPAdd:         if((PIPE[me()].FP[_ix].pipe_traffic & 0x10) == 0)
                                                                 {
-                                                                        copy(96, opsq[i], 0, out, 0);   // copy operation i to output
-                                                                        opsq.erase(opsq.begin() + i);   // dequeue operation i
-                                                                        PIPE[me()].FP[_ix].pipe_traffic += 0x10;
-                                                                        hasissue = true;                // has something to issue
+                                                                        copy(96, opsq[i], 0, out, 0);                   // copy operation i to output
+                                                                        opsq.erase(opsq.begin() + i);                   // dequeue operation i
+                                                                        PIPE[me()].FP[_ix].pipe_traffic += 0x10;        // upsate scoreboard
+                                                                        hasissue = true;                                // has something to issue
                                                                 }
                                                                 break;
 
                             case CDC8600::pipes::FPDiv:         if((PIPE[me()].FP[_ix].pipe_traffic & 0x80) == 0)
                                                                 {
-                                                                        copy(96, opsq[i], 0, out, 0);   // copy operation i to output
-                                                                        opsq.erase(opsq.begin() + i);   // dequeue operation i
-                                                                        PIPE[me()].FP[_ix].pipe_traffic += 0x80;
-                                                                        hasissue = true;                // has something to issue
+                                                                        copy(96, opsq[i], 0, out, 0);                   // copy operation i to output
+                                                                        opsq.erase(opsq.begin() + i);                   // dequeue operation i
+                                                                        PIPE[me()].FP[_ix].pipe_traffic += 0x80;        // update scoreboard
+                                                                        hasissue = true;                                // has something to issue
                                                                 }
                                                                 break;
 
@@ -2076,7 +2076,7 @@ namespace CDC8600
 
         void pipe::transfer()
         {
-	    pipeline::transfer(96, CQ[0],  0, CO   ,  0);
+            pipeline::transfer(96, CQ[0],  0, CO   ,  0);
             pipeline::transfer(96, CQ[1],  0, CO   , 96);
             for (u32 i = 0; i < 2; i++)
             {
@@ -2244,11 +2244,11 @@ namespace CDC8600
             dumpoutop(out);
         }
 
-	void pipe::init
-	(
-	    const char* filename
-	)
-	{
+        void pipe::init
+        (
+            const char* filename
+        )
+        {
             IF.init(filename);
             IC[0].init(); IC[1].init();
             RM.init();
@@ -2262,10 +2262,10 @@ namespace CDC8600
             BR[0].init(0); BR[1].init(1);
             CQ[0].init(0); CQ[1].init(1);
             CO.init();
-	}
+        }
 
-	void pipe::dumpheader()
-	{
+        void pipe::dumpheader()
+        {
             cout << "   cycle | "
                  << "                         IF | "
                  << "                        IC[0] | "
@@ -2322,32 +2322,32 @@ namespace CDC8600
                  << "-----------------------------------+-"
                  << "----------------------------------"
                  << endl;
-	}
+        }
 
-	void pipe::dumpout
-	(
-	    u32 cycle
-	)
-	{
-	    cout << setw(8) << cycle << " | ";
-	    IF.dumpout();    cout << " | ";
-	    IC[0].dumpout(); cout << " | ";
-	    IC[1].dumpout(); cout << " | ";
-	    RM.dumpout();    cout << " | ";
-	    BR[0].dumpout(); cout << " | ";
-	    FX[0].dumpout(); cout << " | ";
-	    ST[0].dumpout(); cout << " | ";
-	    LD[0].dumpout(); cout << " | ";
-	    FP[0].dumpout(); cout << " | ";
-	    CQ[0].dumpout(); cout << " | ";
-	    BR[1].dumpout(); cout << " | ";
-	    FX[1].dumpout(); cout << " | ";
-	    ST[1].dumpout(); cout << " | ";
-	    LD[1].dumpout(); cout << " | ";
-	    FP[1].dumpout(); cout << " | ";
-	    CQ[1].dumpout();
-	    cout << endl;
-	}
+        void pipe::dumpout
+        (
+            u32 cycle
+        )
+        {
+            cout << setw(8) << cycle << " | ";
+            IF.dumpout();    cout << " | ";
+            IC[0].dumpout(); cout << " | ";
+            IC[1].dumpout(); cout << " | ";
+            RM.dumpout();    cout << " | ";
+            BR[0].dumpout(); cout << " | ";
+            FX[0].dumpout(); cout << " | ";
+            ST[0].dumpout(); cout << " | ";
+            LD[0].dumpout(); cout << " | ";
+            FP[0].dumpout(); cout << " | ";
+            CQ[0].dumpout(); cout << " | ";
+            BR[1].dumpout(); cout << " | ";
+            FX[1].dumpout(); cout << " | ";
+            ST[1].dumpout(); cout << " | ";
+            LD[1].dumpout(); cout << " | ";
+            FP[1].dumpout(); cout << " | ";
+            CQ[1].dumpout();
+            cout << endl;
+        }
 
         void run
         (
@@ -2355,14 +2355,14 @@ namespace CDC8600
             u32         maxcycles
         )
         {
-	    PIPE[me()].init(filename);
-	    PIPE[me()].dumpheader();
+            PIPE[me()].init(filename);
+            PIPE[me()].dumpheader();
 
             for (u32 cycle = 0; PIPE[me()].busy() && (cycle < maxcycles); cycle++)
             {
                 PIPE[me()].tick();
                 PIPE[me()].transfer();
-		PIPE[me()].dumpout(cycle);
+                PIPE[me()].dumpout(cycle);
                 PROC[me()].cycle_count = cycle + 1;
                 if (debugging) { cout << "cycle " << setw(9) << cycle << " : (# of instr = " << PROC[me()].instr_count << ")" << endl; }
             }
