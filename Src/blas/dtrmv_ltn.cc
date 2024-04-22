@@ -20,7 +20,7 @@ namespace CDC8600
             f64 *Y = (f64*)CDC8600::memalloc(n);
             i64 incy = incx;
         #pragma omp parallel // make the following work in parallel
-        {
+        {   
             if (nump() > 1){
                 incy = incx/abs(incx);
                 dcopy(n / nump() + (me() < n % nump() ? 1 : 0), 
@@ -49,7 +49,7 @@ namespace CDC8600
 
         }
 
-        CDC8600::memfree(Y, n);
+        //CDC8600::memfree(Y, n);
         }
     
     
