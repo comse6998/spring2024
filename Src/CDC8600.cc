@@ -2390,14 +2390,21 @@ namespace CDC8600
                 PIPE[me()].init(testcase);
                 PIPE[me()].dumpheader();
 
-                for (u32 cycle = 0; PIPE[me()].busy() && (cycle < maxcycles); cycle++)
+		u32 cycle;
+                for (cycle = 0; PIPE[me()].busy() && (cycle < maxcycles); cycle++)
                 {
+                    #pragma omp barrier
                     PIPE[me()].tick();
                     PIPE[me()].transfer();
                     PIPE[me()].dumpout(cycle);
                     PROC[me()].cycle_count = cycle + 1;
                     if (debugging) { PIPE[me()]._out << "cycle " << setw(9) << cycle << " : (# of instr = " << PROC[me()].instr_count << ")" << endl; }
                 }
+
+		for (; cycle < maxcycles; cycle++)
+		{
+                    #pragma omp barrier
+		}
 
                 PIPE[me()]._out << testcase;
                 PIPE[me()]._out << " (# of architected instr = " << setw(9) << PROC[me()].instr_count;

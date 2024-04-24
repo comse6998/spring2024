@@ -31,6 +31,9 @@ decode:	decode.cc
 run:	run.cc ${SRC_DEPS}
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< -o $@
 
+runomp:	run.cc ${SRC_DEPS}
+	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} $< -o $@
+
 # Rule for building BLAS test cases
 %::	%.cc ../Src/blas/%.cc ../Include/blas/%.hh blasref
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< ../Src/blas/$< ../Blas/*.o ${FLIBS} -lgfortran -o $@
@@ -79,7 +82,7 @@ dgemv_nd:	dgemv_nd.cc ../Src/blas/dgemv_nd.cc ../Src/blas/ddot.cc ../Src/blas/ds
 
 clean:
 	/bin/rm -rf decode
-	/bin/rm -rf run
+	/bin/rm -rf run runomp
 	/bin/rm -rf ${TESTS}
 	/bin/rm -rf *.tr
 	/bin/rm -rf *.tr.?
