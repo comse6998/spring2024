@@ -54,14 +54,9 @@ void test_dger(int count, bool traceon, i32 n, i32 m, i32 incx, i32 incy, f64 al
     cout << ", n = " << setw(3) << n;
     cout << ", incx = " << setw(3) << incx;
     cout << ", incy = " << setw(3) << incy;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
-    cout << ", # of instr = " << setw(9) << PROC[1].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[1].op_maxcycle;
-    cout << ", # of instr = " << setw(9) << PROC[2].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[2].op_maxcycle;
-    cout << ", # of instr = " << setw(9) << PROC[3].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[3].op_maxcycle;
+    cout << ", # of instr  = ("; cout << setw(9) << PROC[0].instr_count; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].instr_count; cout << ")";
+    cout << ", # of ops    = ("; cout << setw(9) << PROC[0].op_count   ; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_count   ; cout << ")";
+    cout << ", # of cycles = ("; cout << setw(9) << PROC[0].op_maxcycle; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_maxcycle; cout << ")";
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
