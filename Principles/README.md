@@ -43,6 +43,22 @@ For the time being, we are going to assign specific use to the first 8 frames.
 | $`6`$   | $`[192,224)`$ | User context for processor 2       |
 | $`7`$   | $`[224,256)`$ | User context for processor 3       |
 
+### The user code page
+
+Code from different source files must be placed in different addresses of the code page.
+We partition the 8 KiW page 2 into 8 section of 1 KiW, each one dedicated to code from a different source file.
+
+| Addresses          | Purpose                            |
+|--------------------|------------------------------------|
+| $`[16384, 17408)`$ | Code from source file 0            |
+| $`[17408, 18432)`$ | Code from source file 1            |
+| $`[18432, 19456)`$ | Code from source file 2            |
+| $`[19456, 20480)`$ | Code from source file 3            |
+| $`[20480, 21504)`$ | Code from source file 4            |
+| $`[21504, 22528)`$ | Code from source file 5            |
+| $`[22528, 23552)`$ | Code from source file 6            |
+| $`[23552, 24576)`$ | Code from source file 7            |
+
 ## Application binary interface
 
 An *application binary interface* is a set of conventions that supports multiple machine language routines to interoperate with each other.
