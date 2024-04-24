@@ -16,7 +16,7 @@ OMPFLAGS	= -Xpreprocessor -fopenmp -L/opt/homebrew/Cellar/libomp/17.0.6/lib -lom
 else
 FLIBS =
 OMPFLAGS	= -fopenmp
-CCFLAGS		= -Wall -g -O0 -I../Include
+CCFLAGS		= -Wall -Wno-unknown-pragmas -g -O0 -I../Include
 endif
 
 
