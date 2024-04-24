@@ -11,26 +11,17 @@ extern "C" int32_t drot_(int32_t *, double *, int32_t *, double *, int32_t *, do
 
 const int N = 25;
 
-void test_drot(int count)
+void test_drot(int count, bool traceon, i32 n, i32 incx, i32 incy)
 {
     reset();
 
-    int32_t n = rand() % 256;
-    if(count == 0)
-        n = 0; // Test for optimization when n = 0
-    int32_t incx = (rand() % 16) - 8;
-    int32_t incy = (rand() % 16) - 8;
-    if (count >= 20){ // Test for optimization when incx = 1 and incy = 1
-        incx = 1;
-        incy = 1;
-    }
     f64 angle = drand48() * (2 * M_PI);
     f64 c = cos(angle); // cos
     f64 s = sin(angle); // sin
     int32_t nx = 1 + n * abs(incx); // not n * abs(incx)
     int32_t ny = 1 + n * abs(incy); // not n * abs(incy)
 
-    tracing = false; if (n < 10) tracing = true;
+    tracing = traceon;
 
     f64 *x = (f64*)CDC8600::memalloc(nx);
     f64 *y = (f64*)CDC8600::memalloc(ny);
@@ -65,6 +56,11 @@ void test_drot(int count)
     CDC8600::memfree(y, ny);
     CDC8600::memfree(x, nx);
 
+    if (tracing) {
+        dump(PROC[0].trace);
+        dump(PROC[0].trace, "drot.tr");
+    }
+
     cout << "drot [" << setw(2)<< count << "] ";
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
@@ -78,17 +74,27 @@ void test_drot(int count)
     else
         cout << "FAIL" << std::endl;
     
-    if (n < 10) {
-        dump(PROC[0].trace);
-        dump(PROC[0].trace, "drot.tr");
-    }
+
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    for (int i = 0; i < N; i++)
-    {
-        test_drot(i);
+    if (argc == 1) {
+        for (int i = 0; i < N; i++)
+        {
+            i32 n = rand() % 256;
+            i32 incx = (rand() % 16) - 8;
+            i32 incy = (rand() % 16) - 8;
+            test_drot(i, false, n, incx, incy);
+        }
+    } else if (argc == 4) {
+        i32 n = atoi(argv[1]);
+        i32 incx = atoi(argv[2]);
+        i32 incy = atoi(argv[3]);
+        test_drot(0, true, n, incx, incy);
+    } else {
+        cerr << "Usage : " << argv[0] << " [n incx incy]" << endl;
+        return -1;
     }
     return 0;
 }
