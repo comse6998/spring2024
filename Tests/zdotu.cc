@@ -13,23 +13,20 @@ extern "C" c128 zdotu_(i32*, c128*, i32*, c128*, i32*);
 const int N = 20;
 const double epsilon = 1e-9;
 
-void test_zdotu(int count)
+void test_zdotu(int count, bool traceon, i32 n, i32 incx, i32 incy)
 {
     reset();
 
-    i32 n = rand() % 256;
-    i32 incx = (rand() % 16) - 8;
-    i32 incy = (rand() % 16) - 8;
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
 
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
     c128 *y = (c128*)CDC8600::memalloc(ny*2);
 
-    for (int i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
-    for (int i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
+    for (u32 i = 0; i < nx; i++) { x[i] = c128(drand48(), drand48()); }
+    for (u32 i = 0; i < ny; i++) { y[i] = c128(drand48(), drand48()); }
 
-    tracing = false; if (n < 10) tracing = true;
+    tracing = false;
 
     c128 res_ref = zdotu_(&n, x, &incx, y, &incy);
     c128 res_new = CDC8600::BLAS::zdotu(n, x, incx, y, incy);
@@ -65,15 +62,32 @@ void test_zdotu(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(PROC[0].trace, "zdotu.tr");
+    if (traceon) dump(PROC[0].trace, "zdotu.tr");
 }
     
 
-int main()
+int main(int argc, char **argv)
 {
-    for (int i = 0; i < N; i++)
+    if (argc == 1)
     {
-        test_zdotu(i);
+        for (u32 i = 0; i < N; i++)
+        {
+            i32 n = rand() % 256;
+            i32 incx = (rand() % 16) - 8;
+            i32 incy = (rand() % 16) - 8;
+            test_zdotu(i, false, n, incx, incy);
+        }
     }
-    return 0;
+    else if (argc == 4)
+    {
+        i32 n = atoi(argv[1]);
+        i32 incx = atoi(argv[2]);
+        i32 incy = atoi(argv[3]);
+        test_zdotu(0, true, n, incx, incy);
+    }
+    else
+    {
+        cerr << "Usage : " << argv[0] << " [n incx incy]" << endl;
+        exit(1);
+    }
 }
