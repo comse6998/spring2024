@@ -12,15 +12,11 @@ extern "C" int32_t dscal_(int32_t *, double *, double *, int32_t *);
 
 const int N = 20;
 
-void test_dscal(int count)
+void test_dscal(int count, bool traceon, i32 n, f64 a, i32 incx)
 {
     reset();
-
-    int32_t n = rand() % 128;
-    int32_t incx = (rand() % 8) - 4;
-    double a = drand48();
     
-    tracing = false; 
+    tracing = traceon; 
     if (n < 40) tracing = true;
 
     f64 *x = (f64*)CDC8600::memalloc(n*abs(incx)); //Fortran input variable
@@ -58,15 +54,36 @@ void test_dscal(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 20) dump(PROC[0].trace);
-    if (n < 20) dump(PROC[0].trace, "dscal.tr");
+    // if (traceon) dump(PROC[0].trace);
+    if (traceon) dump(PROC[0].trace, "dscal.tr");
 }
 
-int main()
+int main(
+int		argc,
+char	**argv
+)
 {
-    for (int i = 0; i < N; i++)
+    if (1 == argc)
     {
-        test_dscal(i);
+        for (int i = 0; i < N; i++)
+        {
+            i32 n = rand() % 256;
+            f64 a = drand48();
+            i32 incx = (rand() % 16) - 8;
+            test_dscal(i, false, n, a, incx);
+        }
+    }
+    else if (4 == argc)
+    {
+        i32 n = atoi(argv[1]);
+        f64 a = atoi(argv[2]);
+        i32 incx = atoi(argv[3]);
+        test_dscal(0, true, n, a, incx);
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [n a incx]" << endl;
+	return -1;
     }
     return 0;
 }

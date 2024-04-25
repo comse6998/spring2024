@@ -13,18 +13,13 @@ extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *)
 const int N = 20;
 const double EPSILON = 1e-9;
 
-void test_dtrmv_utn(int count)
+void test_dtrmv_utn(int count, bool traceon,i32 n, i32 lda, i32 incx)
 {
     reset();
-
-    i32 n = rand() % 256;
-    i32 lda = n + rand() % 256;
-    i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
-
     char uplo = 'U', trans = 'T', diag = 'N';
 
-    tracing = false;
-
+    tracing = traceon;
+    if (n < 10) tracing = true;
     f64 *A = (f64*)CDC8600::memalloc(n*lda);
     f64 *X = (f64*)CDC8600::memalloc(n*abs(incx));    // Input matrix
     f64 *Y = new f64[n*abs(incx)];                    // Reference matrix
@@ -60,12 +55,8 @@ void test_dtrmv_utn(int count)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) 
+    if (traceon) 
     {
-        dump(PROC[0].trace);
-        dump(PROC[1].trace);
-        dump(PROC[2].trace);
-        dump(PROC[3].trace);
         dump(PROC[0].trace, "dtrmv_utn.tr.0");
         dump(PROC[1].trace, "dtrmv_utn.tr.1");
         dump(PROC[2].trace, "dtrmv_utn.tr.2");
@@ -73,11 +64,32 @@ void test_dtrmv_utn(int count)
     }
 }
 
-int main()
+int main(
+int		argc,
+char	**argv)
 {
-    for (int i = 0; i < N; i++)
+    if (argc == 1)
     {
-        test_dtrmv_utn(i);
+        for (int i = 0; i < N; i++)
+        {
+            i32 n = rand() % 256;
+            i32 lda = n + rand() % 256;
+            i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
+            test_dtrmv_utn(i, false, n, lda, incx);
+        }
+    }
+    else if(argc == 4)
+    {
+    	i32 n = atoi(argv[1]);
+        i32 lda = atoi(argv[2]);
+    	i32 incx = atoi(argv[3]);
+        test_dtrmv_utn(0, true, n, lda, incx);
+
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [n lda incx]" << endl;
+	return -1;        
     }
     return 0;
 }
