@@ -111,7 +111,7 @@ int main(int argc, char **argv)
         test_dtrmv_ltu(0, true, n, lda, incx);
 
     } else {
-        cerr << "Usage : " << argv[0] << " [m n lda incx incy]" << endl;
+        cerr << "Usage : " << argv[0] << "[n lda incx]" << endl;
 	    exit(1);
     }
     return 0;
