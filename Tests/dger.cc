@@ -94,7 +94,7 @@ int main
             i32 m = atoi(argv[2]);
             i32 incx = atoi(argv[3]);
             i32 incy = atoi(argv[4]);
-            i32 alpha = atof(argv[5]);
+            f64 alpha = atof(argv[5]);
             test_dger(0, true, n, m, incx, incy, alpha);
     }
     else
