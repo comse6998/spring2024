@@ -15,7 +15,9 @@ const int N = 20;
 void test_dger(int count, bool traceon, i32 n, i32 m, i32 incx, i32 incy, f64 alpha)
 {
     reset();
+
     tracing = traceon;
+
     if (incx == 0) incx = 1;
     if (incy == 0) incy = 1;
     f64 *x = (f64*)CDC8600::memalloc( m * abs( incx ));
@@ -28,14 +30,9 @@ void test_dger(int count, bool traceon, i32 n, i32 m, i32 incx, i32 incy, f64 al
     f64 *A = new f64[n*lda];
     for (int i = 0; i < n*lda; i++) { A[i] = a[i]; }
 
-
-    
-
     // Call the dger function
     CDC8600::BLAS::dger(m, n, alpha, x, incx, y, incy, a, lda);
-
     dger_(&m, &n, &alpha, x, &incx, y, &incy, A, &lda);
-
 
     bool pass = true;
     for (int i = 0; i < n ; ++i) 
@@ -57,59 +54,53 @@ void test_dger(int count, bool traceon, i32 n, i32 m, i32 incx, i32 incy, f64 al
     cout << ", n = " << setw(3) << n;
     cout << ", incx = " << setw(3) << incx;
     cout << ", incy = " << setw(3) << incy;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
-    cout << ", # of instr = " << setw(9) << PROC[1].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[1].op_maxcycle;
-    cout << ", # of instr = " << setw(9) << PROC[2].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[2].op_maxcycle;
-    cout << ", # of instr = " << setw(9) << PROC[3].instr_count;
-    cout << ", # of cycles = " << setw(9) << PROC[3].op_maxcycle;
+    cout << ", # of instr  = ("; cout << setw(9) << PROC[0].instr_count; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].instr_count; cout << ")";
+    cout << ", # of ops    = ("; cout << setw(9) << PROC[0].op_count   ; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_count   ; cout << ")";
+    cout << ", # of cycles = ("; cout << setw(9) << PROC[0].op_maxcycle; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_maxcycle; cout << ")";
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    //if (n < 10) dump(PROC[0].trace);
-    if (traceon) dump(PROC[0].trace, "dger.tr.1");
-    if (traceon) dump(PROC[1].trace, "dger.tr.2");
-    if (traceon) dump(PROC[2].trace, "dger.tr.3");
-    if (traceon) dump(PROC[3].trace, "dger.tr.4");
+    if (traceon) dump(PROC[0].trace, "dger.tr.0");
+    if (traceon) dump(PROC[1].trace, "dger.tr.1");
+    if (traceon) dump(PROC[2].trace, "dger.tr.2");
+    if (traceon) dump(PROC[3].trace, "dger.tr.3");
 
 }
 
 int main
 (
-    int		argc,
-    char	**argv
+    int         argc,
+    char        **argv
 )
 {
     if (1 == argc)
     {
-	for (u32 i = 0; i < N; i++)
-	{
-	    i32 m = rand() % 100;
-        i32 n = rand() % 100;
-        i32 incx = (rand() % 16 - 8) ;
-        i32 incy = (rand() % 16 - 8) ;
-        f64 alpha = 2.67;
-	    test_dger(i, false, n, m, incx, incy, alpha);
-	}
+        for (u32 i = 0; i < N; i++)
+        {
+            i32 m = rand() % 100;
+            i32 n = rand() % 100;
+            i32 incx = (rand() % 16 - 8) ;
+            i32 incy = (rand() % 16 - 8) ;
+            f64 alpha = drand48();
+            test_dger(i, false, n, m, incx, incy, alpha);
+        }
     }
     else if (6 == argc)
     {
-	    i32 n = atoi(argv[1]);
-        i32 m = atoi(argv[2]);
-	    i32 incx = atoi(argv[3]);
-	    i32 incy = atoi(argv[4]);
-        i32 alpha = atof(argv[4]);
-	    test_dger(0, true, n, m, incx, incy, alpha);
+            i32 n = atoi(argv[1]);
+            i32 m = atoi(argv[2]);
+            i32 incx = atoi(argv[3]);
+            i32 incy = atoi(argv[4]);
+            i32 alpha = atof(argv[5]);
+            test_dger(0, true, n, m, incx, incy, alpha);
     }
     else
     {
-	cerr << "Usage : " << argv[0] << " [n m incx incy alpha]" << endl;
-	return -1;
+        cerr << "Usage : " << argv[0] << " [n m incx incy alpha]" << endl;
+        return -1;
     }
     return 0;
 }
