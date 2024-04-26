@@ -68,7 +68,7 @@ void test_zdrot(int count, bool traceon, i32 n, i32 incx, i32 incy)
         cout << "FAIL" << std::endl;
 
 
-    //if (traceon) dump(PROC[0].trace);
+    if (traceon) dump(PROC[0].trace);
     if (traceon) dump(PROC[0].trace, "zdrot.tr");
 }
 
