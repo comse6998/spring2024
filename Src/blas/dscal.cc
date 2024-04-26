@@ -72,83 +72,6 @@ namespace CDC8600
                         pass()                  //                                                                                                                                                      [2]
                         pass()                  //                                                                                                                                                      [2]
                         jmpz(3, end)            // if X3 (incx) = 0 goto end                    
-                        cpkj(6, 3)              // X6 (tmp_incx) = X3 (incx)
-                        idjkj(6, 1)             // X6 (tmp_incx) = X6 (tmp_incx) - 1
-
-                        jmpnz(6, loop)          // if X6 (tmp_incx - 1) !=  0 (which means incx != 1)   goto loop
-                                                // INCX = 1 Loop
-                        cpkj(7, 0)              // X7 (tmp_n) = X0 (n)
-                        xkj(8, 7)               // X8 (seven) = 7 (111)
-
-                        lpjkj(7,8)              // X7 (tmp_n) & X8 (7)  gives the remainder of n%8 (n & 0x07)
-                        pass()                  //                                                                                                                                                      [2]
-LABEL(lt5)              pass()                  //                                                                                                                                                      [2]
-                        pass()                  //                                                                                                                                                      [2]
-                        jmpz(7, DO)             // if X7 (Remainder)  =  0      goto DO         (Eight multiplications at a time )
-                        pass()                  //                                                                                                                                                      [2]
-                        pass()                  //                                                                                                                                                      [2]
-
-                        rdjki(6, 2, 4)          // X6 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(6, 6, 1)           // x[i] = a * X1 (x[i])                 
-                        sdjki(6, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X6 (tmp)
-                        idjkj(7, 1)             // X7 (Remainder) = X7 (Remainder) - 1
-
-                        idjkj(0, 1)             // X0 (n) = X0 (n) - 1
-                        isjkj(4, 1)             // X4 (ix) = X4 (ix) + 1                        
-                        pass()                  //                                                                                                                                                      [2]
-                        pass()                  //                                                                                                                                                      [2]
-                        jmp(lt5)
-
-                                                // Perform 5 multiplications
-LABEL(DO)               pass()                  //                                                                                                                                                      [2]
-                        pass()                  //                                                                                                                                                      [2]
-                        jmpz(0, end)            // if Remainder  =  0   goto DO
-
-                         rdjki(5, 2, 4)         // X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(5, 5, 1)           // x[i] = a * X1 (x[i])
-                        sdjki(5, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
-                        isjkj(4, 1)             // X4(ix) = X4 (ix) + 1
-
-                        rdjki(5, 2, 4)          // X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(5, 5, 1)           // x[i] = a * X1 (x[i])
-                        sdjki(5, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
-                        isjkj(4, 1)             // X4(ix) = X4 (ix) + 1
-
-                        rdjki(5, 2, 4)          // X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(5, 5, 1)           // x[i] = a * X1 (x[i])
-                        sdjki(5, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
-                        isjkj(4, 1)             // X4(ix) = X4 (ix) + 1
-
-                        rdjki(5, 2, 4)          // X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(5, 5, 1)           // x[i] = a * X1 (x[i])
-                        sdjki(5, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
-                        isjkj(4, 1)             // X4(ix) = X4 (ix) + 1
-
-                        rdjki(5, 2, 4)          // X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(5, 5, 1)           // x[i] = a * X1 (x[i])
-                        sdjki(5, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
-                        isjkj(4, 1)             // X4(ix) = X4 (ix) + 1
-
-                        rdjki(5, 2, 4)          // X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(5, 5, 1)           // x[i] = a * X1 (x[i])
-                        sdjki(5, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
-                        isjkj(4, 1)             // X4(ix) = X4 (ix) + 1
-
-                        rdjki(5, 2, 4)          // X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(5, 5, 1)           // x[i] = a * X1 (x[i])
-                        sdjki(5, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
-                        isjkj(4, 1)             // X4(ix) = X4 (ix) + 1
-
-                        rdjki(5, 2, 4)          // X5 (tmp) = MEM[X2 (x) + X4 (ix)]
-                        fmul(5, 5, 1)           // x[i] = a * X1 (x[i])
-                        sdjki(5, 2, 4)          // MEM[X2 (x[i]) + X4 (ix)] = X5 (tmp)
-                        isjkj(4, 1)             // X4(ix) = X4 (ix) + 1
-
-                        idjkj(0, 8)             // X0 (n) = X0 (n) - 8
-                        pass()                  //                                                                                                                                                      [2]
-
-                        jmp(DO)
-
 LABEL(loop)             pass()                  //                                                                                                                                                      [2]
                         pass()                  //                                                                                                                                                      [2]
                         jmpz(0, end)            // if X0 (n) =  0       goto end
@@ -162,6 +85,7 @@ LABEL(loop)             pass()                  //                              
                         pass()                  //                                                                                                                                                      [2]
                         jmp(loop)
 LABEL(end)              pass()                  //                                                                                                                                                      [2]
+                        pass()                  //                                                                                                                                                      [2]
                         pass()                  //                                                                                                                                                      [2]
                         jmpk(15, 1)             // return to X15 (calling address) + 1
         }
