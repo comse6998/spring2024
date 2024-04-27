@@ -11,12 +11,12 @@ DEPS		= ${INC_DEPS} ${SRC_DEPS}
 BLAS_REF	= ../Blas
 ifneq ($(wildcard /opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/.),)
 FLIBS = -L/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/
-CCFLAGS		= -I/opt/homebrew/Cellar/libomp/17.0.6/include -g -O0 -I../Include
-OMPFLAGS	= -Xpreprocessor -fopenmp -L/opt/homebrew/Cellar/libomp/17.0.6/lib -lomp
+CCFLAGS		= -I/opt/homebrew/opt/libomp/include -g -O0 -I../Include
+OMPFLAGS	= -Xpreprocessor -fopenmp -L/opt/homebrew/opt/libomp/lib -lomp
 else
 FLIBS =
 OMPFLAGS	= -fopenmp
-CCFLAGS		= -Wall -Wno-unknown-pragmas -g -O0 -I../Include
+CCFLAGS		= -Wall -g -O0 -I../Include
 endif
 
 
@@ -30,9 +30,6 @@ decode:	decode.cc
 
 run:	run.cc ${SRC_DEPS}
 	${CCC} ${CCFLAGS} ${SRC_DEPS} $< -o $@
-
-runomp:	run.cc ${SRC_DEPS}
-	${CCC} ${CCFLAGS} ${OMPFLAGS} ${SRC_DEPS} $< -o $@
 
 # Rule for building BLAS test cases
 %::	%.cc ../Src/blas/%.cc ../Include/blas/%.hh blasref
@@ -82,7 +79,7 @@ dgemv_nd:	dgemv_nd.cc ../Src/blas/dgemv_nd.cc ../Src/blas/ddot.cc ../Src/blas/ds
 
 clean:
 	/bin/rm -rf decode
-	/bin/rm -rf run runomp
+	/bin/rm -rf run
 	/bin/rm -rf ${TESTS}
 	/bin/rm -rf *.tr
 	/bin/rm -rf *.tr.?
