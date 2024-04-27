@@ -13,16 +13,12 @@ extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *)
 const int N = 20;
 const double EPSILON = 1e-9;
 
-void test_dtrmv_unn(int count)
+void test_dtrmv_unn(int count, bool traceon, i32 n, i32 lda, i32 incx)
 {
     reset();
 
-    i32 n = rand() % 256;
-    i32 lda = n + rand() % 256;
-    i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
+    if (incx == 0) incx = 1;
     char uplo = 'U', trans = 'N', diag = 'N';
-
-    tracing = false;
 
     f64 *A = (f64*)CDC8600::memalloc(n*lda);
     f64 *X = (f64*)CDC8600::memalloc(n*abs(incx));    // Input matrix
@@ -51,17 +47,16 @@ void test_dtrmv_unn(int count)
     cout << "(lda = " << setw(3) << lda;
     cout << ", n = " << setw(3) << n;
     cout << ", incx = " << setw(3) << incx;
-    cout << ", # of instr = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
-    cout << ", # of cycles = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+    cout << ", # of instr  = "; for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << ", # of ops    = "; for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_count;
+    cout << ", # of cycles = "; for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) {
+    if (traceon) {
         for (u32 p = 0; p < params::Proc::N; p++) {
             cout << "PROC[" << p << "], # of instr = " << PROC[p].instr_count << endl;
             dump(PROC[p].trace);
@@ -70,11 +65,45 @@ void test_dtrmv_unn(int count)
     }
 }
 
-int main()
+int main
+(
+    int         argc,
+    char        **argv
+)
 {
-    for (int i = 0; i < N; i++)
+    if (argc == 1)
     {
-        test_dtrmv_unn(i);
+        for (u32 i = 0; i < N; i++)
+        {
+            i32 n = rand() % 256;
+            i32 lda = n + rand() % 256; lda = max(lda, 1);
+            i32 incx = (rand() % 16 - 8);
+            test_dtrmv_unn(i, false, n, lda, incx);
+        }
+    }
+    else if (argc == 4) 
+    {
+        i32 n = atoi(argv[1]);
+        i32 lda = atoi(argv[2]);
+        i32 incx = atoi(argv[3]);
+        if (incx < 1) {
+            cerr << "incx must be greater than 0." << endl;
+            return -1;
+        }
+        if (n < 1) {
+            cerr << "n must be greater than 0." << endl;
+            return -1;
+        }
+        if (lda < n) {
+            cerr << "lda must be greater or equal to n" << endl;
+            return -1;
+        }
+        test_dtrmv_unn(0, true, n, lda, incx);
+    }
+    else
+    {
+        cerr << "Usage : " << argv[0] << " [n lda incx]" << endl;
+        return -1;
     }
     return 0;
 }
