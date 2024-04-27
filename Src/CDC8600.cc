@@ -2438,7 +2438,7 @@ namespace CDC8600
                 PIPE[me()]._out << testcase;
                 PIPE[me()]._out << " (# of architected instr = " << setw(9) << PROC[me()].instr_count;
                 PIPE[me()]._out << ", # of speculative instr = " << setw(9) << PROC[me()].specinstr_count;
-                PIPE[me()]._out << ", # of operations duspatched = " << setw(9) << PROC[me()].op_count;
+                PIPE[me()]._out << ", # of operations dispatched = " << setw(9) << PROC[me()].op_count;
                 PIPE[me()]._out << ", # of operations issued = " << setw(9) << PROC[me()].ops_issued;
                 PIPE[me()]._out << ", # of operations completed = " << setw(9) << PROC[me()].ops_completed;
                 PIPE[me()]._out << ", # of cycles = " << setw(9) << PROC[me()].cycle_count;
