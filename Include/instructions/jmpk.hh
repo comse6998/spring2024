@@ -11,13 +11,14 @@ class jmpk : public Fjk
         bool execute()
         {
             _taken = true;
-                stringstream ss;
-                u32 targetline = PROC[me()].label2line[_label];
-                u32 targetaddr = PROC[me()].line2addr[targetline];
+	    stringstream ss;
 
-                ss << setfill('0') << setw(8) << hex << targetaddr << " "
-                   << dec << setfill(' ');
-                _trace = ss.str();
+	    line_t targetline = PROC[me()].label2line[label_t(_file, _label)];
+	    u32 targetaddr = PROC[me()].line2addr[targetline];
+
+	    ss << setfill('0') << setw(8) << hex << targetaddr << " "
+	       << dec << setfill(' ');
+	    _trace = ss.str();
             return _taken;
         }
 
@@ -33,7 +34,7 @@ class jmpk : public Fjk
         bool ops()
         {
             _label = "";
-            operations::process<operations::jmpk>(_k, _j, PROC[me()].line2addr[_line], _taken, _label);
+            operations::process<operations::jmpk>(_k, _j, PROC[me()].line2addr[line_t(_file, _line)], _taken, label_t(_file, _label));
             return false;
         }
 

@@ -197,7 +197,7 @@ namespace CDC8600
             u08         j,      // compare flags register
             u32         addr,   // branch instruction address
             bool        taken,  // was the branch taken?
-            string      label   // branch target
+            label_t     label   // branch target
         )
         {
             process(new T(K, PROC[me()].mapper[j], addr, taken, label));
@@ -266,9 +266,9 @@ namespace CDC8600
                 u08     _k;
                 u32     _K;
                 bool    _taken;
-                string  _label;
+                label_t _label;
                 vector<units::unit>& units() { return PROC[me()].BRUs; }
-                BRop(u32 K, u08 j, u32 addr, bool taken, string label) { _K = K; _j = j; _taken = taken; _addr = addr; _label = label; _i = 0; _k = 0; }
+                BRop(u32 K, u08 j, u32 addr, bool taken, label_t label) { _K = K; _j = j; _taken = taken; _addr = addr; _label = label; _i = 0; _k = 0; }
                 u64 tgtused() const { return 0; }
         };
 
@@ -592,9 +592,9 @@ namespace CDC8600
         class jmp : public BRop
         {
             public:
-                jmp(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
-                jmp(u32 K) : BRop(K, 0, 0, 0, "") {}
-                jmp() : BRop(0, 0, 0, 0, "") {}
+                jmp(u32 K, u08 j, u32 addr, bool taken, label_t label) : BRop(K, j, addr, taken, label) { }
+                jmp(u32 K) : BRop(K, 0, 0, 0, label_t("","")) { }
+                jmp() : BRop(0, 0, 0, 0, label_t("","")) { }
                 u64 ready() const { return 0; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { }
@@ -610,9 +610,9 @@ namespace CDC8600
         class jmpk : public BRop
         {
             public:
-                jmpk(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
-                jmpk(u32 K, u08 j) : BRop(K, j, 0, 0, "") { }
-                jmpk() : BRop(0, 0, 0, 0, "") {}
+                jmpk(u32 K, u08 j, u32 addr, bool taken, label_t label) : BRop(K, j, addr, taken, label) { }
+                jmpk(u32 K, u08 j) : BRop(K, j, 0, 0, label_t("","")) { }
+                jmpk() : BRop(0, 0, 0, 0, label_t("","")) { }
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -628,9 +628,9 @@ namespace CDC8600
         class jmpz : public BRop
         {
             public:
-                jmpz(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
-                jmpz(u32 K, u08 j) : BRop(K, j, 0, 0, "") { }
-                jmpz() : BRop(0, 0, 0, 0, "") { }
+                jmpz(u32 K, u08 j, u32 addr, bool taken, label_t label) : BRop(K, j, addr, taken, label) { }
+                jmpz(u32 K, u08 j) : BRop(K, j, 0, 0, label_t("","")) { }
+                jmpz() : BRop(0, 0, 0, 0, label_t("","")) { }
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -646,9 +646,9 @@ namespace CDC8600
         class jmpnz : public BRop
         {
             public:
-                jmpnz(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
-                jmpnz(u32 K, u08 j) : BRop(K, j, 0, 0, "") {}
-                jmpnz() : BRop(0, 0, 0, 0, "") { }
+                jmpnz(u32 K, u08 j, u32 addr, bool taken, label_t label) : BRop(K, j, addr, taken, label) { }
+                jmpnz(u32 K, u08 j) : BRop(K, j, 0, 0, label_t("","")) {}
+                jmpnz() : BRop(0, 0, 0, 0, label_t("","")) { }
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -664,9 +664,9 @@ namespace CDC8600
         class jmpp : public BRop
         {
             public:
-                jmpp(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
-                jmpp(u32 K, u08 j) : BRop(K, j, 0, 0, "") { }
-                jmpp() : BRop(0, 0, 0, 0, "") { }
+                jmpp(u32 K, u08 j, u32 addr, bool taken, label_t label) : BRop(K, j, addr, taken, label) { }
+                jmpp(u32 K, u08 j) : BRop(K, j, 0, 0, label_t("","")) { }
+                jmpp() : BRop(0, 0, 0, 0, label_t("","")) { }
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -827,9 +827,9 @@ namespace CDC8600
         class jmpn : public BRop
         {
             public:
-                jmpn(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
-                jmpn(u32 K, u08 j) : BRop(K, j, 0, 0, "") {}
-                jmpn() : BRop(0, 0, 0, 0, "") {}
+                jmpn(u32 K, u08 j, u32 addr, bool taken, label_t label) : BRop(K, j, addr, taken, label) { }
+                jmpn(u32 K, u08 j) : BRop(K, j, 0, 0, label_t("","")) { }
+                jmpn() : BRop(0, 0, 0, 0, label_t("","")) { }
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
@@ -845,9 +845,9 @@ namespace CDC8600
         class bb : public BRop
         {
             public:
-                bb(u32 K, u08 j, u32 addr, bool taken, string label) : BRop(K, j, addr, taken, label) { }
-                bb(u32 K, u08 j) : BRop(K, j, 0, 0, "") {}
-                bb() : BRop(0, 0, 0, 0, "") {}
+                bb(u32 K, u08 j, u32 addr, bool taken, label_t label) : BRop(K, j, addr, taken, label) { }
+                bb(u32 K, u08 j) : BRop(K, j, 0, 0, label_t("","")) { }
+                bb() : BRop(0, 0, 0, 0, label_t("","")) { }
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }

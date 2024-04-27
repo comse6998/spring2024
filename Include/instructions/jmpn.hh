@@ -16,7 +16,7 @@ class jmpn : public FjK
 	    {
 	        _taken = true;
 	        
-	        u32 targetline = PROC[me()].label2line[_label];
+	        line_t targetline = PROC[me()].label2line[label_t(_file, _label)];
 	        u32 targetaddr = PROC[me()].line2addr[targetline];
 	        
 	        ss << setfill('0') << setw(8) << hex << targetaddr << " " << dec << setfill(' ');
@@ -35,18 +35,18 @@ class jmpn : public FjK
 	bool ops()
 	{
 	    operations::process<operations::cmpz>(params::micro::CMPFLAGS, _j, 0, 0);
-	    operations::process<operations::jmpn>(_K, params::micro::CMPFLAGS, PROC[me()].line2addr[_line], _taken, _label);
+	    operations::process<operations::jmpn>(_K, params::micro::CMPFLAGS, PROC[me()].line2addr[line_t(_file, _line)], _taken, label_t(_file, _label));
 	    return false;
 	}
 
 	void fixit()
 	{
-	    assert(PROC[me()].label2line.count(_label));
-	    u32 targetline = PROC[me()].label2line[_label];
+	    assert(PROC[me()].label2line.count(label_t(_file, _label)));
+	    line_t targetline = PROC[me()].label2line[label_t(_file, _label)];
 	    assert(PROC[me()].line2addr.count(targetline));
 	    u32 targetaddr = PROC[me()].line2addr[targetline];
-	    assert(PROC[me()].line2addr.count(_line));
-	    u32 sourceaddr = PROC[me()].line2addr[_line];
+	    assert(PROC[me()].line2addr.count(line_t(_file, _line)));
+	    u32 sourceaddr = PROC[me()].line2addr[line_t(_file, _line)];
 	    _K = ((targetaddr/8) - (sourceaddr/8)) & 0xfffff;
 	}
 
