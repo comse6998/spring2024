@@ -13,6 +13,7 @@ namespace CDC8600
     vector<word>        MEM(params::MEM::N);
     uint32_t            FreeMEM;
     vector<Processor>   PROC(params::Proc::N);
+    vector<string>	files;
 
     u32 me()
     {
@@ -210,6 +211,7 @@ namespace CDC8600
         for (u32 i = 0; i < params::MEM::N; i++) operations::MEMready[i] = 0;           // Zero the ready time for all`memory locations
         FreeMEM = 4*8192;                                                               // Heap starts in page 4
         for (u32 i = 0; i < params::Proc::N; i++) PROC[i].reset(i);                     // Reset the processors
+	files.clear();									// Clear the list of program files
     }
 
     void Processor::reset
@@ -238,6 +240,7 @@ namespace CDC8600
         line2addr.clear();                                                                                      // Clear line -> address map
         line2encoding.clear();                                                                                  // Clear line -> encoding map
         line2len.clear();                                                                                       // Clear line -> len map
+	label2line.clear();											// Clear label -> line map
         BRUs.resize(params::micro::nBRUs); for (u32 i=0; i < params::micro::nBRUs; i++) BRUs[i].clear();        // Clear usage of BRUs
         FXUs.resize(params::micro::nFXUs); for (u32 i=0; i < params::micro::nFXUs; i++) FXUs[i].clear();        // Clear usage of FXUs
         FPUs.resize(params::micro::nFPUs); for (u32 i=0; i < params::micro::nFPUs; i++) FPUs[i].clear();        // Clear usage of FPUs
@@ -315,8 +318,8 @@ namespace CDC8600
         const string& file
     )
     {
-        if (PROC[me()].label2line.count(label)) return;
-        PROC[me()].label2line[label] = line;
+        if (PROC[me()].label2line.count(label_t(file, label))) return;
+        PROC[me()].label2line[label_t(file, label)] = line_t(file, line);
     }
 
     template<typename T> void label
@@ -324,10 +327,10 @@ namespace CDC8600
         T (*f)()
     )
     {
-        PROC[me()].line2addr.clear();
-        PROC[me()].line2encoding.clear();
-        PROC[me()].line2len.clear();
-        PROC[me()].label2line.clear();
+        // PROC[me()].line_t2addr.clear();
+        // PROC[me()].line_t2encoding.clear();
+        // PROC[me()].line_t2len.clear();
+        // PROC[me()].label_t2line_t.clear();
         PROC[me()].labeling = true;
         PROC[me()].runningaddr = 0;
         f();
@@ -344,8 +347,15 @@ namespace CDC8600
         instruction*    instr
     )
     {
+        #pragma omp critical
+	if (find(files.begin(), files.end(), instr->file()) == files.end())
+	{
+	    files.push_back(instr->file());
+	}
+	u32 fileno = find(files.begin(), files.end(), instr->file()) - files.begin();
+
         if (0 == PROC[me()].runningaddr) PROC[me()].runningaddr = instr->line() * 8;
-        if (PROC[me()].line2addr.count(instr->line())) return;
+        if (PROC[me()].line2addr.count(line_t(instr->file(),instr->line()))) return;
 
         if (PROC[me()].runningaddr % instr->len())
         {
@@ -354,9 +364,9 @@ namespace CDC8600
                      << (PROC[me()].runningaddr % 8) << endl;
                 assert(false);
         }
-        PROC[me()].line2addr[instr->line()] = PROC[me()].runningaddr;
-        PROC[me()].line2encoding[instr->line()] = instr->encoding();
-        PROC[me()].line2len[instr->line()] = instr->len();
+	PROC[me()].line2addr[line_t(instr->file(), instr->line())] = PROC[me()].runningaddr + params::MEM::codebase + fileno*params::MEM::codesec;
+        PROC[me()].line2encoding[line_t(instr->file(), instr->line())] = instr->encoding();
+        PROC[me()].line2len[line_t(instr->file(), instr->line())] = instr->len();
         PROC[me()].runningaddr += instr->len();
     }
 
@@ -369,11 +379,27 @@ namespace CDC8600
         bool            target          // is this a target of a branch?
     )
     {
-        if (PROC[me()].line2addr.count(instr->line()))                          // line already in map?
+        if (PROC[me()].line2addr.count(line_t(instr->file(), instr->line())))                                  // line already in map?
         {
-            assert(instr->encoding() == PROC[me()].line2encoding[instr->line()]);       // encoding match?
-            assert(instr->len()      == PROC[me()].line2len[instr->line()]);            // instruction length match?
+            assert(instr->encoding() == PROC[me()].line2encoding[line_t(instr->file(), instr->line())]);       // encoding match?
+            assert(instr->len()      == PROC[me()].line2len[line_t(instr->file(), instr->line())]);            // instruction length match?
         }
+	else
+	{
+	    assert(false);
+	}
+
+        if (PROC[me()].line2addr.count(line_t(instr->file(), instr->line())))                                  // line already in map?
+        {
+            assert(instr->encoding() == PROC[me()].line2encoding[line_t(instr->file(), instr->line())]);       // encoding match?
+            assert(instr->len()      == PROC[me()].line2len[line_t(instr->file(), instr->line())]);            // instruction length match?
+        }
+	else
+	{
+	    assert(false);
+	}
+
+	/*
         else if (PROC[me()].instr_forcealign)                                           // this line has a label, so we must force a word alignment
         {
             PROC[me()].line2addr[instr->line()] = instr->line() * 8;                    // this is a byte address
@@ -393,12 +419,13 @@ namespace CDC8600
             PROC[me()].line2encoding[instr->line()] = instr->encoding();
             PROC[me()].line2len[instr->line()]      = instr->len();
         }
+	*/
 
-        if (target)                                                             // is this the target of a branch
+        if (target)                                                             	// is this the target of a branch
         {
-            if (PROC[me()].line2addr[instr->line()] % 8)                                // is the target address word aligned?
+            if (PROC[me()].line2addr[line_t(instr->file(), instr->line())] % 8)         // is the target address word aligned?
             {
-                cout << "Instruction at line # " << instr->line() << " is the target of a branch but has a byte offset of " << (PROC[me()].line2addr[instr->line()] % 8) << endl;
+                cout << "Instruction at line # " << instr->line() << " is the target of a branch but has a byte offset of " << (PROC[me()].line2addr[line_t(instr->file(), instr->line())] % 8) << endl;
                 assert(false);
             }
         }
@@ -463,7 +490,7 @@ namespace CDC8600
         cout << setw( 9) << i;
         cout << " | " << setw( 9) << instr->line();
         cout << " | " << setw(24) << instr->dasm();
-        cout << " | " << setfill('0') << setw( 8) << hex << PROC[me()].line2addr[instr->line()] << dec << setfill(' ');
+        cout << " | " << setfill('0') << setw( 8) << hex << PROC[me()].line2addr[line_t(instr->file(), instr->line())] << dec << setfill(' ');
         if (instr->len() == 4) cout << " | "     << setfill('0') << setw(8) << hex << instr->encoding() << dec << setfill(' ');
         if (instr->len() == 2) cout << " |     " << setfill('0') << setw(4) << hex << instr->encoding() << dec << setfill(' '); 
         cout << endl;
@@ -493,7 +520,7 @@ namespace CDC8600
 
         for (u32 i=0; i<T.size();i++)
         {
-            file << setfill('0') << setw( 8) << hex << PROC[me()].line2addr[T[i]->line()] << dec << setfill(' ');
+            file << setfill('0') << setw( 8) << hex << PROC[me()].line2addr[line_t(T[i]->file(), T[i]->line())] << dec << setfill(' ');
             if (T[i]->len() == 4) file << " " << setfill('0') << setw(8) << hex << T[i]->encoding() << dec << setfill(' ');
             if (T[i]->len() == 2) file << " " << setfill('0') << setw(4) << hex << T[i]->encoding() << dec << setfill(' '); 
             if (T[i]->trace() != "") file << " " << T[i]->trace();
@@ -513,11 +540,13 @@ namespace CDC8600
         if (PROC[me()].labeling)
         {
             instr->line() = line;
+	    instr->file() = file;
             labeladdr(instr);
             delete instr;
             return false;
         }
         instr->line() = line;                                                           // save instruction line number in source file
+	instr->file() = file;								// save instruction source file name
         assignaddr(instr, PROC[me()].instr_target);                                     // assign an address to this instruction
         instr->fixit();                                                                 // fix displacement in branches
         PROC[me()].instr_target = instr->execute();                                     // execute the instructions, remember if a branch is being taken
@@ -619,43 +648,43 @@ namespace CDC8600
     (
         u32     addr,   // branch address
         bool    taken,  // branch taken
-        string  label   // brach label
+        label_t label   // brach label
     )
     {
-        bool    hit = false;                                    // Branch prediction hit flag
+        bool    hit = false;                                    					// Branch prediction hit flag
 
-        addr = addr / 8;                                        // byte address -> word address
+        addr = addr / 8;                                        					// byte address -> word address
 
-        if (taken)                                              // branch taken
+        if (taken)                                              					// branch taken
         {
-            if (PROC[me()].niap.count(addr))                    // next instruction address predictor has a match
+            if (PROC[me()].niap.count(addr))                    					// next instruction address predictor has a match
             {
                 if (PROC[me()].niap[addr] == PROC[me()].line2addr[PROC[me()].label2line[label]])        // do we have a match for the target?
                 {
-                    hit = true;                                 // count as a hit
+                    hit = true;                                 					// count as a hit
                 }
-                else                                            // no match of target address
+                else                                            					// no match of target address
                 {
-                    hit = false;                                // count as a miss
-                    PROC[me()].niap[addr] = PROC[me()].line2addr[PROC[me()].label2line[label]]; // update the entry in the next instruction address predictor
+                    hit = false;                                					// count as a miss
+                    PROC[me()].niap[addr] = PROC[me()].line2addr[PROC[me()].label2line[label]];        	// update the entry in the next instruction address predictor
                 }
             }
-            else                                                // no match of branch address
+            else                                                					// no match of branch address
             {
-                hit = false;                                    // count as a miss
-                PROC[me()].niap[addr] = PROC[me()].line2addr[PROC[me()].label2line[label]];     // create an entry in the next instruction address predictor
+                hit = false;                                    					// count as a miss
+                PROC[me()].niap[addr] = PROC[me()].line2addr[PROC[me()].label2line[label]];           	// create an entry in the next instruction address predictor
             }
         }
-        else                                                    // branch not taken
+        else                                                    					// branch not taken
         {
-            if (PROC[me()].niap.count(addr))                    // next instruction address predictor has a match
+            if (PROC[me()].niap.count(addr))                    					// next instruction address predictor has a match
             {
-                hit = false;                                    // this counts as a miss
-                PROC[me()].niap.erase(addr);                    // remove entry from next instruction address predictor
+                hit = false;                                    					// this counts as a miss
+                PROC[me()].niap.erase(addr);                    					// remove entry from next instruction address predictor
             }
-            else                                                // no match in next instruction address predictor
+            else                                                					// no match in next instruction address predictor
             {
-                hit = true;                                     // this is a hit!
+                hit = true;                                     					// this is a hit!
             }
         }
 
@@ -683,7 +712,7 @@ namespace CDC8600
             makeinstr[0x0F] = new maker<pass>; // Be explicit
             makeinstr[0x24] = new maker<rdjK>;
             makeinstr[0x01] = new maker<lpjkj>;
-                makeinstr[0x04] = new maker<cpkj>;
+            makeinstr[0x04] = new maker<cpkj>;
 
             /* Deal with instructions with 4-bit codes */
             makeinstr[0xB0] = new maker<bb>;

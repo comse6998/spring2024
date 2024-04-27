@@ -10,7 +10,8 @@ namespace CDC8600
     extern vector<Processor>    PROC;				// Processors
     extern u32			me();				// Processor number of current thread
     extern u32			nump();				// Total number of processors available
-    extern bool			prediction(u32, bool, string);	// Branch prediction hit (true) or miss (false)
+    extern bool			prediction(u32, bool, label_t);	// Branch prediction hit (true) or miss (false)
+    extern vector<string>	files;				// Source files for CDC8600 program
 } // namespace CDC8600
 
 #endif // _GLOBALS_HH

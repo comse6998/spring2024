@@ -113,16 +113,18 @@ namespace CDC8600
 
     namespace operations
     {
-	class operation;
+        class operation;
     } // namespace operations
 
     class instruction                                   // Generic instruction class
     {
         protected:
+	    string	_file;				// source file name
             u32         _line;                          // line number of instruction in source file
             u32         _addr;                          // byte (not word) address of instruction in memory
             string      _trace;                         // additional trace information
         public:
+	    instruction() : _file(""), _line(0), _addr(0), _trace("") { }
             virtual ~instruction() { }                  // virtual destructor
             virtual bool execute() = 0;                 // every instruction must have a method "execute" that implements its semantics and returns "true" if branch is taken
             virtual bool ops() { return false; }        // the ops method processes the internal ops that implement the instrution
@@ -131,13 +133,17 @@ namespace CDC8600
             virtual string dasm() const = 0;            // disassembly for the instruction
             virtual u32 encoding() const = 0;           // instruction encoding
             virtual void fixit() { }                    // used to fix displacements in branches
-            u32& line() { return _line; }               // line number of instruction
-            u32& addr() { return _addr; }               // address of instruction
+            u32&    line() { return _line; }            // line number of instruction
+            u32&    addr() { return _addr; }            // address of instruction
+            string& file() { return _file; }            // source file of instruction
             virtual const string& trace() { return _trace; }    // additional trace content 
             virtual bool match(u08 F) { return false; }         // match encoding to this instruction
             virtual void decode(u32 code) { assert(false); }    // decode the 16-/32-bit encoding
-	    virtual vector<operations::operation*> crack() { return vector<operations::operation*>(); }
+            virtual vector<operations::operation*> crack() { return vector<operations::operation*>(); }
     };
+
+    typedef pair<string,u32>    line_t;                 // a line number is a pair <file name, line number>
+    typedef pair<string,string> label_t;                // a label is a pair <file name, label>
 
     class Processor
     {
@@ -159,20 +165,20 @@ namespace CDC8600
             vector<units::unit>         FPUs;                   // floating-point units
             vector<units::unit>         LDUs;                   // load units
             vector<units::unit>         STUs;                   // store units
-            map<u32, u32>               line2addr;              // line -> instruction address map
-            map<u32, u32>               line2encoding;          // line -> instruction encoding map
-            map<u32, u32>               line2len;               // line -> instruction length map
-            map<string, u32>            label2line;             // label -> line map
+            map<line_t, u32>            line2addr;              // line -> instruction address map
+            map<line_t, u32>            line2encoding;          // line -> instruction encoding map
+            map<line_t, u32>            line2len;               // line -> instruction length map
+            map<label_t, line_t>        label2line;             // label -> line map
             vector<instruction*>        trace;                  // instruction trace
             vector<u64>                 REGready;               // ready cycle for microarchitected registers
             vector<u64>                 Pready;                 // ready cycle for physical register
             vector<u64>                 Pused;                  // last used cycle for physical register
-	    vector<u64>			Plastop;		// last operation before physical register can be recycled
-	    vector<bool>		Pfull;			// full/empty bits for the physical registers
+            vector<u64>                 Plastop;                // last operation before physical register can be recycled
+            vector<bool>                Pfull;                  // full/empty bits for the physical registers
             u32                         pnext;                  // next physical register to use
             bool                        pfind(u32&);            // find a physical register to use
             set<u32>                    pfree;                  // set of free physical registers
-	    set<u32>			precycle;		// set of physical registers that can be recycled
+            set<u32>                    precycle;               // set of physical registers that can be recycled
             map<u32,u32>                mapper;                 // logical -> physical register mapping
             map<u32,u32>                niap;                   // next instruction address predictor
             u64                         op_count;               // operation count
@@ -182,7 +188,7 @@ namespace CDC8600
             u64                         op_lastdispatch;        // last operation dispatch cycle
             u64                         dispatched;             // count of dispatched operations in a cycle
             u64                         op_maxcycle;            // maximum observed completion cycle
-	    u64				cycle_count;		// number of cycles in pipeline simulator
+            u64                         cycle_count;            // number of cycles in pipeline simulator
             u32                         instr_count;            // Current architected instruction count
             u32                         specinstr_count;        // Current speculative instruction count
             bool                        instr_target;           // Is the current instruction the target of a branch?
@@ -194,27 +200,27 @@ namespace CDC8600
 
     namespace pipes
     {
-	typedef enum
-	{
-	    NOP,
-	    BR,
-	    ST,
-	    LD,
-	    FXArith,
-	    FXMul,
-	    FXLogic,
-	    FPAdd,
-	    FPMul,
-	    FPDiv
-	} pipe_t;	// the various pipes in our processor
+        typedef enum
+        {
+            NOP,
+            BR,
+            ST,
+            LD,
+            FXArith,
+            FXMul,
+            FXLogic,
+            FPAdd,
+            FPMul,
+            FPDiv
+        } pipe_t;       // the various pipes in our processor
 
-	typedef enum
-	{
-	    j_dep,
-	    k_dep,
-	    jk_dep,
-	    no_dep
-	} dep_t;	// the different types of dependences
+        typedef enum
+        {
+            j_dep,
+            k_dep,
+            jk_dep,
+            no_dep
+        } dep_t;        // the different types of dependences
 
     } // namespace pipes
 } // namespace CDC8600
