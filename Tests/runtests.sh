@@ -1,6 +1,10 @@
 #!/bin/ksh
 
-set -A BLAS1 "daxpy dcopy ddot zaxpy zdotc zdotu zdrot"
+if [ $# -gt 0 ]; then
+    set -A BLAS1 "$@"
+else
+    set -A BLAS1 "daxpy dcopy ddot dscal zaxpy zdotc zdotu zdrot"
+fi
 
 make clean && clear
 make run
