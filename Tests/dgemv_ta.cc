@@ -12,13 +12,13 @@ extern "C" int32_t dgemv_(char *trans, int32_t *m, int32_t *n, double *alpha, do
 
 const int N = 20;
 
-void test_dgemv_ta(int count, int traceon, i32 m, i32 n, i32 LDA, f64 alpha, f64 beta, i32 incx, i32 incy)
+void test_dgemv_ta(int count, int traceon, i32 m, i32 n, i32 LDA, i32 incx, i32 incy, f64 alpha, f64 beta)
 {
     
     reset();
 
     tracing = traceon;
-    
+   
     i32 nx = m*abs(incx); if (0 == nx) nx = 1;
     i32 ny = n*abs(incy); if (0 == ny) ny = 1;
 
@@ -91,27 +91,24 @@ int main(int argc, char **argv)
             i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
             i32 incy = (rand() % 16) - 8; if (incy == 0) incy = 1;
                         
-	    test_dgemv_ta(i, false, m, n, LDA, alpha, beta, incx, incy);
+	    test_dgemv_ta(i, false, m, n, LDA, incx, incy, alpha, beta);
 	}
     }
-    else if (argc == 8)
+    else if (argc == 7)
     {
         i32 m = atoi(argv[1]);
 	i32 n = atoi(argv[2]);
-        i32 LDA = atoi(argv[3]);
-	f64 alpha = atof(argv[4]);
-	f64 beta = atof(argv[5]);
-	i32 incx = atoi(argv[6]);
-	i32 incy = atoi(argv[7]);
-        if (LDA < m) {
-            cerr << "LDA must be larger than m" << endl;
-            exit(1);
-        }
-        test_dgemv_ta(0, true, m, n, LDA, alpha, beta, incx, incy);
+        i32 LDA = m; if (0 == LDA) LDA = 1;
+	i32 incx = atoi(argv[3]);
+	i32 incy = atoi(argv[4]);
+	f64 alpha = atof(argv[5]);
+	f64 beta = atof(argv[6]);
+        
+        test_dgemv_ta(0, true, m, n, LDA, incx, incy, alpha, beta);
     }
     else
     {
-	cerr << "Usage : " << argv[0] << " [m n LDA alpha beta incx incy]" << endl;
+	cerr << "Usage : " << argv[0] << " [m n incx incy alpha beta]" << endl;
 	exit(1);
     }
 }
