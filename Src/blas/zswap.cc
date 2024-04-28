@@ -56,7 +56,9 @@ namespace CDC8600
 	    idjkj(4, 1)         // X4 (incy) = X4 (incy) - 1
 	    pass()		// padding
             jmpnz(4, INC2)      // if X6 (tmp) != 0 goto gen
-LABEL(uinc) jmpz(0, end)	// w if X0 (n) = 0 goto end; X6 (i) = 0
+LABEL(uinc) pass()	        // w if X0 (n) = 0 goto end; X6 (i) = 0
+	    pass()		// padding
+            jmpz(0, end)	
             rdjki(7, 1, 6)	// X7 (temp) = MEM[X1 (x) + X6 (i)] (real)
             rdjki(8, 3, 6)	// X8 (tmp) = MEM[X3 (y) + X6 (i)] (real)
 	    sdjki(8, 1, 6)	// w MEM[X1 (x) + X6 (i)] = X8 (tmp) (real)
@@ -72,8 +74,6 @@ LABEL(uinc) jmpz(0, end)	// w if X0 (n) = 0 goto end; X6 (i) = 0
             isjkj(6, 2)	        // X6 (i) = X6 (i) + 2
 	    idjkj(0, 1)		// X0 (n) = X0 (n) - 1
             jmp(uinc)           // w 
-	    pass()		// padding
-	    pass()		// padding
 LABEL(INC2) isjkj(4,1)          // X4(incy) = X4(incy) + 1
 	    pass()		// padding
 	    pass()		// padding
@@ -89,14 +89,16 @@ LABEL(INC1) isjkj(2,1)          // X2(incx) = X2(incx) + 1
 	    isjkj(5, 1)		// X5 (ix) = X5(-n) + 1
             ipjkj(5, 2)		// X5 (ix) = X5 (-n+1) * X2 (incx)
 	    pass()		// padding
-LABEL(L1)   jmpp(4, loop)	// if X4 (incy) > 0 goto loop
+LABEL(L1)   pass()		// padding
+	    pass()		// padding
+            jmpp(4, loop)	// if X4 (incy) > 0 goto loop
 	    idzkj(6, 0)		// X6 (iy) = -X0 (n)
 	    isjkj(6, 1)		// X6 (iy) = X6(-n) + 1
             ipjkj(6, 4)		// X6 (iy) = X6 (-n+1) * X4 (incy)
 	    pass()		// padding
+LABEL(loop) pass()		// padding
 	    pass()		// padding
-	    pass()		// padding
-LABEL(loop) jmpz(0, end)	// if X0 (n) = 0 goto end
+            jmpz(0, end)	// if X0 (n) = 0 goto end
             rdjki(7, 1, 5)	// X7 (temp) = MEM[X1 (x) + X5 (ix)] (real)
             rdjki(8, 3, 6)	// X8 (tmp) = MEM[X3 (y) + X6 (iy)] (real)
 	    sdjki(8, 1, 5)	// MEM[X1 (x) + X5 (ix)] = X8 (tmp) (real)
@@ -113,8 +115,13 @@ LABEL(loop) jmpz(0, end)	// if X0 (n) = 0 goto end
 	    isjki(6, 6, 4)	// X6 (iy) = X6 (iy) + X4 (incy)
 	    idjkj(0, 1)		// X0 (n) = X0 (n) - 1
 	    pass()		// padding
+	    pass()		// padding
+	    pass()		// padding
             jmp(loop)            
-LABEL(end)  jmpk(15, 1)		// return to X15 (calling address) + 1
+LABEL(end)  pass()		// padding
+	    pass()		// padding
+	    pass()		// padding
+            jmpk(15, 1)		// return to X15 (calling address) + 1
 	}
     } // namespace BLAS
 } // namespace CDC8600
