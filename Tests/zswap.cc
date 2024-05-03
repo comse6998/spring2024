@@ -12,24 +12,14 @@ extern "C" i32 zswap_(i32*, c128*, i32*, c128*, i32*);
 
 const int N = 20;
 
-void test_zswap(int count, bool inc_one)
+void test_zswap(int count, bool traceon, i32 n, i32 incx, i32 incy)
 {
     reset();
-
-    // test special case of incx = 1 and incy = 1
-    i32 n = 5; 
-    i32 incx = 1; 
-    i32 incy = 1;
-    if(!inc_one)
-    {
-        n = rand() % 256;
-        incx = (rand() % 16) - 8;
-        incy = (rand() % 16) - 8;
-    }
+    
     u32 nx = n*abs(incx); if (0 == nx) nx = 1;
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
 
-    tracing = false; if (n < 10) tracing = true;
+    tracing = traceon;
     
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
     c128 *X = new c128[nx];
@@ -67,6 +57,7 @@ void test_zswap(int count, bool inc_one)
     cout << ", incx = " << setw(2) << incx;
     cout << ", incy = " << setw(2) << incy;
     cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of ops = "    << setw(9) << PROC[0].op_count;
     cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
     cout << ") : ";
     if (pass)
@@ -74,18 +65,38 @@ void test_zswap(int count, bool inc_one)
     else
         cout << "FAIL" << std::endl;
 
-    if (n < 10) dump(PROC[0].trace);
-    if (n < 10) dump(PROC[0].trace, "zswap.tr");
+    if (traceon) dump(PROC[0].trace);
+    if (traceon) dump(PROC[0].trace, "zswap.tr");
 
 }
 
-int main()
+int main
+(
+    int		argc,
+    char	**argv
+)
 {
-    
-    for (unsigned i = 0; i < N; i++)
+    if (1 == argc)
     {
-        test_zswap(i, false);
+	for (u32 i = 0; i < N; i++)
+	{
+	    i32 n = rand() % 256;
+	    i32 incx = (rand() % 16) - 8;
+	    i32 incy = (rand() % 16) - 8;
+	    test_zswap(i, false, n, incx, incy);
+	}
     }
-    test_zswap(N, true);
+    else if (4 == argc)
+    {
+	i32 n = atoi(argv[1]);
+	i32 incx = atoi(argv[2]);
+	i32 incy = atoi(argv[3]);
+	test_zswap(0, true, n, incx, incy);
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [n incx incy]" << endl;
+	return -1;
+    }
     return 0;
 }

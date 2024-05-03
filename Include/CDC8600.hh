@@ -4,6 +4,7 @@
 #include<stdlib.h>
 #include<stdint.h>
 #include<assert.h>
+#include<algorithm>
 #include<vector>
 #include<map>
 #include<set>
