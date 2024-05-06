@@ -280,7 +280,7 @@ namespace CDC8600
                 u64 ready() const { return 0; }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }       // update ready cycle of target physical register
                 void used(u64 cycle) { }
-                u64 latency() const { return 10; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "xKi"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_K) + ")"; }
@@ -298,7 +298,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_k]; }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }       // update ready cycle of target physical register
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); }
-                u64 latency() const { return 10; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "idzkj"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_k) + ")"; }
@@ -316,7 +316,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 10; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "idjkj"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_K) + ")"; }
@@ -333,7 +333,7 @@ namespace CDC8600
                 u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 10; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "idjki"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
@@ -351,7 +351,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 10; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "isjkj"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
@@ -367,7 +367,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 8; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "lpjkj"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
@@ -384,7 +384,7 @@ namespace CDC8600
                 u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 10; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "isjki"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
@@ -402,8 +402,8 @@ namespace CDC8600
                 u64 ready() const { return max(max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]), max(PROC[me()].Pready[PROC[me()].mapper[params::micro::RA]], PROC[me()].Pready[PROC[me()].mapper[params::micro::FL]])); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 10; }
-                u64 throughput() const { return 1; }
+                u64 latency() const { return 2; }
+                u64 throughput() const { return 2; }
                 string mnemonic() const { return "agen"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
                 u64 encode() const { return ((u64)0xb3 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
@@ -420,7 +420,7 @@ namespace CDC8600
                 u64 ready() const { return max(max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]), max(PROC[me()].Pready[PROC[me()].mapper[params::micro::RA]], PROC[me()].Pready[PROC[me()].mapper[params::micro::FL]])); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 10; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "cpkj"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
@@ -546,7 +546,7 @@ namespace CDC8600
                 u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 14; }
+                u64 latency() const { return 2; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "ipjkj"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
@@ -563,7 +563,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }       // update ready cycle of target physical register
                 void used(u64 cycle) { PROC[me()].Pused[_j] = cycle; }          // update used cycle of source physical register
-                u64 latency() const { return 10; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "cmpz"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ")"; }
@@ -580,7 +580,7 @@ namespace CDC8600
                 u64 ready() const { return max(PROC[me()].Pready[_j], PROC[me()].Pready[_k]); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 10; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "cmp"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
@@ -598,7 +598,7 @@ namespace CDC8600
                 u64 ready() const { return 0; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { }
-                u64 latency() const { return 8; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "jmp"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_K) + ")"; }
@@ -616,7 +616,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 8; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "jmpk"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_j) + ", " + to_string(_K) + ")"; }
@@ -634,7 +634,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 8; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "jmpz"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
@@ -652,7 +652,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 8; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "jmpnz"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
@@ -670,7 +670,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 8; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "jmpp"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
@@ -833,7 +833,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 8; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "jmpn"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
@@ -851,7 +851,7 @@ namespace CDC8600
                 u64 ready() const { return PROC[me()].Pready[_j]; }
                 void target(u64 cycle) { PROC[me()].op_nextdispatch = prediction(_addr, _taken, _label) ? PROC[me()].op_nextdispatch : cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 8; }
+                u64 latency() const { return 1; }
                 u64 throughput() const { return 1; }
                 string mnemonic() const { return "bb"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_K) + ", " + to_string(_j) + ")"; }
@@ -927,8 +927,8 @@ namespace CDC8600
                 u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 8; }
-                u64 throughput() const { return 1; }
+                u64 latency() const { return 2; }
+                u64 throughput() const { return 2; }
                 string mnemonic() const { return "fadd"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
                 u64 encode() const { return ((u64)0x80 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
@@ -944,8 +944,8 @@ namespace CDC8600
                 u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 14; }
-                u64 throughput() const { return 1; }
+                u64 latency() const { return 2; }
+                u64 throughput() const { return 2; }
                 string mnemonic() const { return "fmul"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
                 u64 encode() const { return ((u64)0xA0 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
@@ -961,8 +961,8 @@ namespace CDC8600
                 u64 ready() const { return max(PROC[me()].Pready[_k], PROC[me()].Pready[_j]); }
                 void target(u64 cycle) { PROC[me()].Pready[_i] = cycle; }
                 void used(u64 cycle) { PROC[me()].Pused[_k] = max(PROC[me()].Pused[_k], cycle); PROC[me()].Pused[_j] = max(PROC[me()].Pused[_j], cycle); }
-                u64 latency() const { return 10; }
-                u64 throughput() const { return 1; }
+                u64 latency() const { return 2; }
+                u64 throughput() const { return 2; }
                 string mnemonic() const { return "fsub"; }
                 string dasm() const { return mnemonic() + "(" + to_string(_i) + ", " + to_string(_j) + ", " + to_string(_k) + ")"; }
                 u64 encode() const { return ((u64)0x90 << 56) | ((u64)_i << 44) | ((u64)_j << 32) | ((u64)_k << 20) | _K; }
