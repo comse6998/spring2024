@@ -3,7 +3,7 @@
 if [ $# -gt 0 ]; then
     set -A BLAS1 "$@"
 else
-    set -A BLAS1 "dtrmv_utu"
+    set -A BLAS1 "daxpy dcopy ddot dscal zaxpy zdotc zdotu zdrot"
 fi
 
 make clean && clear
@@ -15,11 +15,11 @@ done
 
 for i in ${BLAS1[@]}; 
 do 
-    time ./$i 1  1  1 
-    time ./$i 5  5  1
-    time ./$i 20 20 1
-    time ./$i 50 50 1
-    time ./$i 100 100 1
-    time ./$i 1000 1000 1
-    time ./$i 1500 1500 1
+    ./$i  0  1  1 | grep $i && ./run $i 1000 && grep $i $i.pipe
+    ./$i  1  1  1 | grep $i && ./run $i 1000 && grep $i $i.pipe
+    ./$i 10  1  1 | grep $i && ./run $i 1000 && grep $i $i.pipe
+    ./$i 10  2  3 | grep $i && ./run $i 1000 && grep $i $i.pipe
+    ./$i 10 -2 -3 | grep $i && ./run $i 1000 && grep $i $i.pipe
+    ./$i 10  2 -3 | grep $i && ./run $i 1000 && grep $i $i.pipe
+    ./$i 10 -2  3 | grep $i && ./run $i 1000 && grep $i $i.pipe
 done
