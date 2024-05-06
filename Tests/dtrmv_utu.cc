@@ -45,11 +45,14 @@ void test_dtrmv_utu(int count, bool traceon,i32 n, i32 lda, i32 incx)
     cout << "(lda = " << setw(3) << lda;
     cout << ", n = " << setw(3) << n;
     cout << ", incx = " << setw(3) << incx;
-    cout << ", # of instr = ";
+    cout << ", # of instr   = (";
     for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
-    cout << ", # of cycles = ";
+    cout << "), # of ops    = (";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_count;
+    cout << "), # of cycles = (";
     for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
+    
     if (pass)
         cout << "PASS" << std::endl;
     else
@@ -78,17 +81,17 @@ char	**argv)
             test_dtrmv_utu(i, false, n, lda, incx);
         }
     }
-    else if(argc == 4)
+    else if(argc == 3)
     {
     	i32 n = atoi(argv[1]);
-        i32 lda = atoi(argv[2]);
-    	i32 incx = atoi(argv[3]);
+        i32 lda = atoi(argv[1]);
+    	i32 incx = atoi(argv[2]);
         test_dtrmv_utu(0, true, n, lda, incx);
 
     }
     else
     {
-	cerr << "Usage : " << argv[0] << " [n lda incx]" << endl;
+	cerr << "Usage : " << argv[0] << " [n incx]" << endl;
 	return -1;        
     }
     return 0;

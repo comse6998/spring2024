@@ -5,11 +5,55 @@ n = ["2", "6", "8", "10", "12", "14", "16", "18"]
 
 incx = ["1", "2", "5", "-1", "-2", "-5"]
 incy = ["1", "2", "5", "-1", "-2", "-5"]
-os.system("make clean")
-os.system("make dswap")
+
 print("Testing dswap - Without Trace")
 
-for i in range(len(n)):
-    os.system("time ./dswap " + n[i] + " " + incx[i%6] + " " + incy[i%6])
-    time.sleep(5)
+
+os.system("make clean")
+os.system("make dtrmv_utu")
+os.system("make run")
+os.system("export OMP_NUM_THREADS=1")
+os.system("./dtrmv_utu 10 1")
+os.system("./run dtrmv_utu0")
+time.sleep(5)
+val = input("Press 1 to continue: ")
+os.system("clear")
+#---------------------------
+os.system("make clean")
+os.system("make dtrmv_utu")
+os.system("make run")
+os.system("export OMP_NUM_THREADS=2")
+os.system("./dtrmv_utu 10 1")
+os.system("./run dtrmv_utu0")
+os.system("./run dtrmv_utu1")
+time.sleep(5)
+val = input("Press 1 to continue: ")
+os.system("clear")
+#---------------------------
+os.system("make clean")
+os.system("make dtrmv_utu")
+os.system("make run")
+os.system("export OMP_NUM_THREADS=3")
+os.system("./dtrmv_utu 10 1")
+os.system("./run dtrmv_utu0")
+os.system("./run dtrmv_utu1")
+os.system("./run dtrmv_utu2")
+time.sleep(5)
+val = input("Press 1 to continue: ")
+os.system("clear")
+#---------------------------
+os.system("make clean")
+os.system("make dtrmv_utu")
+os.system("make run")
+os.system("export OMP_NUM_THREADS=4")
+os.system("./dtrmv_utu 10 1")
+os.system("./run dtrmv_utu0")
+os.system("./run dtrmv_utu1")
+os.system("./run dtrmv_utu2")
+os.system("./run dtrmv_utu3")
+time.sleep(5)
+val = input("Press 1 to continue: ")
+print ("End of Test")
+
+    
 

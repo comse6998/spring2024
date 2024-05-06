@@ -75,7 +75,7 @@ int main
 	    i32 n = rand() % 256;
 	    i32 incx = (rand() % 16) - 8;
 	    i32 incy = (rand() % 16) - 8;
-	    test_dswap(i, true, n, incx, incy);
+	    test_dswap(i, false, n, incx, incy);
 	}
     }
     else if (4 == argc)
