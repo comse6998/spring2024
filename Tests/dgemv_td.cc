@@ -13,16 +13,15 @@ extern "C" i32 dgemv_(char *, i32 *, i32 *, f64 *, f64 *, i32 *, f64 *, i32 *,
 const int N = 20;
 const double epsilon = 1e-9;
 
-void test_dgemv_td(int count, bool traceon, i32 m, i32 n, i32 lda, i32 incx, i32 incy)
+void test_dgemv_td(int count, bool traceon, i32 m, i32 n, i32 incx, i32 incy,
+        f64 alpha, f64 beta)
 {
     reset();
 
+    i32 lda = (m == 0 ? 1 : m);
+
     u32 nx = m*abs(incx); if (0 == nx) nx = 1;
-
     u32 ny = n*abs(incy); if (0 == ny) ny = 1;
-
-    f64 alpha = drand48();
-    f64 beta = drand48();
 
     tracing = false;
 
@@ -58,10 +57,9 @@ void test_dgemv_td(int count, bool traceon, i32 m, i32 n, i32 lda, i32 incx, i32
     cout << ", incx = " << setw(2) << incx;
     cout << ", beta = " << beta;
     cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
-    cout << ", # of cycles = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+    cout << ", # of instr  = ("; cout << setw(9) << PROC[0].instr_count; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].instr_count; cout << ")";
+    cout << ", # of ops    = ("; cout << setw(9) << PROC[0].op_count   ; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_count   ; cout << ")";
+    cout << ", # of cycles = ("; cout << setw(9) << PROC[0].op_maxcycle; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_maxcycle; cout << ")";
     cout << ") : ";
 
     if (pass)
@@ -84,28 +82,26 @@ int main(int argc, char **argv)
 	{
             i32 m = rand() % 256;
             i32 n = rand() % 256;
-            i32 lda = m + rand() % 256;
             i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
             i32 incy = (rand() % 16) - 8; if (incy == 0) incy = 1;
-	    test_dgemv_td(i, false, m, n, lda, incx, incy);
+            f64 alpha = drand48();
+            f64 beta = drand48();
+	    test_dgemv_td(i, false, m, n, incx, incy, alpha, beta);
 	}
     }
-    else if (argc == 6)
+    else if (argc == 7)
     {
         i32 m = atoi(argv[1]);
 	i32 n = atoi(argv[2]);
-        i32 lda = atoi(argv[3]);
-	i32 incx = atoi(argv[4]);
-	i32 incy = atoi(argv[5]);
-        if (lda < m) {
-            cerr << "lda must be larger than m" << endl;
-            exit(1);
-        }
-        test_dgemv_td(0, true, m, n, lda, incx, incy);
+	i32 incx = atoi(argv[3]);
+	i32 incy = atoi(argv[4]);
+        f64 alpha = atof(argv[5]);
+        f64 beta = atof(argv[6]);
+        test_dgemv_td(0, true, m, n, incx, incy, alpha, beta);
     }
     else
     {
-	cerr << "Usage : " << argv[0] << " [m n lda incx incy]" << endl;
+	cerr << "Usage : " << argv[0] << " [m n incx incy alpha beta]" << endl;
 	exit(1);
     }
 }
