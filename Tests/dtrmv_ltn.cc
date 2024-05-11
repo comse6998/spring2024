@@ -15,14 +15,14 @@ const double Epsilon = 1e-9;
 
 // set the prameter
 char UPLO = 'L'; char TRANS = 'T'; char DIAG = 'N';
-void test_dtrmv_ltn(int count, bool traceon, i32 n, i32 LDA, i32 incx)
+void test_dtrmv_ltn(int count, bool traceon, i32 n, i32 incx)
 {
     reset();
     //tracing = traceon;
     //i32 n = rand() % 256;
     //i32 incx = (rand() % 16) - 8;
     //if (incx == 0) incx = 1;
-    //i32 LDA = n + rand()%256;
+    i32 LDA = n + rand() % 256;
     
     u32 DX = n*abs(incx); 
     if (0 == DX) DX = 1; // Dimension of X
@@ -62,6 +62,8 @@ void test_dtrmv_ltn(int count, bool traceon, i32 n, i32 LDA, i32 incx)
     cout << ", incx = " << setw(3) << incx;
     cout << ", # of instr = ";
     for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << "# of ops    = ";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_count;
     cout << ", # of cycles = ";
     for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
@@ -102,30 +104,26 @@ int main(int argc, char **argv)
         i32 n = rand() % 256;
         i32 incx = (rand() % 16) - 8;
         if (incx == 0) incx = 1;
-        i32 LDA = n + rand()%256;
-        LDA = max(LDA, 1);
-        test_dtrmv_ltn(i, false, n, LDA, incx);
+        //i32 LDA = n + rand()%256;
+        //LDA = max(LDA, 1);
+        test_dtrmv_ltn(i, false, n, incx);
     }
     }
-    else if (4 == argc)
+    else if (3 == argc)
     {
         i32 n = atoi(argv[1]);
-        i32 LDA = atoi(argv[2]);
-        i32 incx = atoi(argv[3]);
+        //i32 LDA = atoi(argv[2]);
+        i32 incx = atoi(argv[2]);
 
         if(incx<1) {
             cout << "incx must > 1" <<endl;
             exit(1);
         }
-        if (LDA < n || LDA < 1) {
-            cout << "LDA must be equal to or larger than 1 or n" << endl;
-            exit(1);
-        }
-        test_dtrmv_ltn(0, true, n, LDA, incx);
+        test_dtrmv_ltn(0, true, n, incx);
     }
     else
     {
-	    cerr << "Usage : " << argv[0] << " [n LDA incx]" << endl;
+	    cerr << "Usage : " << argv[0] << " [n incx]" << endl;
 	return -1;
     }
     return 0;
