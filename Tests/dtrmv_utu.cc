@@ -18,8 +18,8 @@ void test_dtrmv_utu(int count, bool traceon,i32 n, i32 lda, i32 incx)
     reset();
     char uplo = 'U', trans = 'T', diag = 'U';
 
-    tracing = traceon;
-    if (n < 10) tracing = true;
+    
+    
     f64 *A = (f64*)CDC8600::memalloc(n*lda);
     f64 *X = (f64*)CDC8600::memalloc(n*abs(incx));    // Input matrix
     f64 *Y = new f64[n*abs(incx)];                    // Reference matrix
