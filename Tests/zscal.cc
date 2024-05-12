@@ -16,39 +16,14 @@ extern "C" void zscal_(i64*, c128*, c128*, i64*);
 
 const int N = 20;
 
-void test_zscal(int count)
+void test_zscal(int count, bool traceon, i64 n, c128 a, i64 incx)
 {
     reset();
-
-    i64 n = rand() % 256;
-    //i64 n =1;
-
-    i64 incx = (rand() % 16) - 8;
-    //i64 incx =1;
-
-    if(count == 19) {
-        n = rand() % 10;
-        incx = (rand() % 8) + 1;
-    }
-
-    #ifdef INCX
-        incx = INCX;
-    #endif
-
-    c128 a{drand48(),drand48()};
-
     uint32_t nx = n*abs(incx); if (0 == nx) nx = 1;
 
-
-    tracing = false; 
-#ifdef TRACING
-    if (n < 10 && incx >=1) {tracing = true; }
-#endif
-
+    tracing = traceon; 
     c128 *x = (c128*)CDC8600::memalloc(nx*2);
     c128 *X = (c128*)CDC8600::memalloc(nx*2);
-    //f64 *y = (f64*)CDC8600::memalloc(ny);
-    //c128 *X = new c128[nx];
 
     for (int i = 0; i < nx; i++) 
         {
@@ -56,8 +31,6 @@ void test_zscal(int count)
             X[i].real(x[i].real());
             X[i].imag(x[i].imag());
         }
-    //for (int i = 0; i < ny; i++) { y[i] = 0.0;	 }
-    //for (int i = 0; i < ny; i++) { Y[i] = 0.0;	 }
 
     zscal_(&n, &a, x, &incx);		// Reference implementation of DCOPY
     CDC8600::BLAS::zscal(n, a, X, incx);	// Implementation of DCOPY for the CDC8600
@@ -68,18 +41,12 @@ void test_zscal(int count)
         if (X[i] != x[i])
         {
             pass = false;
-            //printf("%lf+%lfi, %lf+%lfi\n",X[i].real(),X[i].imag(),x[i].real(),x[i].imag());
         }
     }
 
-    //delete [] X;
-
-#ifdef DUMP_TR
-    if(n < 10 && incx >=1)
+    if(traceon)
     dump(PROC[0].trace, "zscal.tr");
-#endif
 
-#ifdef FUNC_TEST
     cout << "zscal [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx;
     cout << ", # of instr = ";
     for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
@@ -90,7 +57,6 @@ void test_zscal(int count)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
-#endif
 #ifdef FPU_TEST
     cout << "nFPU = " << setw(2) << CDC8600::params::micro::nFPUs << " , ";
 #endif
@@ -115,20 +81,29 @@ void test_zscal(int count)
 #ifdef INCX_TEST
     cout << "incx = " << setw(2) << incx << " , ";
 #endif
-
-        //if (n < 50 && incx >=1) dump(trace);
     }
 
-int main()
+int main(int argc, char **argv)
 {
-    //printf("FPUs = %d\n",CDC8600::params::micro::nFPUs);
-#ifdef FUNC_TEST
-    for (int i = 0; i < N; i++)
-    {
-        test_zscal(i);
+    if (1 == argc){
+        for (int i = 0; i < N; i++)
+        {
+            i64 n = rand() % 256;
+            c128 a = {drand48(),drand48()};
+            i64 incx = (rand() % 16) - 8;
+            test_zscal(i, false, n, a, incx);
+        }
     }
-#else
-    test_zscal(19);
-#endif
+    else if (5 == argc){
+        i64 n = atoi(argv[1]); 
+        c128 a = {atoi(argv[2]),atoi(argv[3])};
+        i64 incx = atoi(argv[4]);
+        test_zscal(0, true, n, a, incx);
+    }
+    else
+    {
+        cerr << "Usage : " << argv[0] << " [n a incx]" << endl;
+        return -1;
+    }
     return 0;
 }
