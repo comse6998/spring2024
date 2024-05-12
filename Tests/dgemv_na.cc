@@ -55,10 +55,16 @@
     cout << "dgemv_na [" << setw(2) << count << "] ";
     cout << "(m = " << setw(3) << m;
     cout << ", n = " << setw(3) << n;
-    cout << ", # of instr = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
-    cout << ", # of cycles = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+    cout << ", incx = " << setw(3) << incx;
+    cout << ", incy = " << setw(3) << incy;
+    cout << ", alpha = " << setw(3) << alpha;
+    cout << ", beta = " << setw(3) << beta;
+    cout << ", # of instr  = ("; cout << setw(9) << PROC[0].instr_count; 
+    for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].instr_count; cout << ")";
+    cout << ", # of ops    = ("; cout << setw(9) << PROC[0].op_count   ; 
+    for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_count   ; cout << ")";
+    cout << ", # of cycles = ("; cout << setw(9) << PROC[0].op_maxcycle; 
+    for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_maxcycle; cout << ")";
     cout << ") : ";
     if (pass){
         cout << "PASS" << std::endl;
@@ -97,15 +103,15 @@
     {
 	i32 m = atoi(argv[1]);
 	i32 n = atoi(argv[2]);
-    f64 alpha = atof(argv[3]);
-    f64 beta = atof(argv[4]);
-	i32 incx = atoi(argv[5]);
-	i32 incy = atoi(argv[6]);
+	i32 incx = atoi(argv[3]);
+	i32 incy = atoi(argv[4]);
+    f64 alpha = atof(argv[5]);
+    f64 beta = atof(argv[6]);
 	test_dgemv_na(0, m, n, alpha, beta, incx, incy, true);
     }
     else
     {
-	cerr << "Usage : " << argv[0] << " [m n aplha beta incx incy]" << endl;
+	cerr << "Usage : " << argv[0] << " [m n incx incy alpha beta]" << endl;
 	return -1;
     }
     return 0;
