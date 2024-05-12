@@ -9,40 +9,31 @@ using namespace CDC8600;
 
 extern "C" int32_t dswap_(int32_t *, double *, int32_t *, double *, int32_t *);
 
-const int N = 20;
+const u32 N = 20;
 
-
-void test_dswap(int count)
+void test_dswap(int count, bool traceon, i32 n, i32 incx, i32 incy)
 {
     reset();
 
-    int32_t n = rand() % 256;
-    int32_t incx = (rand() % 16) - 8;
-    int32_t incy = (rand() % 16) - 8;
     uint32_t nx = n*abs(incx); if (0 == nx) nx = 1;
     uint32_t ny = n*abs(incy); if (0 == ny) ny = 1;
     
-    tracing = false; 
-    //if (n < 10) tracing = true;
+    tracing = traceon;
 
     f64 *x = (f64*)CDC8600::memalloc(nx);
     f64 *y = (f64*)CDC8600::memalloc(ny);
     f64 *Y = new f64[ny];
     f64 *X = new f64[nx];
 
-    for (int i = 0; i < nx; i++) { 
-        x[i] = drand48();
-        X[i] = x[i]; }
-
-    for (int i = 0; i < ny; i++) { 
-        y[i] = drand48();
-        Y[i] = y[i]; }
+    for (u32 i = 0; i < nx; i++) { x[i] = X[i] = drand48(); }
+    for (u32 i = 0; i < ny; i++) { y[i] = 0.0;	 }
+    for (u32 i = 0; i < ny; i++) { Y[i] = 0.0;	 }
 
     dswap_(&n, X, &incx, Y, &incy);		// Reference implementation of DCOPY
     CDC8600::BLAS::dswap(n, x, incx, y, incy);	// Implementation of DCOPY for the CDC8600
 
     bool pass = true;
-    for (int i = 0; i < ny; i++)
+    for (u32 i = 0; i < ny; i++)
     {
         if (Y[i] != y[i])
         {
@@ -50,39 +41,54 @@ void test_dswap(int count)
         }
     }
 
-    for (int i = 0; i < nx; i++)
-    {
-        if (X[i] != x[i])
-        {
-            pass = false;
-        }
-    }
-
     delete [] Y;
-
-    
-    
+    CDC8600::memfree(y, ny);
+    CDC8600::memfree(x, nx);
+    cout<< "------------------------------------------------------------------------------------------------------------------------------------\n";
     cout << "dswap [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
     cout << ", incy = " << setw(2) << incy;
-    cout << ", # of instr = " << setw(9) << PROC[0].instr_count;
+    cout << ", # of instr = "  << setw(9) << PROC[0].instr_count;
+    cout << ", # of ops = "    << setw(9) << PROC[0].op_count;
     cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
-
-    if (n < 10) dump(PROC[0].trace, "dswap.tr");
-
+    cout << ") : ";
     if (pass)
-        cout << " => PASS" << std::endl;
+        cout << "PASS" << std::endl;
     else
-        cout << " => FAIL" << std::endl;
+        cout << "FAIL" << std::endl;
 
+    if (traceon) dump(PROC[0].trace);
+    if (traceon) dump(PROC[0].trace, "dswap.tr");
 }
 
-int main()
+int main
+(
+    int		argc,
+    char	**argv
+)
 {
-    for (int i = 0; i < N; i++)
+    if (1 == argc)
     {
-        test_dswap(i);
+	for (u32 i = 0; i < N; i++)
+	{
+	    i32 n = rand() % 256;
+	    i32 incx = (rand() % 16) - 8;
+	    i32 incy = (rand() % 16) - 8;
+	    test_dswap(i, false, n, incx, incy);
+	}
+    }
+    else if (4 == argc)
+    {
+	i32 n = atoi(argv[1]);
+	i32 incx = atoi(argv[2]);
+	i32 incy = atoi(argv[3]);
+	test_dswap(0, true, n, incx, incy);
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [n incx incy]" << endl;
+	return -1;
     }
     return 0;
 }

@@ -16,14 +16,11 @@ void test_dtrmv_ltu(int count, bool traceon, i32 n, i32 lda, i32 incx)
 {
     reset();
 
+    tracing = traceon;
+
     char uplo = 'L';
     char trans = 'T';
     char diag = 'U';
-    u64 total_cycles = 0;
-    u64 max_cycles = 0;
-    u64 num_procs = 0;
-
-    // tracing = false; if (traceon) tracing = true;
 
     int32_t nx = 1 + n * abs(incx);
 
@@ -51,29 +48,18 @@ void test_dtrmv_ltu(int count, bool traceon, i32 n, i32 lda, i32 incx)
 
     if (traceon) {
         for (u32 i = 0; i < params::Proc::N; i++) {
-            dump(PROC[i].trace);
+            // dump(PROC[i].trace); // print to stdout
             dump(PROC[i].trace, ("dtrmv_ltu.tr." + std::to_string(i)).c_str());
         }
     }
 
     cout << "dtrmv_ltu [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
-    cout << ", lda = " << setw(3) << lda;
-    cout << ", incx = " << setw(2) << incx;
-    cout << ", # of instr = " << setw(9);
-    for (u32 p = 0; p < params::Proc::N; p++) {
-        cout << setw(9) << PROC[p].instr_count;
-    }
-    cout << ", # of cycles = ";
-    for (u32 p = 0; p < params::Proc::N; p++) {
-        cout << setw(9) << PROC[p].op_maxcycle;
-        if (PROC[p].op_maxcycle > 0) {
-            num_procs++;
-            max_cycles = max(max_cycles, PROC[p].op_maxcycle);
-            total_cycles += PROC[p].op_maxcycle;
-        }
-    }
-    cout << ", max cycles = " << setw(9) << max_cycles  << ", total cycles = " << setw(9) << total_cycles << ", avg cycles = " <<  setw(9) << total_cycles / (1.0 * num_procs);
+    // cout << ", lda = " << setw(3) << lda;
+    cout << ", incx = " << setw(3) << incx;
+    cout << ", # of instr  = ("; cout << setw(9) << PROC[0].instr_count; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].instr_count; cout << ")";
+    cout << ", # of ops    = ("; cout << setw(9) << PROC[0].op_count   ; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_count   ; cout << ")";
+    cout << ", # of cycles = ("; cout << setw(9) << PROC[0].op_maxcycle; for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_maxcycle; cout << ")";
     cout << ") : ";
     if (pass)
         cout << "PASS" << std::endl;
@@ -96,22 +82,17 @@ int main(int argc, char **argv)
             incx = (incx == 0) ? 1:incx;
             test_dtrmv_ltu(i, false, n, lda, incx);
         }
-    } else if (argc == 4) {
+    } else if (argc == 3) {
         i32 n = atoi(argv[1]);
-        i32 lda = atoi(argv[2]);
-        i32 incx = atoi(argv[3]);
-        if (incx < 1) {
-            cerr << "icx must be larger than 0" << endl;
+        i32 incx = atoi(argv[2]);
+        if (incx == 0) {
+            cerr << "incx cannot be 0" << endl;
             exit(1);
         }
-        if (lda < n || lda < 1) {
-            cerr << "lda must be equal to or larger than 1 or n" << endl;
-            exit(1);
-        }
-        test_dtrmv_ltu(0, true, n, lda, incx);
+        test_dtrmv_ltu(0, true, n, n + 1, incx); // lda is default to be n + 1
 
     } else {
-        cerr << "Usage : " << argv[0] << "[n lda incx]" << endl;
+        cerr << "Usage : " << argv[0] << " [n incx]" << endl;
 	    exit(1);
     }
     return 0;

@@ -12,7 +12,7 @@ extern "C" int32_t dscal_(int32_t *, double *, double *, int32_t *);
 
 const int N = 20;
 
-void test_dscal(int count, bool traceon, i32 n, f64 a, i32 incx)
+void test_dscal(int count, bool traceon, i32 n, i32 incx)
 {
     reset();
     
@@ -20,6 +20,7 @@ void test_dscal(int count, bool traceon, i32 n, f64 a, i32 incx)
 
     f64 *x = (f64*)CDC8600::memalloc(n*abs(incx)); //Fortran input variable
     f64 *xX = (f64*)CDC8600::memalloc(n*abs(incx));//Fortran input variable
+    f64 a = drand48();
 
     for (i64 i = 0; i < n*abs(incx); i+=abs(incx)) 
     { 
@@ -42,10 +43,12 @@ void test_dscal(int count, bool traceon, i32 n, f64 a, i32 incx)
     cout << "dscal [" << setw(2) << count << "] ";
     cout << "(n = " << setw(3) << n;
     cout << ", incx = " << setw(2) << incx;
-    cout << ", a = " << setw(11) << a;
-    cout << ", # of instr = " << setw(5) << PROC[0].instr_count;
-    cout << ", # of cycles = " << setw(6) << PROC[0].op_maxcycle;
+    cout << ", a = " << setw(13) << a;
+    cout << ", # of instr = "  << setw(9) << PROC[0].instr_count;
+    cout << ", # of ops = "    << setw(9) << PROC[0].op_count;
+    cout << ", # of cycles = " << setw(9) << PROC[0].op_maxcycle;
     cout << ") : ";
+
 
     // cout << "dscal [" << setw(2) << count << "] (n = " << setw(3) << n << ", incx = " << setw(2) << incx << ", a = " << setw(12) << a << ", # of instr = " << setw(5) << instructions::count << ") : ";
     if (pass)
@@ -53,7 +56,7 @@ void test_dscal(int count, bool traceon, i32 n, f64 a, i32 incx)
     else
         cout << "FAIL" << std::endl;
 
-    // if (traceon) dump(PROC[0].trace);
+    if (traceon) dump(PROC[0].trace);
     if (traceon) dump(PROC[0].trace, "dscal.tr");
 }
 
@@ -67,21 +70,19 @@ char	**argv
         for (int i = 0; i < N; i++)
         {
             i32 n = rand() % 256;
-            f64 a = drand48();
             i32 incx = (rand() % 16) - 8;
-            test_dscal(i, false, n, a, incx);
+            test_dscal(i, false, n, incx);
         }
     }
-    else if (4 == argc)
+    else if (3 == argc)
     {
         i32 n = atoi(argv[1]);
-        f64 a = atoi(argv[2]);
-        i32 incx = atoi(argv[3]);
-        test_dscal(0, true, n, a, incx);
+        i32 incx = atoi(argv[2]);
+        test_dscal(0, true, n, incx);
     }
     else
     {
-	cerr << "Usage : " << argv[0] << " [n a incx]" << endl;
+	cerr << "Usage : " << argv[0] << " [n incx]" << endl;
 	return -1;
     }
     return 0;
