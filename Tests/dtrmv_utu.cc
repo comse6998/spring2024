@@ -60,10 +60,10 @@ void test_dtrmv_utu(int count, bool traceon,i32 n, i32 lda, i32 incx)
 
     if (traceon) 
     {
-        dump(PROC[0].trace, "dtrmv_utu.tr0");
-        dump(PROC[1].trace, "dtrmv_utu.tr1");
-        dump(PROC[2].trace, "dtrmv_utu.tr2");
-        dump(PROC[3].trace, "dtrmv_utu.tr3");
+        dump(PROC[0].trace, "dtrmv_utu.tr.0");
+        dump(PROC[1].trace, "dtrmv_utu.tr.1");
+        dump(PROC[2].trace, "dtrmv_utu.tr.2");
+        dump(PROC[3].trace, "dtrmv_utu.tr.3");
     }
 }
 
