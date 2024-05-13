@@ -6,84 +6,93 @@
 #include <iomanip>
 #include <complex>
 
-
-// DTRMV_UTU (upper/transpose/unit)
-// A -> upper triangle of A
-// A -> diagonal = 1
-// x := A**T*x
-
-
 using namespace CDC8600;
 
 extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *);
 
 const int N = 20;
-const double error = 1e-9;
+const double EPSILON = 1e-9;
 
-void test_dtrmv_utu(int count)
+void test_dtrmv_utu(int count, bool traceon,i32 n, i32 lda, i32 incx)
 {
-    reset(); 
-
-    i32 incx = (rand() % 16) - 8; 
-    incx = (incx == 0) ? 1 : incx;
-    i32 n = rand() % 256;
-    i32 lda = n + rand() % 256;
-    char UPLO = 'U'; 
-    char TRANS = 'T'; 
-    char DIAG = 'U';
-    f64 *a = (f64*)CDC8600::memalloc(n*lda);
-    f64 *x = (f64*)CDC8600::memalloc(n*abs(incx));  
-    f64 *y = new f64[n*abs(incx)];                
-    
-    for (int i = 0; i < n*lda; i++) {
-        a[i] = drand48();
-         }
-    for (int i = 0; i < n*abs(incx); i++) {
-        x[i] = y[i] = drand48(); 
-         }
-    dtrmv_(&UPLO, &TRANS, &DIAG, &n, a, &lda, y, &incx);     // Reference implementation of dtrmv_utu
-    CDC8600::BLAS::dtrmv_utu(n, a, lda, x, incx);            // Implementation of dtrmv_utu for the CDC8600
-
+    reset();
+    char uplo = 'U', trans = 'T', diag = 'U';
 
     
+    
+    f64 *A = (f64*)CDC8600::memalloc(n*lda);
+    f64 *X = (f64*)CDC8600::memalloc(n*abs(incx));    // Input matrix
+    f64 *Y = new f64[n*abs(incx)];                    // Reference matrix
+
+    for (int i = 0; i < n*lda; i++) { A[i] = f64(drand48()); }
+    for (int i = 0; i < n*abs(incx); i++) { X[i] = Y[i] = f64(drand48()); }
+
+    dtrmv_(&uplo, &trans, &diag, &n, A, &lda, Y, &incx);     
+    CDC8600::BLAS::dtrmv_utu(n, A, lda, X, incx);            
+
     bool pass = true;
     for (int i = 0; i < n*abs(incx); i++)
     {
-        if (abs(x[i] - y[i]) > (min(abs(x[i]), abs(y[i])) + error) * error)
+        if (abs(X[i] - Y[i]) > (min(abs(X[i]), abs(Y[i])) + EPSILON) * EPSILON)
         {
             pass = false;
         }
     }
 
-    delete [] y;
+    delete [] Y;
 
     cout << "dtrmv_utu [" << setw(2) << count << "] ";
     cout << "(lda = " << setw(3) << lda;
     cout << ", n = " << setw(3) << n;
     cout << ", incx = " << setw(3) << incx;
-    cout << ", # of instr = ";
-    for (u32 i = 0; i < params::Proc::N; i++)cout << setw(9) << PROC[i].instr_count;
-    cout << ", # of cycles = ";
-    for (u32 i = 0; i < params::Proc::N; i++)cout << setw(9) << PROC[i].op_maxcycle;
-    
+    cout << ", # of instr   = (";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << "), # of ops    = (";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_count;
+    cout << "), # of cycles = (";
+    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
     cout << ") : ";
-
-    if(n < 13) dump(PROC[0].trace, "dtrmv_utu.tr.0");
-    if(n < 13) dump(PROC[1].trace, "dtrmv_utu.tr.1");
-    if(n < 13) dump(PROC[2].trace, "dtrmv_utu.tr.2");
-    if(n < 13) dump(PROC[3].trace, "dtrmv_utu.tr.3");
-
+    
     if (pass)
         cout << "PASS" << std::endl;
     else
         cout << "FAIL" << std::endl;
+
+    if (traceon) 
+    {
+        dump(PROC[0].trace, "dtrmv_utu.tr.0");
+        dump(PROC[1].trace, "dtrmv_utu.tr.1");
+        dump(PROC[2].trace, "dtrmv_utu.tr.2");
+        dump(PROC[3].trace, "dtrmv_utu.tr.3");
+    }
 }
 
-int main()
+int main(
+int		argc,
+char	**argv)
 {
-    for (int i = 0; i < N; i++)
+    if (argc == 1)
     {
-        test_dtrmv_utu(i);
+        for (int i = 0; i < N; i++)
+        {
+            i32 n = rand() % 256;
+            i32 lda = n + rand() % 256;
+            i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
+            test_dtrmv_utu(i, false, n, lda, incx);
+        }
+    }
+    else if(argc == 3)
+    {
+    	i32 n = atoi(argv[1]);
+        i32 lda = atoi(argv[1]);
+    	i32 incx = atoi(argv[2]);
+        test_dtrmv_utu(0, true, n, lda, incx);
+
+    }
+    else
+    {
+	cerr << "Usage : " << argv[0] << " [n incx]" << endl;
+	return -1;        
     }
     return 0;
 }

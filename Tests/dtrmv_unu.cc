@@ -7,11 +7,6 @@
 
 using namespace CDC8600;
 
-//IMPORTANT: FUNC is for demo only, comment these lines if not needed
-#ifndef FUNC
-#define FUNC
-#endif
-
 extern "C" i32 dtrmv_(char *, char *, char *, i32 *, f64 *, i32 *, f64 *, i32 *);
 
 const int N = 20;
@@ -23,15 +18,11 @@ char DIAG = 'U';
 
 FILE *fp;
 
-void test_dtrmv_unu(int count)
+void test_dtrmv_unu(int count, bool traceon, i32 n, i32 incx)
 {
     reset();
     tracing = false;
-
-    i32 n = rand() % 64;
     i32 lda = n + rand() % 64;
-    i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
-
     f64 *A = (f64*)CDC8600::memalloc(n*lda);
     f64 *tmp1 = (f64*)CDC8600::memalloc(2*n*abs(incx));
     f64 *X = tmp1 + n*abs(incx);
@@ -58,50 +49,51 @@ void test_dtrmv_unu(int count)
     delete [] tmp;
     tmp = NULL;
 
-#ifdef DUMP_TR
-    if (count==2)
-    {
-        dump(PROC[0].trace, "dtrmv_unu.tr.0");
-        dump(PROC[1].trace, "dtrmv_unu.tr.1");
-        dump(PROC[2].trace, "dtrmv_unu.tr.2");
-        dump(PROC[3].trace, "dtrmv_unu.tr.3");
-    }
-#endif
+if(traceon){
+    dump(PROC[0].trace, "dtrmv_unu.tr.0");
+    dump(PROC[1].trace, "dtrmv_unu.tr.1");
+    dump(PROC[2].trace, "dtrmv_unu.tr.2");
+    dump(PROC[3].trace, "dtrmv_unu.tr.3");
+    cout << "processor_0:"<<endl;
+    dump(PROC[0].trace);
+    cout << "processor_1:"<<endl;
+    dump(PROC[1].trace);
+    cout << "processor_2:"<<endl;
+    dump(PROC[2].trace);
+    cout << "processor_3:"<<endl;
+    dump(PROC[3].trace);
+}
 
 
-#ifdef FUNC
-    cout << "[" << setw(2) << count << "] ";
-    cout << "(lda = " << setw(3) << lda;
-    cout << ", n = " << setw(2) << n;
+    cout << "dtrmv_unu[" << setw(2) << count << "] ";
+    cout << "(n = " << setw(2) << n;
+    cout << ", lda = " << setw(3) << lda;
     cout << ", incx = " << setw(2) << incx;
-    cout << ", # of instr = ";
-    //for (u32 p = 0; p < params::Proc::N; p++) cout << setw(6) << PROC[p].instr_count;
-    //cout << ", # of cycles = ";
-    for (u32 p = 0; p < params::Proc::N; p++) cout << setw(5) << PROC[p].op_maxcycle;
-#ifndef PCNT
-#define PCNT 1
-#endif
-    if(PCNT == 1)
-    {
-        fprintf(fp, "%lu\n",PROC[0].op_maxcycle);
-    }
-    else
-    {
-        u64 max_single;
-        fscanf(fp,"%lu",&max_single);
-        f64 sp = (f64)max_single/(f64)PROC[0].op_maxcycle;  
-        cout << ", Sp = " << setw(5) << sp;
-        f64 ep = sp / PCNT*100;
-        cout << ", Ep = " << setw(5) << ep << setw(2) << "%";
-    }
+    cout << ", # of instr  = "; for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].instr_count;
+    cout << ", # of ops    = "; for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_count;
+    cout << ", # of cycles = "; for (u32 p = 0; p < params::Proc::N; p++) cout << setw(9) << PROC[p].op_maxcycle;
+// #ifndef PCNT
+// #define PCNT 1
+// #endif
+//     if(PCNT == 1)
+//     {
+//         fprintf(fp, "%lu\n",PROC[0].op_maxcycle);
+//     }
+//     else
+//     {
+//         u64 max_single;
+//         fscanf(fp,"%lu",&max_single);
+//         f64 sp = (f64)max_single/(f64)PROC[0].op_maxcycle;  
+//         cout << ", Sp = " << setw(5) << sp;
+//         f64 ep = sp / PCNT*100;
+//         cout << ", Ep = " << setw(5) << ep << setw(2) << "%";
+//     }
     cout << ") : ";
     if (pass)
         cout << "PASS" << endl;
     else
         cout << "FAIL" << endl;
     
-
-#endif
 
     //if (n < 10) dump(PROC[0].trace);
 
@@ -115,16 +107,25 @@ void test_dtrmv_unu(int count)
 #endif
 }
 
-int main()
+int main(int argc, char **argv)
 {
-#ifdef FUNC
-    fp=fopen("single_proc.txt","a+");
-    for (int i = 0; i < N; i++)
-    {
-        test_dtrmv_unu(i);
+    if(1 == argc){
+        for (int i = 0; i < N; i++)
+        {
+            i32 n = rand() % 64;
+            i32 incx = (rand() % 16) - 8; if (incx == 0) incx = 1;
+            test_dtrmv_unu(i, false, n, incx);
+        }
     }
-    fclose(fp);
-#endif
+    else if (3 == argc){
+        i32 n = atoi(argv[1]);
+        i32 incx = atoi(argv[2]);
+        test_dtrmv_unu(0, true, n, incx);
+    }
+    else{
+        cerr << "Usage : " << argv[0] << " [n incx]" << endl;
+        return -1;
+    }
 
 #ifdef CACHE
     test_dtrmv_unu(0);

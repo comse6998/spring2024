@@ -23,7 +23,7 @@ namespace CDC8600
         
         
         f64 *copyx = (f64*)CDC8600::memalloc(n);
-        u64 ix;	
+        
         #pragma omp parallel
         {
             for (u32 i = me(); i < n ; i += nump()){
