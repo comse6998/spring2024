@@ -60,11 +60,16 @@
     cout << ", alpha = " << setw(3) << alpha;
     cout << ", beta = " << setw(3) << beta;
     cout << ", # of instr  = ("; cout << setw(9) << PROC[0].instr_count; 
-    for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].instr_count; cout << ")";
-    cout << ", # of ops    = ("; cout << setw(9) << PROC[0].op_count   ; 
-    for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_count   ; cout << ")";
-    cout << ", # of cycles = ("; cout << setw(9) << PROC[0].op_maxcycle; 
-    for (u32 i = 1; i < params::Proc::N; i++) cout << ", " << setw(9) << PROC[i].op_maxcycle; cout << ")";
+    for (u32 i = 1; i < params::Proc::N; i++) {cout << ", " << setw(9) << PROC[i].instr_count;}
+    cout << ")";
+    cout << ", # of ops    = ("; 
+    cout << setw(9) << PROC[0].op_count   ; 
+    for (u32 i = 1; i < params::Proc::N; i++) {cout << ", " << setw(9) << PROC[i].op_count   ; }
+    cout << ")";
+    cout << ", # of cycles = ("; 
+    cout << setw(9) << PROC[0].op_maxcycle; 
+    for (u32 i = 1; i < params::Proc::N; i++) {cout << ", " << setw(9) << PROC[i].op_maxcycle; }
+    cout << ")";
     cout << ") : ";
     if (pass){
         cout << "PASS" << std::endl;
